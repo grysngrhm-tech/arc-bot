@@ -1,0 +1,40 @@
+# ===== SENSITIVE FILES =====
+# Environment and configuration
+.env
+.env.local
+.env.production
+*.env
+
+# Source documents (proprietary HOA documents)
+Source Documents/
+
+# ===== DEVELOPMENT =====
+# Dependencies
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build output
+dist/
+build/
+
+# Temporary files
+*.tmp
+*.temp
+
+# ===== CURSOR/EDITOR =====
+.cursor/
+*.plan.md
+

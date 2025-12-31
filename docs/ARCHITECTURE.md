@@ -1,4 +1,4 @@
-# ARC Bot — System Architecture
+# ARC Bot (Architectural Review Console) — System Architecture
 
 **Version:** 1.0  
 **Last Updated:** December 31, 2025  
@@ -10,7 +10,7 @@
 
 ### 1.1 Purpose
 
-ARC Bot is a Retrieval-Augmented Generation (RAG) chatbot that assists the **Architectural Review Committee (ARC)** for the **Discovery West** community. It provides evidence-backed guidance on architectural standards, CC&Rs, and community guidelines.
+ARC Bot (Architectural Review Console) is an evidence-based reference system that helps users understand and navigate Discovery West's architectural standards by surfacing relevant governing documents with citations. It is built on a Retrieval-Augmented Generation (RAG) architecture.
 
 ### 1.2 Core Objectives
 
@@ -61,7 +61,7 @@ ARC Bot is a Retrieval-Augmented Generation (RAG) chatbot that assists the **Arc
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                         n8n ORCHESTRATION LAYER                              │
-│                   (Self-hosted: n8n.srv1208741.hstgr.cloud)                  │
+│                          (Self-hosted n8n instance)                          │
 │                                                                              │
 │   ┌───────────┐    ┌───────────────┐    ┌──────────────────────────────┐   │
 │   │  Webhook  │───▶│   AI Agent    │───▶│  Answer Synthesis & Format   │   │
@@ -172,8 +172,8 @@ ARC Bot is a Retrieval-Augmented Generation (RAG) chatbot that assists the **Arc
 
 ### 3.2 n8n Orchestration Layer
 
-**Technology:** n8n (self-hosted on Hostinger VPS)  
-**URL:** https://n8n.srv1208741.hstgr.cloud
+**Technology:** n8n (self-hosted)  
+**URL:** Configured via environment variables
 
 #### 3.2.1 Main Agent Workflow
 
@@ -374,19 +374,20 @@ ARC Bot is a Retrieval-Augmented Generation (RAG) chatbot that assists the **Arc
 
 ### 10.1 Deployed Workflows
 
-| Workflow | ID | Status | URL |
-|----------|----|----|-----|
-| Document Ingestion | `wonZrB2BxGufGsE9` | Active | Manual trigger |
-| Hybrid Retrieval Tool | `0MtB1JawL7bIXug9` | Active | `/webhook/arc-retrieval` |
-| Main AI Agent | TBD | Not Started | TBD |
+| Workflow | Purpose | Trigger |
+|----------|---------|---------|
+| Document Ingestion | Process PDFs into knowledge base | Manual |
+| Hybrid Retrieval Tool | Search knowledge base (sub-workflow) | Called by agent |
+| Reranker Tool | Score and filter candidates | Called by agent |
+| Main AI Agent | Answer user questions | Webhook POST |
 
 ### 10.2 Supabase Configuration
 
 | Setting | Value |
 |---------|-------|
-| Project ID | `wdouifomlipmlsksczsv` |
-| Vector Dimensions | 1536 (reduced from 3072 due to HNSW limit) |
+| Vector Dimensions | 1536 (HNSW index limit) |
 | Storage Bucket | `arc-documents` |
+| Full-Text Search | PostgreSQL tsvector with GIN index |
 
 For full implementation details, see [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
 

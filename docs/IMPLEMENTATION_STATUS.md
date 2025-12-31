@@ -1,4 +1,4 @@
-# ARC Bot — Implementation Status
+# ARC Bot (Architectural Review Console) — Implementation Status
 
 **Version:** 1.1  
 **Last Updated:** December 31, 2025  
@@ -14,8 +14,9 @@
 | Storage Bucket | ✅ Complete | `arc-documents` bucket created |
 | Document Ingestion Workflow | ✅ Complete | 124 chunks ingested |
 | Hybrid Retrieval Tool | ✅ Complete | Tested and working |
-| Main AI Agent Workflow | 🔲 Not Started | Next phase |
-| Chat Frontend | 🔲 Not Started | Future phase |
+| Reranker Tool | ✅ Complete | GPT-4o scoring |
+| Main AI Agent Workflow | ✅ Complete | GPT-4o with session memory |
+| Chat Frontend | ✅ Complete | GitHub Pages deployment |
 
 ---
 
@@ -25,18 +26,17 @@
 
 | Property | Value |
 |----------|-------|
-| Project Reference | `wdouifomlipmlsksczsv` |
-| Dashboard | https://supabase.com/dashboard/project/wdouifomlipmlsksczsv |
-| API URL | https://wdouifomlipmlsksczsv.supabase.co |
-| Region | (Default) |
+| Database | PostgreSQL with pgvector extension |
+| Storage | Supabase Storage for PDF files |
+| Configuration | See `env.example` for required variables |
 
 ### 2.2 n8n Instance
 
 | Property | Value |
 |----------|-------|
-| URL | https://n8n.srv1208741.hstgr.cloud |
-| Version | 2.0.3 (Self-Hosted) |
-| Host | Hostinger VPS |
+| Type | Self-Hosted |
+| Version | 2.0.3+ |
+| Configuration | See `env.example` for required variables |
 
 ### 2.3 API Keys Configured
 
@@ -92,7 +92,6 @@
 
 | Property | Value |
 |----------|-------|
-| **Workflow ID** | `wonZrB2BxGufGsE9` |
 | **Name** | ARC Bot - Document Ingestion |
 | **Trigger** | Manual |
 | **Status** | ✅ Complete |
@@ -163,10 +162,8 @@ Batch Chunks (Split In Batches)
 
 | Property | Value |
 |----------|-------|
-| **Workflow ID** | `0MtB1JawL7bIXug9` |
 | **Name** | ARC Bot - Hybrid Retrieval Tool |
 | **Webhook Path** | `/arc-retrieval` |
-| **Production URL** | https://n8n.srv1208741.hstgr.cloud/webhook/arc-retrieval |
 | **Status** | ✅ Active |
 
 **Node Flow:**
@@ -314,36 +311,31 @@ Check for Error (IF)
 
 ## 8. Next Steps
 
-### 8.1 Immediate (Phase 2)
+### 8.1 Completed (Phase 1-3)
 
-1. **Build Main AI Agent Workflow**
-   - Webhook trigger for chat messages
-   - AI Agent (Tools Agent) node with GPT-4o
-   - Connect Hybrid Retrieval Tool as sub-workflow tool
-   - Answer formatting per ANSWER_CONTRACT.md
-   - Citation generation
+1. ✅ **Database Schema** — Supabase with pgvector
+2. ✅ **Document Ingestion** — Structure-aware chunking with TOC detection
+3. ✅ **Hybrid Retrieval Tool** — Vector + FTS search
+4. ✅ **Reranker Tool** — GPT-4o relevance scoring
+5. ✅ **Main AI Agent** — Tools Agent with session memory
+6. ✅ **Chat Frontend** — GitHub Pages with theme toggle
 
-2. **Ingest Remaining Documents**
-   - CC&Rs document
+### 8.2 Immediate Next Steps
+
+1. **Ingest Remaining Documents**
+   - CC&Rs Declaration
    - Rules & Regulations
 
-### 8.2 Near-Term (Phase 3)
-
-3. **Build Chat Frontend**
-   - GitHub Pages static site
-   - Clean chat interface
-   - Citation display panel
-   - Source document links
-
-4. **Add Reranking** (Optional)
-   - LLM-based reranking tool
-   - Improve result quality for complex queries
+2. **Dynamic Follow-up Questions**
+   - Add AI-generated contextual suggestions
+   - Requires small backend modification
 
 ### 8.3 Future Enhancements
 
-5. **Response Letters Ingestion** - Precedent tracking
-6. **Query Caching** - Reduce API costs
-7. **Analytics Dashboard** - Query patterns, coverage gaps
+3. **Response Letters Ingestion** — Precedent tracking
+4. **Query Caching** — Reduce API costs
+5. **Analytics Dashboard** — Query patterns, coverage gaps
+6. **Expandable Source Citations** — Click to view full chunk content
 
 ---
 

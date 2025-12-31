@@ -1,4 +1,4 @@
-# ARC Bot — Answer Contract
+# ARC Bot (Architectural Review Console) — Answer Contract
 
 **Version:** 1.0  
 **Last Updated:** December 31, 2025  

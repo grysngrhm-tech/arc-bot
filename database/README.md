@@ -1,14 +1,8 @@
-# ARC Bot Database Setup
+# ARC Bot (Architectural Review Console) — Database Setup
 
 ## Status: ✅ COMPLETE
 
 All database components have been deployed and verified.
-
-## Supabase Project Details
-
-- **Project Reference:** `wdouifomlipmlsksczsv`
-- **Dashboard:** https://supabase.com/dashboard/project/wdouifomlipmlsksczsv
-- **API URL:** https://wdouifomlipmlsksczsv.supabase.co
 
 ## Current Data
 
@@ -27,14 +21,19 @@ Chunks include accurate section metadata:
 - **section_hierarchy**: Full parent→child paths
 - **char_start/char_end**: Character positions for citations
 
-## Setup Instructions (Already Completed)
+## Setup Instructions
+
+### Prerequisites
+
+- Supabase project with pgvector extension enabled
+- Service role key for backend access
 
 ### Step 1: Run Main Schema
 
-1. Go to [SQL Editor](https://supabase.com/dashboard/project/wdouifomlipmlsksczsv/sql/new)
+1. Go to your Supabase project SQL Editor
 2. Copy the contents of `001_initial_schema.sql`
 3. Paste into the SQL Editor
-4. Click **Run** (or press Ctrl+Enter)
+4. Click **Run**
 
 This creates:
 - `documents` table (source document registry)
@@ -48,12 +47,12 @@ This creates:
 
 ### Step 2: Create Storage Bucket
 
-1. Go to [SQL Editor](https://supabase.com/dashboard/project/wdouifomlipmlsksczsv/sql/new)
+1. Go to your Supabase project SQL Editor
 2. Copy the contents of `002_storage_bucket.sql`
 3. Paste and run
 
 Or manually:
-1. Go to [Storage](https://supabase.com/dashboard/project/wdouifomlipmlsksczsv/storage/buckets)
+1. Go to Storage in your Supabase dashboard
 2. Click **New bucket**
 3. Name: `arc-documents`
 4. Public: **OFF** (private)
@@ -93,6 +92,8 @@ Store these securely in n8n credentials:
 | **Service Role Key** | Backend (n8n) - full access |
 | **Anon Key** | Frontend (if needed) - read only |
 
+See `env.example` in the project root for environment variable format.
+
 ## Schema Reference
 
 See `docs/DATA_MODEL.md` for complete schema documentation.
@@ -110,4 +111,3 @@ Make sure you're using the service role key, not the anon key, for write operati
 
 ### Index creation timeout
 On large datasets, HNSW index creation can take time. For initial setup with no data, it should be instant.
-

@@ -1,4 +1,4 @@
-# ARC Bot — Chunking Strategy
+# ARC Bot (Architectural Review Console) — Chunking Strategy
 
 **Version:** 1.2  
 **Last Updated:** December 31, 2025  

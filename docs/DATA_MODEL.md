@@ -1,4 +1,4 @@
-# ARC Bot — Data Model Specification
+# ARC Bot (Architectural Review Console) — Data Model Specification
 
 **Version:** 1.0  
 **Last Updated:** December 31, 2025  

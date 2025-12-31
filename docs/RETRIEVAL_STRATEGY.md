@@ -1,4 +1,4 @@
-# ARC Bot — Retrieval Strategy
+# ARC Bot (Architectural Review Console) — Retrieval Strategy
 
 **Version:** 1.0  
 **Last Updated:** December 31, 2025  
@@ -585,9 +585,9 @@ Before deployment, validate:
 
 ### 13.1 Deployed Workflow
 
-The Hybrid Retrieval Tool is implemented as n8n workflow `0MtB1JawL7bIXug9`:
+The Hybrid Retrieval Tool is implemented as an n8n sub-workflow:
 
-- **Production URL:** `https://n8n.srv1208741.hstgr.cloud/webhook/arc-retrieval`
+- **Webhook Path:** `/webhook/arc-retrieval`
 - **Status:** ✅ Active and tested
 
 ### 13.2 Actual Test Results

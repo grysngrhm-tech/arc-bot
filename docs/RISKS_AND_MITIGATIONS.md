@@ -1,4 +1,4 @@
-# ARC Bot — Risks and Mitigations
+# ARC Bot (Architectural Review Console) — Risks and Mitigations
 
 **Version:** 1.2  
 **Last Updated:** December 31, 2025  

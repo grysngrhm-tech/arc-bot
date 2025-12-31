@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARC Bot - Discovery West</title>
+  <title>ARC Bot - Architectural Review Console | Discovery West</title>
   <style>
     /* ===== CSS RESET & BASE ===== */
     *, *::before, *::after {
@@ -572,6 +572,25 @@
       background: var(--text-muted);
     }
 
+    /* ===== DISCLAIMER ===== */
+    .disclaimer {
+      text-align: center;
+      padding: 0.5rem 1rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: var(--bg-primary);
+      border-top: 1px solid var(--border);
+    }
+
+    .disclaimer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .disclaimer a:hover {
+      text-decoration: underline;
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 640px) {
       .header {
@@ -617,7 +636,7 @@
         </div>
         <div>
           <h1>ARC Bot</h1>
-          <span class="header-subtitle">Discovery West Guidelines Assistant</span>
+          <span class="header-subtitle">Architectural Review Console</span>
         </div>
       </div>
       <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
@@ -647,9 +666,15 @@
           </svg>
         </div>
         <h2>Welcome to ARC Bot</h2>
-        <p>Ask me anything about Discovery West architectural guidelines, CC&Rs, or the approval process.</p>
+        <p>Your evidence-based guide to Discovery West architectural standards. Ask about guidelines, CC&Rs, or the approval process.</p>
       </div>
     </main>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      ARC Bot provides information only — it does not issue approvals or legal advice. 
+      For official decisions, contact the <a href="mailto:arc@discoverywest.com">ARC directly</a>.
+    </div>
 
     <!-- Input Area -->
     <footer class="input-area">
@@ -716,7 +741,7 @@
             </svg>
           </div>
           <h2>Welcome to ARC Bot</h2>
-          <p>Ask me anything about Discovery West architectural guidelines, CC&Rs, or the approval process.</p>
+          <p>Your evidence-based guide to Discovery West architectural standards. Ask about guidelines, CC&Rs, or the approval process.</p>
         </div>
       `;
       
