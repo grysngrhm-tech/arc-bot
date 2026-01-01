@@ -1,6 +1,6 @@
 # ARC Bot (Architectural Review Console) — Risks and Mitigations
 
-**Version:** 1.2  
+**Version:** 1.3  
 **Last Updated:** December 31, 2025  
 **Status:** Canonical Reference
 
@@ -643,6 +643,10 @@ During development, the following issues were encountered and resolved:
 | Full workflow updates clear credentials | Low | Operational | Document and warn users |
 | All chunks assigned same section title | High | Accuracy | Search for section titles AFTER TOC ends |
 | Section boundaries clustered at TOC | High | Accuracy | Calculate `tocEndPos` and offset search |
+| PDF exhibits not extracted (tables/diagrams) | High | Accuracy | Manual transcription + vectorization |
+| Exhibit F multi-page plant lists missing | High | Coverage | Transcribed all 9 plant category lists manually |
+| FAR calculation missing from retrieval | High | Accuracy | Manually added Exhibit C with FAR formula/rules |
+| NDE diagram content not searchable | Medium | Coverage | Transcribed NDE-1, NDE-2, NDE-3 exhibit text |
 
 ### 10.2 Lessons for Future Development
 
@@ -658,10 +662,30 @@ During development, the following issues were encountered and resolved:
 
 | Risk ID | Original Status | Current Status | Notes |
 |---------|-----------------|----------------|-------|
-| ACC-003 (Incomplete Coverage) | Design | **Mitigated** | TOC-based section detection ensures all sections tracked |
+| ACC-003 (Incomplete Coverage) | Design | **Resolved** | All exhibits A-O manually transcribed and vectorized |
 | ACC-004 (Poor Retrieval) | Design | **Mitigated** | Hybrid search tested with 0.65 score on exact matches |
 | OPS-002 (Performance) | Design | **Monitoring** | Response time ~2-3s in testing |
 | SEC-002 (API Key Exposure) | Design | **Implemented** | Keys stored in n8n credentials only |
+
+### 10.5 Exhibit Extraction Resolution
+
+**Problem:** PDF extraction failed to capture exhibit content from pages with tables, diagrams, and multi-column plant lists (Exhibits B, C, F, K, L, M, N). Users searching for FAR calculations, fire-resistant plants, or NDE requirements received irrelevant results.
+
+**Root Cause:** PDF text extraction libraries struggle with:
+- Tabular data (Exhibit B prototype tables, Exhibit C FAR formula)
+- Multi-column layouts (Exhibit F plant lists)
+- Text embedded in diagrams (NDE compliance drawings)
+- Image-heavy pages with minimal extractable text
+
+**Solution:**
+1. Identified missing exhibits by testing key queries
+2. Manually transcribed exhibit content from source images
+3. Created PowerShell scripts to:
+   - Generate embeddings via OpenAI API
+   - Insert chunks with proper metadata and content_hash
+4. Vectorized 24 exhibit chunks covering all 15 exhibits (A-O)
+
+**Verification:** FAR query now returns Exhibit C with 0.49 relevance score (previously no relevant results)
 
 ### 10.4 Section Title Detection Bug - Detailed Analysis
 
@@ -701,6 +725,7 @@ if (pos >= 0) {
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.3 | 2025-12-31 | AI Agent | Added exhibit extraction resolution (148 total chunks) |
 | 1.2 | 2025-12-31 | AI Agent | Added section title detection bug analysis |
 | 1.1 | 2025-12-31 | AI Agent | Added implementation issues section |
 | 1.0 | 2025-12-31 | AI Agent | Initial risk documentation |

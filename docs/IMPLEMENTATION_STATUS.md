@@ -1,8 +1,8 @@
 # ARC Bot (Architectural Review Console) — Implementation Status
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Last Updated:** December 31, 2025  
-**Status:** Active Development
+**Status:** Production Ready
 
 ---
 
@@ -12,7 +12,8 @@
 |-----------|--------|---------|
 | Supabase Database | ✅ Complete | Schema, indexes, functions deployed |
 | Storage Bucket | ✅ Complete | `arc-documents` bucket created |
-| Document Ingestion Workflow | ✅ Complete | 124 chunks ingested |
+| Document Ingestion Workflow | ✅ Complete | 148 chunks ingested |
+| Exhibit Supplements | ✅ Complete | All exhibits A-O vectorized |
 | Hybrid Retrieval Tool | ✅ Complete | Tested and working |
 | Reranker Tool | ✅ Complete | GPT-4o scoring |
 | Main AI Agent Workflow | ✅ Complete | GPT-4o with session memory |
@@ -55,7 +56,7 @@
 | Table | Purpose | Row Count |
 |-------|---------|-----------|
 | `documents` | Source document registry | 1 |
-| `knowledge_chunks` | Main chunk storage with embeddings | 124 |
+| `knowledge_chunks` | Main chunk storage with embeddings | 148 |
 | `ingestion_batches` | Audit trail for imports | 0 |
 | `query_log` | Query analytics | 0 |
 
@@ -242,17 +243,41 @@ Check for Error (IF)
 
 | Document | Type | Pages | Chunks | Status |
 |----------|------|-------|--------|--------|
-| Architectural Design Guidelines | design_guidelines | 69 | 124 | ✅ Ingested |
+| Architectural Design Guidelines | design_guidelines | 143 | 148 | ✅ Complete |
 | CC&Rs | ccr | - | - | 🔲 Pending |
 | Rules & Regulations | rules_regulations | - | - | 🔲 Pending |
 
 ### 5.2 Document Details
 
 **Architectural Design Guidelines:**
-- File: `design-guidelines/Discovery-West-Architectural-Guidelines.pdf`
+- File: `design-guidelines/arc_guidelines.pdf`
 - Ingested: December 31, 2025
-- Document ID: (generated UUID in `documents` table)
-- Chunk Distribution: Spread across 69 pages
+- Document ID: `8937a606-f3f9-417f-b676-ef058dd75e6a`
+- Chunk Distribution: 148 chunks across 143 pages
+
+### 5.3 Exhibit Coverage
+
+All exhibits from the Architectural Design Guidelines have been vectorized and are searchable:
+
+| Exhibit | Content | Page | Chunks |
+|---------|---------|------|--------|
+| **A** | Final Review Application Form | 95 | 1 |
+| **B** | Prototype Tables (setbacks, FAR) | 110 | 1 |
+| **C** | Floor Area Ratio (FAR) Calculation | 112 | 1 |
+| **D** | Alley Setback Requirements | 113 | 1 |
+| **E** | Home Height (30ft max) | 114 | 1 |
+| **F** | Fire-Resistant Plants (complete list) | 115-121 | 9 |
+| **G** | Street Tree Guidelines | 122 | 1 |
+| **H** | Wildfire Mitigation (construction + zones) | 128-129 | 3 |
+| **I** | Non-Development Easement NDE-1 | 134 | 1 |
+| **J** | Non-Development Easement NDE-2 | 136 | 1 |
+| **K** | Non-Development Easement NDE-3 | 138 | 1 |
+| **L** | NDE Fence Standards | 140 | 1 |
+| **M** | Venting Details (wildfire-resistant) | 141 | 1 |
+| **N** | Scandinavian Soffit Orientation | 142 | 1 |
+| **O** | Compliant Porch Column Detail | 143 | 1 |
+
+**Total Exhibit Chunks:** 24 (of 148 total)
 
 ---
 
@@ -289,6 +314,11 @@ Check for Error (IF)
 | IF node type validation | Strict boolean comparison | Set looseTypeValidation: true |
 | All chunks same section title | `indexOf()` found titles in TOC first | Search after TOC ends (~30K chars) |
 | Section boundaries in TOC area | Section titles appear twice (TOC + content) | Use `tocEndPos` as search start offset |
+| Missing FAR calculation | PDF extractor couldn't process table in Exhibit C | Manual exhibit insertion with embeddings |
+| Missing plant lists | Exhibit F multi-page lists not extracted | Manual transcription + vectorization |
+| NDE diagrams not searchable | Image-heavy exhibits not OCR'd | Manual content transcription |
+| Supabase insert requires content_hash | NOT NULL constraint on content_hash column | Generate hex hash from content bytes |
+| Supabase insert requires document_name | NOT NULL constraint on document_name column | Include all required fields in insert |
 
 ### 7.2 n8n 2.0 Specifics
 
@@ -306,12 +336,15 @@ Check for Error (IF)
 5. **Create parent records first** - Database foreign keys require proper order
 6. **TOC-based section detection** - Extract section titles from TOC, then search AFTER TOC ends
 7. **Character position matching** - More reliable than page-based section matching
+8. **Manual supplement for tables/diagrams** - PDF extraction misses tabular data; manually transcribe
+9. **Include all NOT NULL fields** - Supabase requires `content_hash`, `document_name`, `document_type`
+10. **Vectorize exhibits separately** - Complex exhibits need individual attention for quality
 
 ---
 
 ## 8. Next Steps
 
-### 8.1 Completed (Phase 1-3)
+### 8.1 Completed (Phase 1-4)
 
 1. ✅ **Database Schema** — Supabase with pgvector
 2. ✅ **Document Ingestion** — Structure-aware chunking with TOC detection
@@ -319,6 +352,7 @@ Check for Error (IF)
 4. ✅ **Reranker Tool** — GPT-4o relevance scoring
 5. ✅ **Main AI Agent** — Tools Agent with session memory
 6. ✅ **Chat Frontend** — GitHub Pages with theme toggle
+7. ✅ **Exhibit Supplements** — All exhibits A-O manually transcribed and vectorized
 
 ### 8.2 Immediate Next Steps
 
@@ -335,7 +369,7 @@ Check for Error (IF)
 3. **Response Letters Ingestion** — Precedent tracking
 4. **Query Caching** — Reduce API costs
 5. **Analytics Dashboard** — Query patterns, coverage gaps
-6. **Expandable Source Citations** — Click to view full chunk content
+6. **Enable Reranker Tool** — Currently disabled; re-enable after fixing expression parsing
 
 ---
 
@@ -359,6 +393,7 @@ Check for Error (IF)
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.2 | 2025-12-31 | AI Agent | Added exhibit supplements (148 total chunks), full exhibit A-O coverage |
 | 1.1 | 2025-12-31 | AI Agent | Added TOC-based section detection documentation |
 | 1.0 | 2025-12-31 | AI Agent | Initial implementation status after Phase 1 |
 

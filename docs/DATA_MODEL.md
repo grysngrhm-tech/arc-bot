@@ -1,6 +1,6 @@
 # ARC Bot (Architectural Review Console) — Data Model Specification
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Last Updated:** December 31, 2025  
 **Status:** Canonical Reference
 
@@ -508,6 +508,29 @@ USING hnsw (embedding vector_cosine_ops);
 3. Run ingestion workflow
 4. Verify retrieval quality with test queries
 
+### 9.4 Manual Chunk Insertion
+
+When manually adding chunks (e.g., for exhibits that don't extract properly), these fields are **required**:
+
+| Field | Type | How to Generate |
+|-------|------|-----------------|
+| `document_id` | UUID | Query from `documents` table |
+| `document_name` | TEXT | Match existing document |
+| `document_type` | TEXT | Match existing document type |
+| `content` | TEXT | The actual text content |
+| `content_hash` | TEXT | Hex-encoded first 64 bytes of content |
+| `embedding` | VECTOR(1536) | Generate via OpenAI API |
+| `chunk_index` | INTEGER | Next available index for document |
+
+**Example content_hash generation (PowerShell):**
+```powershell
+$bytes = [System.Text.Encoding]::UTF8.GetBytes($content)
+$hashBytes = $bytes[0..([Math]::Min(63, $bytes.Length-1))]
+$contentHash = [BitConverter]::ToString($hashBytes).Replace("-","").ToLower()
+```
+
+The `fts_vector` field is auto-generated from `content` via the GENERATED ALWAYS AS clause.
+
 ---
 
 ## 10. Sample Queries
@@ -585,5 +608,6 @@ ORDER BY document_type, document_name;
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.1 | 2025-12-31 | AI Agent | Added manual chunk insertion guidance |
 | 1.0 | 2025-12-31 | AI Agent | Initial schema specification |
 
