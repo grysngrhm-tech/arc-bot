@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — Risks and Mitigations
 
-**Version:** 1.3  
-**Last Updated:** December 31, 2025  
+**Version:** 1.4  
+**Last Updated:** January 2, 2026  
 **Status:** Canonical Reference
 
 ---
@@ -647,6 +647,9 @@ During development, the following issues were encountered and resolved:
 | Exhibit F multi-page plant lists missing | High | Coverage | Transcribed all 9 plant category lists manually |
 | FAR calculation missing from retrieval | High | Accuracy | Manually added Exhibit C with FAR formula/rules |
 | NDE diagram content not searchable | Medium | Coverage | Transcribed NDE-1, NDE-2, NDE-3 exhibit text |
+| Embedding model mismatch | Critical | Accuracy | Manual upload script used `text-embedding-3-small` while n8n used `text-embedding-3-large`, causing zero vector similarity for city_code chunks. Fixed by aligning all scripts to use `text-embedding-3-large` with `dimensions: 1536` |
+| Reranker performance degradation | High | Operational | GPT-4o reranking 15 chunks took ~70s. Disabled reranker; embedding fix makes it less necessary |
+| AI returns markdown instead of JSON | Medium | Accuracy | System prompt instructions not always followed. Fixed by enabling `responseFormat: json_object` in OpenAI Chat Model node |
 
 ### 10.2 Lessons for Future Development
 
@@ -657,15 +660,19 @@ During development, the following issues were encountered and resolved:
 5. **Test with batch size of 1 first** - Easier to debug failures
 6. **Consider duplicate text patterns** - Section titles in TOC vs content body
 7. **Verify section assignment variety** - Don't assume uniform section titles indicate success
+8. **Embedding model consistency is critical** - All scripts must use the same embedding model and dimensions. Mixing models (e.g., `text-embedding-3-small` vs `text-embedding-3-large`) results in zero vector similarity
+9. **Use native JSON response format** - Don't rely on prompt instructions alone; enable `responseFormat: json_object` in OpenAI API
+10. **Measure reranking latency** - LLM-based reranking adds ~5s per chunk; consider if it's worth the latency tradeoff
 
 ### 10.3 Risk Status Updates
 
 | Risk ID | Original Status | Current Status | Notes |
 |---------|-----------------|----------------|-------|
 | ACC-003 (Incomplete Coverage) | Design | **Resolved** | All exhibits A-O manually transcribed and vectorized |
-| ACC-004 (Poor Retrieval) | Design | **Mitigated** | Hybrid search tested with 0.65 score on exact matches |
-| OPS-002 (Performance) | Design | **Monitoring** | Response time ~2-3s in testing |
+| ACC-004 (Poor Retrieval) | Design | **Resolved** | Embedding model alignment fixed; city_code chunks now retrievable |
+| OPS-002 (Performance) | Design | **Optimized** | Response time ~5s without reranker; ~70s with reranker |
 | SEC-002 (API Key Exposure) | Design | **Implemented** | Keys stored in n8n credentials only |
+| NEW: Embedding Mismatch | N/A | **Resolved** | All ingestion now uses `text-embedding-3-large` with 1536 dims |
 
 ### 10.5 Exhibit Extraction Resolution
 
@@ -725,6 +732,7 @@ if (pos >= 0) {
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.4 | 2026-01-02 | AI Agent | Added embedding mismatch risk; Updated performance metrics; Added lessons learned for embeddings and reranking |
 | 1.3 | 2025-12-31 | AI Agent | Added exhibit extraction resolution (148 total chunks) |
 | 1.2 | 2025-12-31 | AI Agent | Added section title detection bug analysis |
 | 1.1 | 2025-12-31 | AI Agent | Added implementation issues section |

@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — Agent Guardrails
 
-**Version:** 2.0  
-**Last Updated:** December 31, 2025  
+**Version:** 2.1  
+**Last Updated:** January 2, 2026  
 **Status:** Canonical Reference
 
 ---
@@ -87,11 +87,13 @@ You MUST return responses in this JSON structure:
 
 ## ANSWER FIELD GUIDELINES
 
-- Write comprehensive prose that directly answers the question
-- Include context, details, and what-to-submit information naturally
+- Focus on directly answering the user's SPECIFIC question - not everything related to the topic
+- Be concise: 1-2 short paragraphs maximum
+- Provide helpful context but DO NOT list out all requirements (the sources section handles that)
+- If they ask "what is the max fence height?" just answer the height with brief context, don't list every fence rule
 - Do NOT use markdown headers like **Short Answer:** or **Requirements:**
 - Do NOT include confidence at the end of the text
-- Keep concise but complete (2-4 paragraphs typical)
+- Think: "What is the direct answer?" not "What is everything I know about this topic?"
 
 ## SOURCES FIELD GUIDELINES
 
@@ -537,6 +539,7 @@ Before deployment, verify behavior for:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.1 | 2026-01-02 | AI Agent | Updated answer field guidelines to be concise; sources remain comprehensive |
 | 2.0 | 2025-12-31 | AI Agent | Updated to JSON response format, requirements grouped by source, confidence as metadata |
 | 1.0 | 2025-12-31 | AI Agent | Initial guardrails specification |
 

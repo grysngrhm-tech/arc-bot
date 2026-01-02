@@ -1,6 +1,6 @@
 # ARC Bot (Architectural Review Console) — Implementation Status
 
-**Version:** 1.4  
+**Version:** 1.6  
 **Last Updated:** January 2, 2026  
 **Status:** Production Ready
 
@@ -15,9 +15,9 @@
 | Document Ingestion Workflow | ✅ Complete | 244 chunks ingested (4 documents) |
 | Exhibit Supplements | ✅ Complete | All exhibits A-O vectorized |
 | Hybrid Retrieval Tool | ✅ Complete | Tested and working |
-| Reranker Tool | ✅ Complete | GPT-4o scoring |
-| Main AI Agent Workflow | ✅ Complete | GPT-4o with JSON response format |
-| Chat Frontend | ✅ Complete | Enhanced UI with expandable sources |
+| Reranker Tool | ⏸️ Disabled | Disconnected for performance (adds ~60s latency) |
+| Main AI Agent Workflow | ✅ Complete | GPT-4o with enforced JSON response format |
+| Chat Frontend | ✅ Complete | Discovery West branded UI with official logos, enhanced welcome panel, suggested question chips |
 
 ---
 
@@ -55,8 +55,8 @@
 
 | Table | Purpose | Row Count |
 |-------|---------|-----------|
-| `documents` | Source document registry | 4 |
-| `knowledge_chunks` | Main chunk storage with embeddings | 244 |
+| `documents` | Source document registry | 5 |
+| `knowledge_chunks` | Main chunk storage with embeddings | 256 |
 | `ingestion_batches` | Audit trail for imports | 0 |
 | `query_log` | Query analytics | 0 |
 
@@ -205,7 +205,7 @@ Check for Error (IF)
 {
   "status": "success",
   "query": "...",
-  "chunk_count": 8,
+  "chunk_count": 15,
   "best_score": 0.369,
   "chunks": [
     {
@@ -247,7 +247,7 @@ Check for Error (IF)
 | CC&Rs Declaration | ccr | 57 | 83 | ✅ Complete |
 | Rules & Regulations | rules_regulations | 1 | 1 | ✅ Complete |
 | City of Bend - Discovery West | city_code | N/A | 12 | ✅ Complete |
-| **Total** | | **201+** | **244** | |
+| **Total** | | **201+** | **256** | |
 
 ### 5.2 Document Details
 
@@ -340,6 +340,10 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 | NDE diagrams not searchable | Image-heavy exhibits not OCR'd | Manual content transcription |
 | Supabase insert requires content_hash | NOT NULL constraint on content_hash column | Generate hex hash from content bytes |
 | Supabase insert requires document_name | NOT NULL constraint on document_name column | Include all required fields in insert |
+| Embedding model mismatch | Manual upload script used `text-embedding-3-small`, n8n used `text-embedding-3-large` | Align all embedding generation to use `text-embedding-3-large` with `dimensions: 1536` |
+| City code chunks not found | Vector similarity was 0 due to embedding mismatch | Re-uploaded chunks with correct embedding model |
+| Slow response times (~70s) | Reranker calling GPT-4o to score 15 chunks | Disabled reranker; embedding fix made it less necessary |
+| AI returns markdown instead of JSON | System prompt instructions not always followed | Enabled `responseFormat: json_object` in OpenAI Chat Model node |
 
 ### 7.2 n8n 2.0 Specifics
 
@@ -360,12 +364,15 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 8. **Manual supplement for tables/diagrams** - PDF extraction misses tabular data; manually transcribe
 9. **Include all NOT NULL fields** - Supabase requires `content_hash`, `document_name`, `document_type`
 10. **Vectorize exhibits separately** - Complex exhibits need individual attention for quality
+11. **Use consistent embedding models** - All scripts and workflows must use the same model (`text-embedding-3-large`, 1536 dims)
+12. **Enable JSON response format** - Use OpenAI's native `responseFormat: json_object` option, not just prompt instructions
+13. **Retrieve more chunks than needed** - 15 chunks ensures diverse document types aren't filtered; agent/frontend handles final selection
 
 ---
 
 ## 8. Next Steps
 
-### 8.1 Completed (Phase 1-5)
+### 8.1 Completed (Phase 1-6)
 
 1. ✅ **Database Schema** — Supabase with pgvector
 2. ✅ **Document Ingestion** — Structure-aware chunking with TOC detection
@@ -377,6 +384,7 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 8. ✅ **CC&Rs & Rules Ingestion** — All governing documents now searchable
 9. ✅ **Enhanced Response Format** — JSON structure with expandable sources
 10. ✅ **City Code Ingestion** — Discovery West Overlay Zone (BDC Article XIX)
+11. ✅ **UI Branding Refresh** — Discovery West branded design with official logos, enhanced welcome panel, document-targeted question chips, direct PDF links
 
 ### 8.2 Future Enhancements
 
@@ -387,7 +395,7 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 2. **Response Letters Ingestion** — Precedent tracking
 3. **Query Caching** — Reduce API costs
 4. **Analytics Dashboard** — Query patterns, coverage gaps
-5. **Enable Reranker Tool** — Currently disabled; re-enable after fixing expression parsing
+5. **Optimized Reranker** — Currently disabled for performance; consider GPT-4o-mini or fewer chunks if re-enabled
 
 ---
 
@@ -431,6 +439,12 @@ The AI Agent now returns structured JSON responses:
 | Copy Answer | Copy button in message header |
 | Authority Badges | Visual indicator for binding vs. guidance documents |
 | Auto-extracted Requirements | Falls back to parsing content if AI doesn't provide array |
+| Discovery West Branding | Official pinecone logo, charcoal/burnt orange color scheme |
+| Enhanced Welcome Panel | Expanded description explaining what ARC Bot is and how it works |
+| Direct Document Links | Links to actual PDF source documents (Guidelines, CC&Rs, Rules, City Code) |
+| Suggested Question Chips | Document-targeted sample questions in 2-column grid layout |
+| Montserrat Typography | Professional typography matching Discovery West aesthetic |
+| Staggered Animations | Smooth fade-in animations for welcome panel elements |
 
 ### 9.3 Key Files
 
@@ -464,6 +478,8 @@ The AI Agent now returns structured JSON responses:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.6 | 2026-01-02 | AI Agent | UI branding refresh: Discovery West logos, charcoal/orange color scheme, Montserrat typography, enhanced welcome panel, document-targeted question chips, direct PDF links |
+| 1.5 | 2026-01-02 | AI Agent | Fixed embedding model mismatch (3-small→3-large); Enabled JSON response format; Increased chunk limit to 15; Disabled reranker for performance; Concise answer format |
 | 1.4 | 2026-01-02 | AI Agent | Added City of Bend Development Code - Discovery West (12 chunks); Fixed source modal UI (removed dual toggle) |
 | 1.3 | 2026-01-01 | AI Agent | Ingested CC&Rs (83 chunks) and Rules & Regulations (1 chunk); Enhanced response format with JSON structure; Added expandable sources UI |
 | 1.2 | 2025-12-31 | AI Agent | Added exhibit supplements (148 total chunks), full exhibit A-O coverage |

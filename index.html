@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARC Bot - Architectural Review Console | Discovery West</title>
+  <title>Architectural Review Console | Discovery West</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ===== CSS RESET & BASE ===== */
     *, *::before, *::after {
@@ -12,61 +15,71 @@
       padding: 0;
     }
 
-    /* ===== CSS VARIABLES - LIGHT THEME (DEFAULT) ===== */
+    /* ===== CSS VARIABLES - DISCOVERY WEST DARK THEME ===== */
     :root {
-      --bg-primary: #f1f5f9;
-      --bg-secondary: #ffffff;
-      --bg-chat: #ffffff;
-      --bg-user-msg: #059669;
-      --bg-bot-msg: #f8fafc;
-      --bg-source: #f1f5f9;
-      --bg-source-expanded: #e2e8f0;
-      --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --text-muted: #64748b;
+      --bg-primary: #2d2d2d;
+      --bg-secondary: #3d3d3d;
+      --bg-chat: #2d2d2d;
+      --bg-card: #454545;
+      --bg-input: #525252;
+      --bg-user-msg: linear-gradient(135deg, #c96f3c 0%, #b85a2a 100%);
+      --bg-bot-msg: #3d3d3d;
+      --bg-source: #454545;
+      --bg-source-expanded: #525252;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0b0;
+      --text-muted: #888888;
       --text-on-accent: #ffffff;
-      --accent: #059669;
-      --accent-hover: #047857;
-      --border: #e2e8f0;
-      --border-focus: #059669;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
-      --confidence-high: #16a34a;
-      --confidence-medium: #ca8a04;
-      --confidence-low: #dc2626;
+      --accent: #c96f3c;
+      --accent-hover: #d4844f;
+      --accent-subtle: rgba(201, 111, 60, 0.15);
+      --border: #555555;
+      --border-focus: #c96f3c;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
+      --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.4);
+      --confidence-high: #4ade80;
+      --confidence-medium: #fbbf24;
+      --confidence-low: #f87171;
       --radius-sm: 0.375rem;
       --radius-md: 0.5rem;
       --radius-lg: 0.75rem;
       --radius-xl: 1rem;
+      --radius-pill: 25px;
       --transition: 200ms ease;
     }
 
-    /* ===== DARK THEME ===== */
-    [data-theme="dark"] {
-      --bg-primary: #0f172a;
-      --bg-secondary: #1e293b;
-      --bg-chat: #1e293b;
-      --bg-user-msg: #059669;
-      --bg-bot-msg: #334155;
-      --bg-source: #334155;
-      --bg-source-expanded: #475569;
-      --text-primary: #f1f5f9;
-      --text-secondary: #cbd5e1;
-      --text-muted: #94a3b8;
+    /* ===== LIGHT THEME OVERRIDE ===== */
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-chat: #f5f5f5;
+      --bg-card: #ffffff;
+      --bg-input: #ffffff;
+      --bg-user-msg: linear-gradient(135deg, #c96f3c 0%, #b85a2a 100%);
+      --bg-bot-msg: #ffffff;
+      --bg-source: #f0f0f0;
+      --bg-source-expanded: #e5e5e5;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4a4a4a;
+      --text-muted: #777777;
       --text-on-accent: #ffffff;
-      --accent: #34d399;
-      --accent-hover: #10b981;
-      --border: #334155;
-      --border-focus: #34d399;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4);
+      --accent: #c96f3c;
+      --accent-hover: #b85a2a;
+      --accent-subtle: rgba(201, 111, 60, 0.1);
+      --border: #d5d5d5;
+      --border-focus: #c96f3c;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+      --confidence-high: #16a34a;
+      --confidence-medium: #ca8a04;
+      --confidence-low: #dc2626;
     }
 
     /* ===== TYPOGRAPHY ===== */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       font-size: 15px;
       line-height: 1.6;
       color: var(--text-primary);
@@ -108,44 +121,51 @@
       flex-shrink: 0;
     }
 
-    .header-title {
+    .header-brand {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.875rem;
     }
 
-    .header-logo {
-      width: 36px;
-      height: 36px;
-      background: var(--accent);
-      border-radius: var(--radius-md);
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .header-titles {
       display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .header-logo svg {
-      width: 22px;
-      height: 22px;
-      color: var(--text-on-accent);
+      flex-direction: column;
+      gap: 0.125rem;
     }
 
     .header h1 {
       font-size: 1.125rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-primary);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
     }
 
     .header-subtitle {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 400;
+      font-size: 0.6875rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     .theme-toggle {
-      background: var(--bg-primary);
+      background: transparent;
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-pill);
       padding: 0.5rem;
       cursor: pointer;
       transition: var(--transition);
@@ -155,19 +175,25 @@
     }
 
     .theme-toggle:hover {
-      background: var(--border);
+      border-color: var(--accent);
+      background: var(--accent-subtle);
     }
 
     .theme-toggle svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       color: var(--text-secondary);
     }
 
-    .theme-toggle .sun { display: none; }
-    .theme-toggle .moon { display: block; }
-    [data-theme="dark"] .theme-toggle .sun { display: block; }
-    [data-theme="dark"] .theme-toggle .moon { display: none; }
+    .theme-toggle:hover svg {
+      color: var(--accent);
+    }
+
+    /* Dark theme is default, so show moon by default */
+    .theme-toggle .sun { display: block; }
+    .theme-toggle .moon { display: none; }
+    [data-theme="light"] .theme-toggle .sun { display: none; }
+    [data-theme="light"] .theme-toggle .moon { display: block; }
 
     /* ===== CHAT AREA ===== */
     .chat-area {
@@ -209,12 +235,14 @@
       background: var(--bg-user-msg);
       color: var(--text-on-accent);
       border-bottom-right-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
     }
 
     .message-bot .message-content {
       background: var(--bg-bot-msg);
       color: var(--text-primary);
       border-bottom-left-radius: var(--radius-sm);
+      border: 1px solid var(--border);
     }
 
     .message-header {
@@ -399,12 +427,14 @@
       border-radius: var(--radius-md);
       margin-bottom: 0.625rem;
       overflow: hidden;
-      transition: var(--transition);
-      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
     }
 
     .source-item:hover {
-      border-color: var(--border);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-sm);
     }
 
     .source-item:last-child {
@@ -445,28 +475,20 @@
       gap: 0.25rem;
       font-size: 0.625rem;
       font-weight: 600;
-      padding: 0.125rem 0.375rem;
-      border-radius: 2px;
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius-sm);
       text-transform: uppercase;
       letter-spacing: 0.03em;
     }
 
     .authority-binding {
-      background: rgba(5, 150, 105, 0.15);
+      background: var(--accent-subtle);
       color: var(--accent);
     }
 
     .authority-guidance {
-      background: rgba(100, 116, 139, 0.15);
+      background: rgba(136, 136, 136, 0.15);
       color: var(--text-muted);
-    }
-
-    [data-theme="dark"] .authority-binding {
-      background: rgba(52, 211, 153, 0.15);
-    }
-
-    [data-theme="dark"] .authority-guidance {
-      background: rgba(148, 163, 184, 0.15);
     }
 
     /* ===== SOURCE REQUIREMENTS ===== */
@@ -474,12 +496,8 @@
       padding: 0.5rem 0.75rem 0.75rem 1rem;
       border-left: 3px solid var(--accent);
       margin: 0 0.75rem 0.5rem 0.75rem;
-      background: rgba(5, 150, 105, 0.03);
+      background: var(--accent-subtle);
       border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    }
-
-    [data-theme="dark"] .source-requirements {
-      background: rgba(52, 211, 153, 0.05);
     }
 
     .requirements-label {
@@ -525,30 +543,31 @@
     .view-source-link {
       display: inline-flex;
       align-items: center;
-      gap: 0.25rem;
-      padding: 0.375rem 0.625rem;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
       margin: 0 0.75rem 0.75rem 0.75rem;
       background: transparent;
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-pill);
       cursor: pointer;
       color: var(--text-muted);
       font-size: 0.6875rem;
       font-family: inherit;
-      transition: var(--transition);
+      transition: all 0.2s ease;
       text-transform: uppercase;
       letter-spacing: 0.03em;
+      font-weight: 500;
     }
 
     .view-source-link:hover {
       color: var(--accent);
       border-color: var(--accent);
-      background: rgba(5, 150, 105, 0.05);
+      background: var(--accent-subtle);
     }
 
     .view-source-link svg {
-      width: 11px;
-      height: 11px;
+      width: 12px;
+      height: 12px;
     }
 
     /* ===== SOURCE MODAL ===== */
@@ -678,41 +697,191 @@
       to { opacity: 1; max-height: 200px; }
     }
 
-    /* ===== WELCOME MESSAGE ===== */
-    .welcome-message {
+    /* ===== WELCOME PANEL ===== */
+    .welcome-panel {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      animation: welcomeFadeIn 0.5s ease;
+    }
+
+    @keyframes welcomeFadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .welcome-header {
       text-align: center;
-      padding: 2rem 1rem;
-      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
     }
 
     .welcome-icon {
-      width: 64px;
-      height: 64px;
-      background: var(--accent);
-      border-radius: var(--radius-lg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 72px;
+      height: 72px;
+      color: var(--accent);
       margin: 0 auto 1rem;
     }
 
-    .welcome-icon svg {
-      width: 36px;
-      height: 36px;
-      color: var(--text-on-accent);
+    .welcome-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
     }
 
-    .welcome-message h2 {
-      font-size: 1.25rem;
+    .welcome-tagline {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .welcome-description {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 0 1rem;
+    }
+
+    .welcome-description p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* ===== DOCUMENT LINKS ===== */
+    .welcome-documents {
+      margin-bottom: 2rem;
+    }
+
+    .welcome-documents h3,
+    .suggested-questions h3 {
+      font-size: 0.6875rem;
       font-weight: 600;
-      color: var(--text-primary);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.875rem;
+      text-align: center;
+    }
+
+    .document-links {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .doc-link {
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .doc-link:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .doc-link .doc-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--accent);
       margin-bottom: 0.5rem;
     }
 
-    .welcome-message p {
-      max-width: 400px;
-      margin: 0 auto;
-      font-size: 0.9375rem;
+    .doc-link .doc-name {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .doc-link .doc-desc {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* ===== SUGGESTED QUESTIONS ===== */
+    .suggested-questions {
+      text-align: center;
+    }
+
+    .question-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .question-chip {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      padding: 0.625rem 1rem;
+      font-size: 0.8125rem;
+      font-family: inherit;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .question-chip:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--text-on-accent);
+      transform: scale(1.02);
+    }
+
+    /* Staggered animations for welcome panel elements */
+    .welcome-header {
+      animation: welcomeFadeIn 0.5s ease;
+    }
+
+    .welcome-description {
+      animation: welcomeFadeIn 0.5s ease 0.1s both;
+    }
+
+    .welcome-documents {
+      animation: welcomeFadeIn 0.5s ease 0.2s both;
+    }
+
+    .suggested-questions {
+      animation: welcomeFadeIn 0.5s ease 0.3s both;
+    }
+
+    .doc-link {
+      animation: welcomeFadeIn 0.4s ease both;
+    }
+
+    .doc-link:nth-child(1) { animation-delay: 0.25s; }
+    .doc-link:nth-child(2) { animation-delay: 0.3s; }
+    .doc-link:nth-child(3) { animation-delay: 0.35s; }
+    .doc-link:nth-child(4) { animation-delay: 0.4s; }
+
+    .question-chip {
+      animation: welcomeFadeIn 0.3s ease both;
+    }
+
+    .question-chip:nth-child(1) { animation-delay: 0.4s; }
+    .question-chip:nth-child(2) { animation-delay: 0.45s; }
+    .question-chip:nth-child(3) { animation-delay: 0.5s; }
+    .question-chip:nth-child(4) { animation-delay: 0.55s; }
+
+    @media (max-width: 640px) {
+      .document-links {
+        grid-template-columns: 1fr;
+      }
+      
+      .welcome-panel {
+        padding: 1.5rem 1rem;
+      }
     }
 
     /* ===== TYPING INDICATOR ===== */
@@ -722,16 +891,16 @@
       gap: 0.375rem;
       padding: 1rem;
       background: var(--bg-bot-msg);
+      border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       border-bottom-left-radius: var(--radius-sm);
       width: fit-content;
-      box-shadow: var(--shadow-sm);
     }
 
     .typing-dot {
       width: 8px;
       height: 8px;
-      background: var(--text-muted);
+      background: var(--accent);
       border-radius: 50%;
       animation: typingBounce 1.4s infinite ease-in-out;
     }
@@ -741,7 +910,7 @@
     .typing-dot:nth-child(3) { animation-delay: 0s; }
 
     @keyframes typingBounce {
-      0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+      0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
       40% { transform: scale(1); opacity: 1; }
     }
 
@@ -760,12 +929,12 @@
     }
 
     .new-chat-btn {
-      background: var(--bg-primary);
+      background: transparent;
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-pill);
       padding: 0.75rem;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -773,13 +942,18 @@
     }
 
     .new-chat-btn:hover {
-      background: var(--border);
+      border-color: var(--accent);
+      background: var(--accent-subtle);
     }
 
     .new-chat-btn svg {
       width: 20px;
       height: 20px;
       color: var(--text-secondary);
+    }
+
+    .new-chat-btn:hover svg {
+      color: var(--accent);
     }
 
     .input-wrapper {
@@ -789,23 +963,23 @@
 
     .message-input {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.75rem 1.25rem;
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      background: var(--bg-primary);
+      border-radius: var(--radius-pill);
+      background: var(--bg-input);
       color: var(--text-primary);
       font-size: 0.9375rem;
       font-family: inherit;
       resize: none;
       outline: none;
-      transition: var(--transition);
+      transition: all 0.2s ease;
       min-height: 44px;
       max-height: 120px;
     }
 
     .message-input:focus {
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-subtle);
     }
 
     .message-input::placeholder {
@@ -815,18 +989,23 @@
     .send-btn {
       background: var(--accent);
       border: none;
-      border-radius: var(--radius-md);
-      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-pill);
+      padding: 0.75rem 1.5rem;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
     }
 
     .send-btn:hover:not(:disabled) {
       background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
     }
 
     .send-btn:disabled {
@@ -884,34 +1063,80 @@
     /* ===== DISCLAIMER ===== */
     .disclaimer {
       text-align: center;
-      padding: 0.5rem 1rem;
-      font-size: 0.7rem;
+      padding: 0.625rem 1rem;
+      font-size: 0.6875rem;
       color: var(--text-muted);
-      background: var(--bg-primary);
+      background: var(--bg-secondary);
       border-top: 1px solid var(--border);
     }
 
     .disclaimer a {
       color: var(--accent);
       text-decoration: none;
+      font-weight: 500;
     }
 
     .disclaimer a:hover {
       text-decoration: underline;
     }
 
+    /* ===== FOOTER ===== */
+    .app-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      background: var(--bg-primary);
+      border-top: 1px solid var(--border);
+    }
+
+    .app-footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .app-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-divider {
+      color: var(--border);
+    }
+
     /* ===== RESPONSIVE ===== */
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       .header {
         padding: 0.875rem 1rem;
       }
 
       .header h1 {
-        font-size: 1rem;
+        font-size: 0.9375rem;
+      }
+
+      .header-icon {
+        width: 32px;
+        height: 32px;
+      }
+
+      .header-subtitle {
+        font-size: 0.6rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .header h1 {
+        font-size: 0.875rem;
       }
 
       .header-subtitle {
         display: none;
+      }
+
+      .header-brand {
+        gap: 0.625rem;
       }
 
       .chat-area {
@@ -929,6 +1154,10 @@
       .new-chat-btn span {
         display: none;
       }
+
+      .app-footer {
+        font-size: 0.5625rem;
+      }
     }
   </style>
 </head>
@@ -936,46 +1165,102 @@
   <div class="app-container">
     <!-- Header -->
     <header class="header">
-      <div class="header-title">
-        <div class="header-logo">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-        </div>
-        <div>
-          <h1>ARC Bot</h1>
-          <span class="header-subtitle">Architectural Review Console</span>
+      <div class="header-brand">
+        <!-- Pinecone/Evergreen icon representing Discovery West's Pacific Northwest aesthetic -->
+        <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L9 7h6L12 2zM7 9l-3 5h5l-2-5zM17 9l2 5h-5l3-5zM12 9l-3 5h6l-3-5zM5 16l-3 5h6l-3-5zM12 16l-3 5h6l-3-5zM19 16l-3 5h6l-3-5z"/>
+        </svg>
+        <div class="header-titles">
+          <h1>Architectural Review Console</h1>
+          <span class="header-subtitle">Discovery West Community</span>
         </div>
       </div>
-      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
-        <svg class="moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-        <svg class="sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
-      </button>
+      <div class="header-actions">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <svg class="moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
     </header>
 
     <!-- Chat Area -->
     <main class="chat-area" id="chatArea">
-      <div class="welcome-message">
-        <div class="welcome-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      <div class="welcome-panel" id="welcomePanel">
+        <div class="welcome-header">
+          <!-- Large pinecone icon -->
+          <svg class="welcome-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L9 7h6L12 2zM7 9l-3 5h5l-2-5zM17 9l2 5h-5l3-5zM12 9l-3 5h6l-3-5zM5 16l-3 5h6l-3-5zM12 16l-3 5h6l-3-5zM19 16l-3 5h6l-3-5z"/>
           </svg>
+          <h2>Welcome to ARC Bot</h2>
+          <p class="welcome-tagline">Your AI assistant for Discovery West architectural guidelines</p>
         </div>
-        <h2>Welcome to ARC Bot</h2>
-        <p>Your evidence-based guide to Discovery West architectural standards. Ask about guidelines, CC&Rs, or the approval process.</p>
+        
+        <div class="welcome-description">
+          <p>Get instant answers about exterior modifications, design requirements, and community standards. 
+          ARC Bot searches the official governing documents and provides accurate, cited responses to help 
+          you plan your project.</p>
+        </div>
+        
+        <div class="welcome-documents">
+          <h3>Source Documents</h3>
+          <div class="document-links">
+            <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+              <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span class="doc-name">Design Guidelines</span>
+              <span class="doc-desc">Architectural standards and requirements</span>
+            </a>
+            <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+              <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span class="doc-name">CC&Rs</span>
+              <span class="doc-desc">Covenants, conditions, and restrictions</span>
+            </a>
+            <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+              <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span class="doc-name">Rules & Regulations</span>
+              <span class="doc-desc">Community rules and policies</span>
+            </a>
+            <a href="https://bend.municipal.codes/BDC/2.7_ArtXIX" target="_blank" rel="noopener" class="doc-link">
+              <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+              </svg>
+              <span class="doc-name">City of Bend Code</span>
+              <span class="doc-desc">Discovery West Overlay Zone regulations</span>
+            </a>
+          </div>
+        </div>
+        
+        <div class="suggested-questions">
+          <h3>Try asking about...</h3>
+          <div class="question-chips">
+            <button class="question-chip" onclick="askSuggestedQuestion(this)">What exterior paint colors are approved?</button>
+            <button class="question-chip" onclick="askSuggestedQuestion(this)">What modifications require ARC approval?</button>
+            <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the rules for short-term rentals?</button>
+            <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the maximum building heights in Discovery West?</button>
+          </div>
+        </div>
       </div>
     </main>
 
@@ -984,6 +1269,14 @@
       ARC Bot provides information only — it does not issue approvals or legal advice. 
       For official decisions, contact the <a href="mailto:arc@discoverywest.com">ARC directly</a>.
     </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>Powered by</span>
+      <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a>
+      <span class="footer-divider">|</span>
+      <span>v1.5</span>
+    </footer>
 
     <!-- Input Area -->
     <footer class="input-area">
@@ -1040,17 +1333,72 @@
       // Clear messages
       messages = [];
       
-      // Reset UI
+      // Reset UI with enhanced welcome panel
       const chatArea = document.getElementById('chatArea');
       chatArea.innerHTML = `
-        <div class="welcome-message">
-          <div class="welcome-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        <div class="welcome-panel" id="welcomePanel">
+          <div class="welcome-header">
+            <svg class="welcome-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L9 7h6L12 2zM7 9l-3 5h5l-2-5zM17 9l2 5h-5l3-5zM12 9l-3 5h6l-3-5zM5 16l-3 5h6l-3-5zM12 16l-3 5h6l-3-5zM19 16l-3 5h6l-3-5z"/>
             </svg>
+            <h2>Welcome to ARC Bot</h2>
+            <p class="welcome-tagline">Your AI assistant for Discovery West architectural guidelines</p>
           </div>
-          <h2>Welcome to ARC Bot</h2>
-          <p>Your evidence-based guide to Discovery West architectural standards. Ask about guidelines, CC&Rs, or the approval process.</p>
+          
+          <div class="welcome-description">
+            <p>Get instant answers about exterior modifications, design requirements, and community standards. 
+            ARC Bot searches the official governing documents and provides accurate, cited responses to help 
+            you plan your project.</p>
+          </div>
+          
+          <div class="welcome-documents">
+            <h3>Source Documents</h3>
+            <div class="document-links">
+              <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+                <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <span class="doc-name">Design Guidelines</span>
+                <span class="doc-desc">Architectural standards and requirements</span>
+              </a>
+              <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+                <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <span class="doc-name">CC&Rs</span>
+                <span class="doc-desc">Covenants, conditions, and restrictions</span>
+              </a>
+              <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+                <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <span class="doc-name">Rules & Regulations</span>
+                <span class="doc-desc">Community rules and policies</span>
+              </a>
+              <a href="https://bend.municipal.codes/BDC/2.7_ArtXIX" target="_blank" rel="noopener" class="doc-link">
+                <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="3" y1="9" x2="21" y2="9"></line>
+                  <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+                <span class="doc-name">City of Bend Code</span>
+                <span class="doc-desc">Discovery West Overlay Zone regulations</span>
+              </a>
+            </div>
+          </div>
+          
+          <div class="suggested-questions">
+            <h3>Try asking about...</h3>
+            <div class="question-chips">
+              <button class="question-chip" onclick="askSuggestedQuestion(this)">What exterior paint colors are approved?</button>
+              <button class="question-chip" onclick="askSuggestedQuestion(this)">What modifications require ARC approval?</button>
+              <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the rules for short-term rentals?</button>
+              <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the maximum building heights in Discovery West?</button>
+            </div>
+          </div>
         </div>
       `;
       
@@ -1058,20 +1406,36 @@
       document.getElementById('messageInput').focus();
     }
 
+    // ===== SUGGESTED QUESTIONS =====
+    function askSuggestedQuestion(button) {
+      const question = button.textContent;
+      const input = document.getElementById('messageInput');
+      input.value = question;
+      sendMessage();
+    }
+
     // ===== THEME MANAGEMENT =====
     function initTheme() {
       const savedTheme = localStorage.getItem('arc_theme');
       if (savedTheme) {
         document.documentElement.setAttribute('data-theme', savedTheme);
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+      // Dark theme is default (no data-theme attribute = dark)
+      // Only set light if user explicitly chose it or prefers light
+      else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+        document.documentElement.setAttribute('data-theme', 'light');
       }
     }
 
     function toggleTheme() {
       const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
+      // If currently light, switch to dark (remove attribute); if dark/none, switch to light
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      if (newTheme === 'dark') {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
       localStorage.setItem('arc_theme', newTheme);
     }
 
@@ -1513,10 +1877,10 @@
       input.value = '';
       autoResize(input);
       
-      // Remove welcome message if present
-      const welcomeMsg = document.querySelector('.welcome-message');
-      if (welcomeMsg) {
-        welcomeMsg.remove();
+      // Remove welcome panel if present
+      const welcomePanel = document.querySelector('.welcome-panel');
+      if (welcomePanel) {
+        welcomePanel.remove();
       }
       
       // Add user message to UI

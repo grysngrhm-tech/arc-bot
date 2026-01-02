@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — Retrieval Strategy
 
-**Version:** 1.0  
-**Last Updated:** December 31, 2025  
+**Version:** 1.1  
+**Last Updated:** January 2, 2026  
 **Status:** Canonical Reference
 
 ---
@@ -14,9 +14,10 @@ This document specifies the hybrid retrieval and reranking strategy for ARC Bot.
 
 1. **Retrieval returns candidates, not truth** — Never trust raw similarity scores
 2. **Hybrid search is mandatory** — Vector alone misses keyword matches
-3. **Reranking is mandatory** — Raw scores are not calibrated
-4. **Over-retrieve, then filter** — Get 20 candidates, use 5-8 final
+3. **Reranking is optional** — Currently disabled for performance; enabled when latency is acceptable
+4. **Over-retrieve, then filter** — Get 15 candidates; agent selects relevant ones
 5. **Metadata enriches ranking** — Document type and binding status matter
+6. **Consistent embeddings are critical** — All ingestion scripts must use same model as retrieval
 
 ### 1.2 Retrieval Pipeline
 
@@ -49,16 +50,17 @@ User Query
 │         └───────────────┘              │
 └─────────────────────────────────────────┘
     │
-    │ Top 20 candidates
+    │ Top 15 candidates
     ▼
 ┌─────────────────────────────────────────┐
-│            RERANKING                    │
+│       RERANKING (OPTIONAL)              │
 │  • LLM-based relevance scoring          │
 │  • Query-chunk alignment check          │
 │  • Binding status boost                 │
+│  • Currently DISABLED for performance   │
 └─────────────────────────────────────────┘
     │
-    │ Top 5-8 ranked chunks
+    │ Top 15 chunks (or 5-8 if reranking enabled)
     ▼
 ┌─────────────────────────────────────────┐
 │         CONTEXT ASSEMBLY                │
@@ -602,7 +604,30 @@ The Hybrid Retrieval Tool is implemented as an n8n sub-workflow:
 
 1. **Hybrid combination working** - FTS provides significant boost for exact keyword matches
 2. **Confidence thresholds calibrated** - 0.35 threshold appropriate for current corpus
-3. **Reranking deferred** - Initial retrieval quality sufficient for MVP
+3. **Reranking disabled** - Adds ~60s latency with GPT-4o scoring 15 chunks; hybrid search quality is sufficient
+
+### 13.4 Performance Benchmarks (January 2, 2026)
+
+| Configuration | Response Time | Notes |
+|---------------|---------------|-------|
+| Hybrid only (8 chunks) | ~5 seconds | Original configuration |
+| Hybrid only (15 chunks) | ~5 seconds | Increased chunk limit |
+| Hybrid + Reranker (8 chunks) | ~30 seconds | Reranker adds latency |
+| Hybrid + Reranker (15 chunks) | ~70 seconds | Not recommended |
+
+**Recommendation:** Keep reranker disabled until a faster reranking method is implemented (e.g., GPT-4o-mini, cross-encoder, or client-side reranking).
+
+### 13.5 Embedding Consistency
+
+**Critical:** All embedding generation must use the same model and dimensions:
+
+| Component | Model | Dimensions |
+|-----------|-------|------------|
+| n8n Document Ingestion | text-embedding-3-large | 1536 |
+| n8n Hybrid Retrieval | text-embedding-3-large | 1536 |
+| Manual upload scripts | text-embedding-3-large | 1536 |
+
+Using different embedding models (e.g., `text-embedding-3-small` vs `text-embedding-3-large`) results in **zero vector similarity** because embeddings from different models are not comparable.
 
 ---
 
@@ -610,6 +635,7 @@ The Hybrid Retrieval Tool is implemented as an n8n sub-workflow:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.2 | 2026-01-02 | AI Agent | Added performance benchmarks; Updated reranker status to disabled; Added embedding consistency requirements |
 | 1.1 | 2025-12-31 | AI Agent | Added implementation status and test results |
 | 1.0 | 2025-12-31 | AI Agent | Initial retrieval strategy |
 

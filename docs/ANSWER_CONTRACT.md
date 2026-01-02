@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — Answer Contract
 
-**Version:** 2.1  
-**Last Updated:** January 1, 2026  
+**Version:** 2.2  
+**Last Updated:** January 2, 2026  
 **Status:** Canonical Reference
 
 ---
@@ -99,11 +99,12 @@ ARC Bot v2.0 uses a **structured JSON response** that the frontend renders into 
 **Purpose:** Give the user a comprehensive, direct answer to their question.
 
 **Guidelines:**
-- Write flowing prose that directly answers the question
-- Include relevant context and details naturally
+- Focus on directly answering the user's **specific question** — not everything related to the topic
+- Be concise: **1-2 short paragraphs maximum**
+- Provide helpful context but do NOT list all requirements (sources section handles that)
 - Do NOT include section headers like "Short Answer:", "Requirements:", or "Sources:"
 - Do NOT include confidence at the end of the text
-- Keep length appropriate (2-4 paragraphs typical)
+- Think: "What is the direct answer?" not "What is everything I know about this topic?"
 - No hedging words ("perhaps", "maybe", "possibly")
 
 **Good:**
@@ -529,6 +530,7 @@ Before sending a response, verify:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.2 | 2026-01-02 | AI Agent | Updated answer guidelines to be more concise and focused; sources remain comprehensive |
 | 2.1 | 2026-01-01 | AI Agent | Added CC&Rs and Rules & Regulations to knowledge base; minor formatting updates |
 | 2.0 | 2025-12-31 | AI Agent | Major restructure: JSON response format, requirements grouped by source, confidence as metadata |
 | 1.0 | 2025-12-31 | AI Agent | Initial answer contract |

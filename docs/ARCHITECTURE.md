@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — System Architecture
 
-**Version:** 1.0  
-**Last Updated:** December 31, 2025  
+**Version:** 1.1  
+**Last Updated:** January 2, 2026  
 **Status:** Canonical Reference
 
 ---
@@ -259,8 +259,9 @@ ARC Bot (Architectural Review Console) is an evidence-based reference system tha
 1. **n8n is the orchestration engine** — All workflow logic lives in n8n
 2. **Supabase is the knowledge store** — No alternative vector databases
 3. **Hybrid retrieval is required** — Vector-only search is insufficient
-4. **Reranking is required** — Raw retrieval scores are not trusted
+4. **Reranking is optional** — Currently disabled for performance; enabled when latency is acceptable
 5. **Citations are required** — Every claim must reference a source
+6. **Consistent embeddings** — All ingestion must use same model as retrieval (`text-embedding-3-large`, 1536 dims)
 
 ---
 
@@ -311,12 +312,14 @@ ARC Bot (Architectural Review Console) is an evidence-based reference system tha
 
 ### 6.3 Performance Targets
 
-| Metric | Target |
-|--------|--------|
-| Query to first token | <3 seconds |
-| Full response | <10 seconds |
-| Retrieval latency | <500ms |
-| Vector search | <100ms (HNSW) |
+| Metric | Target | Actual (Jan 2, 2026) |
+|--------|--------|----------------------|
+| Query to first token | <3 seconds | ~2 seconds |
+| Full response | <10 seconds | ~5 seconds (without reranker) |
+| Retrieval latency | <500ms | ~200ms |
+| Vector search | <100ms (HNSW) | ~50ms |
+
+**Note:** Enabling reranker increases full response time to ~30-70 seconds depending on chunk count.
 
 ---
 
@@ -397,6 +400,7 @@ For full implementation details, see [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_S
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.2 | 2026-01-02 | AI Agent | Updated performance targets with actuals; Reranking now optional; Added embedding consistency constraint |
 | 1.1 | 2025-12-31 | AI Agent | Added implementation reference section |
 | 1.0 | 2025-12-31 | AI Agent | Initial canonical architecture |
 

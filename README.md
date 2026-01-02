@@ -102,6 +102,9 @@ Ask follow-up questions naturally. The system remembers what you discussed withi
 ### 🌗 Light & Dark Themes
 Comfortable viewing in any environment.
 
+### 🎨 Discovery West Branding
+Professional design featuring official Discovery West logos, charcoal and burnt orange color scheme, and direct links to source documents.
+
 ---
 
 ## Try It Now
@@ -116,29 +119,31 @@ No login required. Just type your question and press Enter.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  🏠 ARC Bot — Architectural Review Console            [🌙]  │
+│  🌲 Architectural Review Console                      [🌙]  │
+│     Discovery West                                          │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  You: What is the maximum fence height?                     │
+│                  🌲 Welcome to ARC Bot                      │
+│                                                             │
+│     What is the Architectural Review Console?               │
+│     ARC Bot is your intelligent assistant for               │
+│     navigating Discovery West's architectural               │
+│     standards and guidelines...                             │
+│                                                             │
+│     📄 Source Documents                                     │
+│     ┌────────────────┐ ┌────────────────┐                  │
+│     │ Guidelines     │ │ CC&Rs          │                  │
+│     ├────────────────┤ ├────────────────┤                  │
+│     │ Rules          │ │ City Code      │                  │
+│     └────────────────┘ └────────────────┘                  │
+│                                                             │
+│     Try asking:                                             │
+│     ┌────────────────┐ ┌────────────────┐                  │
+│     │ Paint colors?  │ │ Max fence ht?  │                  │
+│     └────────────────┘ └────────────────┘                  │
 │                                                             │
 │  ┌─────────────────────────────────────────────────────┐   │
-│  │ ARC Bot:                                             │   │
-│  │                                                      │   │
-│  │ The maximum fence height depends on location:       │   │
-│  │                                                      │   │
-│  │ • Side/rear yards: 6 feet                           │   │
-│  │ • Front yards: 4 feet                               │   │
-│  │ • Along alleys: 6 feet                              │   │
-│  │                                                      │   │
-│  │ 📄 Source: Architectural Design Guidelines,         │   │
-│  │    Fencing, Page 42                                 │   │
-│  │                                                      │   │
-│  │ Confidence: HIGH ████████░░                         │   │
-│  │ [▼ View Source Text]                                │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                                                             │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │ Type your question...                          [➤]  │   │
+│  │ Ask about architectural standards...           [➤]  │   │
 │  └─────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -298,19 +303,21 @@ ARC Bot connects several services to deliver accurate, cited answers:
 | Database Schema | PostgreSQL with pgvector, hybrid search functions |
 | Document Ingestion | Structure-aware chunking with section detection |
 | Hybrid Retrieval | Vector similarity + full-text search |
-| AI Agent | GPT-4o with tool calling and session memory |
-| Chat Frontend | Responsive UI with themes and source expansion |
+| AI Agent | GPT-4o with tool calling, JSON response format, session memory |
+| Chat Frontend | Discovery West branded UI with official logos, enhanced welcome panel, question chips |
 | **Architectural Design Guidelines** | **148 chunks**, all 15 exhibits (A-O) |
+| **CC&Rs Declaration** | **83 chunks** with legal covenants and enforcement |
+| **Rules & Regulations** | **1 chunk** with community rules |
+| **City of Bend Code** | **12 chunks** with Discovery West Overlay Zone |
 
 ### 🔲 Planned
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
-| CC&Rs Ingestion | High | Next document to add |
-| Rules & Regulations | High | Community operational policies |
 | Dynamic Follow-up Suggestions | Medium | AI-generated contextual questions |
 | Response Letter Archive | Low | Precedent search from past decisions |
 | Query Analytics | Low | Track common questions and gaps |
+| Optimized Reranker | Low | GPT-4o-mini or fewer chunks if re-enabled |
 
 ---
 
@@ -440,4 +447,4 @@ This project is developed for the Discovery West community. Source code and docu
 
 ---
 
-*Last Updated: December 31, 2025*
+*Last Updated: January 2, 2026*

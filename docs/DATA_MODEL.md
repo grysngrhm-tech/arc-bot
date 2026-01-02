@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — Data Model Specification
 
-**Version:** 1.1  
-**Last Updated:** December 31, 2025  
+**Version:** 1.2  
+**Last Updated:** January 2, 2026  
 **Status:** Canonical Reference
 
 ---
@@ -104,6 +104,7 @@ CREATE TABLE knowledge_chunks (
             'design_guidelines',
             'ccr',
             'rules_regulations',
+            'city_code',
             'application_form',
             'submittal',
             'response_letter',
@@ -168,6 +169,7 @@ CREATE TRIGGER knowledge_chunks_updated_at
 | `design_guidelines` | Architectural Design Guidelines | TRUE |
 | `ccr` | CC&Rs Declaration | TRUE |
 | `rules_regulations` | Community Rules and Regulations | TRUE |
+| `city_code` | City of Bend Development Code (zoning, overlay zones) | TRUE |
 | `application_form` | ARC Application/Process docs | TRUE |
 | `submittal` | Homeowner submittal package | FALSE |
 | `response_letter` | ARC response/decision letter | FALSE |
@@ -608,6 +610,7 @@ ORDER BY document_type, document_name;
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.2 | 2026-01-02 | AI Agent | Added `city_code` document type for City of Bend Development Code |
 | 1.1 | 2025-12-31 | AI Agent | Added manual chunk insertion guidance |
 | 1.0 | 2025-12-31 | AI Agent | Initial schema specification |
 
