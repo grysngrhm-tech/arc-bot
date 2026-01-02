@@ -704,7 +704,7 @@
 
     /* ===== WELCOME PANEL ===== */
     .welcome-panel {
-      max-width: 640px;
+      max-width: 800px;
       margin: 0 auto;
       padding: 2rem 1.5rem;
       animation: welcomeFadeIn 0.5s ease;
@@ -715,24 +715,26 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .welcome-header {
+    /* Hero Section */
+    .welcome-hero {
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      animation: welcomeFadeIn 0.5s ease;
     }
 
     .welcome-icon {
-      width: 80px;
-      height: 96px;
-      margin: 0 auto 1rem;
+      width: 72px;
+      height: 86px;
+      margin: 0 auto 0.75rem;
     }
 
     .welcome-logo {
-      width: 80px;
-      height: 96px;
+      width: 72px;
+      height: 86px;
       object-fit: contain;
     }
 
-    .welcome-header h2 {
+    .welcome-hero h2 {
       font-size: 1.5rem;
       font-weight: 700;
       color: var(--text-primary);
@@ -741,81 +743,85 @@
     }
 
     .welcome-tagline {
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-      margin: 0;
-    }
-
-    .welcome-description {
-      text-align: center;
-      margin-bottom: 2rem;
-      padding: 0 1rem;
-    }
-
-    .welcome-description h4 {
-      font-size: 0.9375rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 0.75rem;
-    }
-
-    .welcome-description p {
       font-size: 0.875rem;
       color: var(--text-secondary);
-      line-height: 1.7;
-      margin: 0 0 0.75rem 0;
+      margin: 0;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.6;
     }
 
-    .welcome-description p:last-child {
-      margin-bottom: 0;
+    /* Two-Column Content */
+    .welcome-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      animation: welcomeFadeIn 0.5s ease 0.15s both;
     }
 
-    .welcome-features {
-      font-size: 0.8125rem;
+    @media (max-width: 640px) {
+      .welcome-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .welcome-knowledge,
+    .welcome-getstarted {
       background: var(--bg-card);
-      border-left: 3px solid var(--accent);
-      padding: 0.75rem 1rem;
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      margin-top: 1rem;
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
     }
 
-    .welcome-features strong {
-      color: var(--text-primary);
-    }
-
-    .welcome-features em {
-      color: var(--accent);
-      font-style: normal;
-      font-weight: 500;
-    }
-
-    /* ===== DOCUMENT LINKS ===== */
-    .welcome-documents {
-      margin-bottom: 2rem;
-    }
-
-    .welcome-documents h3,
-    .suggested-questions h3 {
+    .welcome-knowledge h3,
+    .welcome-getstarted h3 {
       font-size: 0.6875rem;
       font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 0.875rem;
-      text-align: center;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
     }
 
-    .document-links {
+    .section-intro {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin: 0 0 1rem 0;
+      line-height: 1.5;
+    }
+
+    .badge-inline {
+      display: inline-block;
+      font-size: 0.625rem;
+      font-weight: 600;
+      padding: 0.125rem 0.375rem;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-inline.binding {
+      background: rgba(74, 222, 128, 0.15);
+      color: var(--confidence-high);
+    }
+
+    /* ===== DOCUMENT LINKS ===== */
+    .welcome-knowledge .document-links {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: 0.75rem;
+    }
+
+    @media (max-width: 480px) {
+      .welcome-knowledge .document-links {
+        grid-template-columns: 1fr;
+      }
     }
 
     .doc-link {
       display: flex;
       flex-direction: column;
-      padding: 1rem;
-      background: var(--bg-card);
+      padding: 0.75rem;
+      background: var(--bg-source);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       text-decoration: none;
@@ -824,52 +830,68 @@
 
     .doc-link:hover {
       border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .doc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.375rem;
     }
 
     .doc-link .doc-icon {
-      width: 24px;
-      height: 24px;
+      width: 18px;
+      height: 18px;
       color: var(--accent);
-      margin-bottom: 0.5rem;
+    }
+
+    .doc-badge {
+      font-size: 0.5625rem;
+      font-weight: 600;
+      padding: 0.125rem 0.375rem;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .doc-badge.binding {
+      background: rgba(74, 222, 128, 0.15);
+      color: var(--confidence-high);
+    }
+
+    .doc-badge.guidance {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--confidence-medium);
     }
 
     .doc-link .doc-name {
-      font-size: 0.8125rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.125rem;
     }
 
     .doc-link .doc-desc {
-      font-size: 0.6875rem;
+      font-size: 0.625rem;
       color: var(--text-muted);
-      line-height: 1.4;
+      line-height: 1.3;
     }
 
-    /* ===== SUGGESTED QUESTIONS ===== */
-    .suggested-questions {
-      text-align: center;
-    }
-
-    .suggested-questions h3 {
-      text-align: center;
-    }
-
+    /* ===== GET STARTED / QUESTION CHIPS ===== */
     .question-chips {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
 
     .question-chip {
-      background: var(--bg-card);
+      background: var(--bg-source);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 0.75rem 1rem;
-      font-size: 0.8125rem;
+      padding: 0.625rem 0.875rem;
+      font-size: 0.75rem;
       font-family: inherit;
       color: var(--text-secondary);
       cursor: pointer;
@@ -882,56 +904,30 @@
       background: var(--accent);
       border-color: var(--accent);
       color: var(--text-on-accent);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
-
-    @media (max-width: 640px) {
-      .question-chips {
-        grid-template-columns: 1fr;
-      }
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
     }
 
     /* Staggered animations for welcome panel elements */
-    .welcome-header {
-      animation: welcomeFadeIn 0.5s ease;
-    }
-
-    .welcome-description {
-      animation: welcomeFadeIn 0.5s ease 0.1s both;
-    }
-
-    .welcome-documents {
-      animation: welcomeFadeIn 0.5s ease 0.2s both;
-    }
-
-    .suggested-questions {
-      animation: welcomeFadeIn 0.5s ease 0.3s both;
-    }
-
     .doc-link {
       animation: welcomeFadeIn 0.4s ease both;
     }
 
-    .doc-link:nth-child(1) { animation-delay: 0.25s; }
-    .doc-link:nth-child(2) { animation-delay: 0.3s; }
-    .doc-link:nth-child(3) { animation-delay: 0.35s; }
-    .doc-link:nth-child(4) { animation-delay: 0.4s; }
+    .doc-link:nth-child(1) { animation-delay: 0.2s; }
+    .doc-link:nth-child(2) { animation-delay: 0.25s; }
+    .doc-link:nth-child(3) { animation-delay: 0.3s; }
+    .doc-link:nth-child(4) { animation-delay: 0.35s; }
 
     .question-chip {
       animation: welcomeFadeIn 0.3s ease both;
     }
 
-    .question-chip:nth-child(1) { animation-delay: 0.4s; }
-    .question-chip:nth-child(2) { animation-delay: 0.45s; }
-    .question-chip:nth-child(3) { animation-delay: 0.5s; }
-    .question-chip:nth-child(4) { animation-delay: 0.55s; }
+    .question-chip:nth-child(1) { animation-delay: 0.25s; }
+    .question-chip:nth-child(2) { animation-delay: 0.3s; }
+    .question-chip:nth-child(3) { animation-delay: 0.35s; }
+    .question-chip:nth-child(4) { animation-delay: 0.4s; }
 
     @media (max-width: 640px) {
-      .document-links {
-        grid-template-columns: 1fr;
-      }
-      
       .welcome-panel {
         padding: 1.5rem 1rem;
       }
@@ -1249,79 +1245,78 @@
     <!-- Chat Area -->
     <main class="chat-area" id="chatArea">
       <div class="welcome-panel" id="welcomePanel">
-        <div class="welcome-header">
-          <!-- Official Discovery West Pinecone Logo -->
+        <!-- Hero Section -->
+        <div class="welcome-hero">
           <img class="welcome-icon welcome-logo" src="assets/pinecone-logo.png" alt="Discovery West Logo">
           <h2>Welcome to ARC Bot</h2>
-          <p class="welcome-tagline">Your AI-powered assistant for Discovery West architectural guidelines</p>
+          <p class="welcome-tagline">Your AI assistant for Discovery West. Ask about architectural guidelines, CC&Rs, community rules, or City of Bend regulations — get answers with direct citations from official documents.</p>
         </div>
         
-        <div class="welcome-description">
-          <h4>What is the Architectural Review Console?</h4>
-          <p>ARC Bot is an AI-powered assistant that searches Discovery West's official governing 
-          documents to answer your architectural and community questions. Using hybrid search 
-          technology, it finds relevant information from multiple sources and synthesizes accurate, 
-          comprehensive answers.</p>
-          
-          <h4>What Can You Ask?</h4>
-          <p>Ask about exterior modifications (paint colors, fencing, landscaping), design requirements 
-          (setbacks, heights, materials), the ARC approval process, CC&R restrictions, community rules, 
-          or City of Bend overlay zone regulations.</p>
-          
-          <p class="welcome-features">
-            <strong>Every answer includes:</strong> Direct citations to source documents with 
-            key requirements extracted from the text. Sources marked <em>Binding</em> (like CC&Rs 
-            and City Code) carry legal weight, while <em>Guidance</em> sources offer best-practice 
-            recommendations. A confidence rating indicates how well the sources support the answer.
-          </p>
-        </div>
-        
-        <div class="welcome-documents">
-          <h3>Source Documents</h3>
-          <div class="document-links">
-            <a href="https://discoverywestbend.com/wp-content/uploads/2025/02/250130-DW-ARC-Guidelines-in-thier-entireity-2.18.25.pdf" target="_blank" rel="noopener" class="doc-link">
-              <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
-              <span class="doc-name">Design Guidelines</span>
-              <span class="doc-desc">Architectural standards and requirements</span>
-            </a>
-            <a href="https://discoverywestbend.com/wp-content/uploads/2020/02/Discovery-West-CCRs-Recorded.pdf" target="_blank" rel="noopener" class="doc-link">
-              <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
-              <span class="doc-name">CC&Rs</span>
-              <span class="doc-desc">Covenants, conditions, and restrictions</span>
-            </a>
-            <a href="https://discoverywestbend.com/wp-content/uploads/2022/06/Rules-and-Regulations.pdf" target="_blank" rel="noopener" class="doc-link">
-              <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
-              <span class="doc-name">Rules & Regulations</span>
-              <span class="doc-desc">Community rules and policies</span>
-            </a>
-            <a href="https://bend.municipal.codes/BDC/2.7_ArtXIX" target="_blank" rel="noopener" class="doc-link">
-              <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="3" y1="9" x2="21" y2="9"></line>
-                <line x1="9" y1="21" x2="9" y2="9"></line>
-              </svg>
-              <span class="doc-name">City of Bend Code</span>
-              <span class="doc-desc">Discovery West Overlay Zone regulations</span>
-            </a>
+        <!-- Two-Column Content Area -->
+        <div class="welcome-content">
+          <!-- Knowledge Base Panel -->
+          <div class="welcome-knowledge">
+            <h3>Knowledge Base</h3>
+            <p class="section-intro">Answers cite these official sources. Documents marked <span class="badge-inline binding">Binding</span> carry legal weight.</p>
+            <div class="document-links">
+              <a href="https://discoverywestbend.com/wp-content/uploads/2025/02/250130-DW-ARC-Guidelines-in-thier-entireity-2.18.25.pdf" target="_blank" rel="noopener" class="doc-link">
+                <div class="doc-header">
+                  <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  <span class="doc-badge guidance">Guidance</span>
+                </div>
+                <span class="doc-name">Design Guidelines</span>
+                <span class="doc-desc">Architectural standards</span>
+              </a>
+              <a href="https://discoverywestbend.com/wp-content/uploads/2020/02/Discovery-West-CCRs-Recorded.pdf" target="_blank" rel="noopener" class="doc-link">
+                <div class="doc-header">
+                  <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  <span class="doc-badge binding">Binding</span>
+                </div>
+                <span class="doc-name">CC&Rs</span>
+                <span class="doc-desc">Covenants & restrictions</span>
+              </a>
+              <a href="https://discoverywestbend.com/wp-content/uploads/2022/06/Rules-and-Regulations.pdf" target="_blank" rel="noopener" class="doc-link">
+                <div class="doc-header">
+                  <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  <span class="doc-badge guidance">Guidance</span>
+                </div>
+                <span class="doc-name">Rules & Regulations</span>
+                <span class="doc-desc">Community policies</span>
+              </a>
+              <a href="https://bend.municipal.codes/BDC/2.7_ArtXIX" target="_blank" rel="noopener" class="doc-link">
+                <div class="doc-header">
+                  <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                  </svg>
+                  <span class="doc-badge binding">Binding</span>
+                </div>
+                <span class="doc-name">City of Bend Code</span>
+                <span class="doc-desc">Overlay Zone regulations</span>
+              </a>
+            </div>
           </div>
-        </div>
-        
-        <div class="suggested-questions">
-          <h3>Try asking about...</h3>
-          <div class="question-chips">
-            <button class="question-chip" onclick="askSuggestedQuestion(this)">What exterior paint colors are approved?</button>
-            <button class="question-chip" onclick="askSuggestedQuestion(this)">What modifications require ARC approval?</button>
-            <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the rules for short-term rentals?</button>
-            <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the maximum building heights in Discovery West?</button>
+          
+          <!-- Get Started Panel -->
+          <div class="welcome-getstarted">
+            <h3>Get Started</h3>
+            <p class="section-intro">Select a question or type your own below</p>
+            <div class="question-chips">
+              <button class="question-chip" onclick="askSuggestedQuestion(this)">What exterior paint colors are approved?</button>
+              <button class="question-chip" onclick="askSuggestedQuestion(this)">What modifications require ARC approval?</button>
+              <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the rules for short-term rentals?</button>
+              <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the maximum building heights in Discovery West?</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1400,78 +1395,78 @@
       const chatArea = document.getElementById('chatArea');
       chatArea.innerHTML = `
         <div class="welcome-panel" id="welcomePanel">
-          <div class="welcome-header">
+          <!-- Hero Section -->
+          <div class="welcome-hero">
             <img class="welcome-icon welcome-logo" src="assets/pinecone-logo.png" alt="Discovery West Logo">
             <h2>Welcome to ARC Bot</h2>
-            <p class="welcome-tagline">Your AI-powered assistant for Discovery West architectural guidelines</p>
+            <p class="welcome-tagline">Your AI assistant for Discovery West. Ask about architectural guidelines, CC&Rs, community rules, or City of Bend regulations — get answers with direct citations from official documents.</p>
           </div>
           
-          <div class="welcome-description">
-            <h4>What is the Architectural Review Console?</h4>
-            <p>ARC Bot is an AI-powered assistant that searches Discovery West's official governing 
-            documents to answer your architectural and community questions. Using hybrid search 
-            technology, it finds relevant information from multiple sources and synthesizes accurate, 
-            comprehensive answers.</p>
-            
-            <h4>What Can You Ask?</h4>
-            <p>Ask about exterior modifications (paint colors, fencing, landscaping), design requirements 
-            (setbacks, heights, materials), the ARC approval process, CC&R restrictions, community rules, 
-            or City of Bend overlay zone regulations.</p>
-            
-            <p class="welcome-features">
-              <strong>Every answer includes:</strong> Direct citations to source documents with 
-              key requirements extracted from the text. Sources marked <em>Binding</em> (like CC&Rs 
-              and City Code) carry legal weight, while <em>Guidance</em> sources offer best-practice 
-              recommendations. A confidence rating indicates how well the sources support the answer.
-            </p>
-          </div>
-          
-          <div class="welcome-documents">
-            <h3>Source Documents</h3>
-            <div class="document-links">
-              <a href="https://discoverywestbend.com/wp-content/uploads/2025/02/250130-DW-ARC-Guidelines-in-thier-entireity-2.18.25.pdf" target="_blank" rel="noopener" class="doc-link">
-                <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-                <span class="doc-name">Design Guidelines</span>
-                <span class="doc-desc">Architectural standards and requirements</span>
-              </a>
-              <a href="https://discoverywestbend.com/wp-content/uploads/2020/02/Discovery-West-CCRs-Recorded.pdf" target="_blank" rel="noopener" class="doc-link">
-                <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-                <span class="doc-name">CC&Rs</span>
-                <span class="doc-desc">Covenants, conditions, and restrictions</span>
-              </a>
-              <a href="https://discoverywestbend.com/wp-content/uploads/2022/06/Rules-and-Regulations.pdf" target="_blank" rel="noopener" class="doc-link">
-                <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-                <span class="doc-name">Rules & Regulations</span>
-                <span class="doc-desc">Community rules and policies</span>
-              </a>
-              <a href="https://bend.municipal.codes/BDC/2.7_ArtXIX" target="_blank" rel="noopener" class="doc-link">
-                <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="3" y1="9" x2="21" y2="9"></line>
-                  <line x1="9" y1="21" x2="9" y2="9"></line>
-                </svg>
-                <span class="doc-name">City of Bend Code</span>
-                <span class="doc-desc">Discovery West Overlay Zone regulations</span>
-              </a>
+          <!-- Two-Column Content Area -->
+          <div class="welcome-content">
+            <!-- Knowledge Base Panel -->
+            <div class="welcome-knowledge">
+              <h3>Knowledge Base</h3>
+              <p class="section-intro">Answers cite these official sources. Documents marked <span class="badge-inline binding">Binding</span> carry legal weight.</p>
+              <div class="document-links">
+                <a href="https://discoverywestbend.com/wp-content/uploads/2025/02/250130-DW-ARC-Guidelines-in-thier-entireity-2.18.25.pdf" target="_blank" rel="noopener" class="doc-link">
+                  <div class="doc-header">
+                    <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <span class="doc-badge guidance">Guidance</span>
+                  </div>
+                  <span class="doc-name">Design Guidelines</span>
+                  <span class="doc-desc">Architectural standards</span>
+                </a>
+                <a href="https://discoverywestbend.com/wp-content/uploads/2020/02/Discovery-West-CCRs-Recorded.pdf" target="_blank" rel="noopener" class="doc-link">
+                  <div class="doc-header">
+                    <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <span class="doc-badge binding">Binding</span>
+                  </div>
+                  <span class="doc-name">CC&Rs</span>
+                  <span class="doc-desc">Covenants & restrictions</span>
+                </a>
+                <a href="https://discoverywestbend.com/wp-content/uploads/2022/06/Rules-and-Regulations.pdf" target="_blank" rel="noopener" class="doc-link">
+                  <div class="doc-header">
+                    <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <span class="doc-badge guidance">Guidance</span>
+                  </div>
+                  <span class="doc-name">Rules & Regulations</span>
+                  <span class="doc-desc">Community policies</span>
+                </a>
+                <a href="https://bend.municipal.codes/BDC/2.7_ArtXIX" target="_blank" rel="noopener" class="doc-link">
+                  <div class="doc-header">
+                    <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="3" y1="9" x2="21" y2="9"></line>
+                      <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                    <span class="doc-badge binding">Binding</span>
+                  </div>
+                  <span class="doc-name">City of Bend Code</span>
+                  <span class="doc-desc">Overlay Zone regulations</span>
+                </a>
+              </div>
             </div>
-          </div>
-          
-          <div class="suggested-questions">
-            <h3>Try asking about...</h3>
-            <div class="question-chips">
-              <button class="question-chip" onclick="askSuggestedQuestion(this)">What exterior paint colors are approved?</button>
-              <button class="question-chip" onclick="askSuggestedQuestion(this)">What modifications require ARC approval?</button>
-              <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the rules for short-term rentals?</button>
-              <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the maximum building heights in Discovery West?</button>
+            
+            <!-- Get Started Panel -->
+            <div class="welcome-getstarted">
+              <h3>Get Started</h3>
+              <p class="section-intro">Select a question or type your own below</p>
+              <div class="question-chips">
+                <button class="question-chip" onclick="askSuggestedQuestion(this)">What exterior paint colors are approved?</button>
+                <button class="question-chip" onclick="askSuggestedQuestion(this)">What modifications require ARC approval?</button>
+                <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the rules for short-term rentals?</button>
+                <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the maximum building heights in Discovery West?</button>
+              </div>
             </div>
           </div>
         </div>
