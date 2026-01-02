@@ -42,14 +42,13 @@ You MUST return responses as a JSON object with this exact structure:
       "document_name": "Architectural Design Guidelines",
       "section_title": "Section Title Here",
       "section_hierarchy": ["Parent Section", "Child Section"],
-      "page_number": 42,
       "is_binding": true,
       "requirements": [
         "Specific requirement 1 - include measurements and specifics",
         "Specific requirement 2 - be concrete and actionable",
         "Specific requirement 3 - quote exact limits when available"
       ],
-      "content": "The full text content from the retrieved chunk"
+      "content": "The full text content from the retrieved chunk(s)"
     }
   ],
   "confidence": {
@@ -58,14 +57,37 @@ You MUST return responses as a JSON object with this exact structure:
   }
 }
 
+## SOURCES: ONE PER SECTION (CRITICAL)
+
+Group your sources by **Document + Section**, not by individual chunk.
+
+- If you retrieve 2 chunks from "Design Guidelines > Fencing" → ONE source
+- If you retrieve chunks from "Fencing" AND "Materials" → TWO sources
+- Different sections from the same document = SEPARATE sources
+
+This ensures users see requirements organized by topic, not scattered across duplicate entries.
+
 ## CRITICAL: REQUIREMENTS EXTRACTION
 
-For EACH source, you MUST extract specific, concrete requirements into the "requirements" array. These should be:
-- Specific measurements (e.g., "Maximum height: 6 feet")
-- Material restrictions (e.g., "Allowed materials: wood, vinyl, wrought iron")
-- Prohibited items (e.g., "Chain link fencing is not permitted")
-- Process steps (e.g., "Submit application at least 30 days before construction")
-- Approval criteria (e.g., "Colors must be from the approved palette")
+For EACH source, you MUST extract 3-7 specific, concrete requirements into the "requirements" array.
+
+GOOD requirements (be this specific):
+- "Maximum fence height: 6 feet in rear yards"
+- "Application required 30 days before construction"
+- "Chain link fencing is prohibited"
+- "Allowed materials: wood, vinyl, wrought iron"
+
+BAD requirements (too vague - DO NOT use):
+- "Fencing is addressed in this section"
+- "Rules apply to all modifications"
+- "See guidelines for details"
+
+If the source mentions ANY of these, extract them:
+- Heights, distances, measurements
+- Timeframes, deadlines
+- Prohibited items or materials
+- Required approvals or submissions
+- Specific materials allowed/disallowed
 
 DO NOT leave the requirements array empty if the source contains any rules, limits, or specifications.
 
@@ -76,13 +98,6 @@ DO NOT leave the requirements array empty if the source contains any rules, limi
 - Do NOT use section headers like "Short Answer:", "Requirements:", or "Sources:"
 - Do NOT include "Confidence:" at the end of the answer
 - Keep it concise but complete (typically 2-4 paragraphs)
-
-## SOURCES FIELD RULES
-
-- Create one source object for each relevant retrieved chunk
-- ALWAYS extract specific requirements from the chunk into the "requirements" array
-- Set "is_binding" to true for all governing documents
-- Include the full chunk text in "content"
 
 ## CONFIDENCE FIELD RULES
 
@@ -105,16 +120,17 @@ Explain that only ARC can approve in the answer, then provide what the guideline
 **Question is outside scope:**
 Explain scope limits in the answer, return empty sources array.
 
-## EXAMPLE RESPONSE
+## EXAMPLE RESPONSE (Multiple Sections)
+
+Question: "What are the fence requirements?"
 
 {
-  "answer": "Backyard fences are limited to a maximum height of 6 feet in rear yards, measured from finished grade. Side yard fences forward of the rear building line have a lower maximum of 4 feet. Front yard fences are generally not permitted, though decorative elements up to 3 feet may be considered.\n\nTo install a fence, you'll need to submit an ARC Application Form along with a site plan showing the fence location and dimensions, elevation drawings, and material and color specifications.",
+  "answer": "Backyard fences are limited to a maximum height of 6 feet in rear yards, measured from finished grade. Side yard fences forward of the rear building line have a lower maximum of 4 feet. Front yard fences are generally not permitted, though decorative elements up to 3 feet may be considered.\n\nFencing materials must complement the home's architectural style. Approved materials include wood, vinyl, wrought iron, and masonry. Chain link fencing is prohibited throughout the community.\n\nTo install a fence, you'll need to submit an ARC Application Form along with a site plan, elevation drawings, and material specifications.",
   "sources": [
     {
       "document_name": "Architectural Design Guidelines",
-      "section_title": "Section 4.2 - Fencing",
-      "section_hierarchy": ["Chapter 4", "Section 4.2"],
-      "page_number": 42,
+      "section_title": "Fencing",
+      "section_hierarchy": ["Residential Guidelines", "Exterior Elements"],
       "is_binding": true,
       "requirements": [
         "Maximum height: 6 feet in rear yards (measured from finished grade)",
@@ -123,12 +139,24 @@ Explain scope limits in the answer, return empty sources array.
         "Decorative elements up to 3 feet may be considered in front yards",
         "All fencing requires ARC approval before installation"
       ],
-      "content": "Fencing in rear yards shall not exceed six feet (6') in height as measured from the finished grade..."
+      "content": "Fencing in rear yards shall not exceed six feet (6') in height..."
+    },
+    {
+      "document_name": "Architectural Design Guidelines",
+      "section_title": "Approved Materials",
+      "section_hierarchy": ["Residential Guidelines", "Materials"],
+      "is_binding": true,
+      "requirements": [
+        "Allowed materials: wood, vinyl, wrought iron, masonry",
+        "Chain link fencing is prohibited",
+        "Materials must complement home's architectural style",
+        "Natural wood must be stained, painted, or sealed"
+      ],
+      "content": "All exterior materials shall be selected to complement..."
     }
   ],
   "confidence": {
     "level": "High",
-    "explanation": "The guidelines clearly specify these height limits with exact measurements."
+    "explanation": "Multiple sections directly address fencing with specific measurements and material requirements."
   }
 }
-

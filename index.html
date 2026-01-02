@@ -457,11 +457,6 @@
       flex-wrap: wrap;
     }
 
-    .source-page {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
     /* ===== AUTHORITY BADGE ===== */
     .authority-badge {
       display: inline-flex;
@@ -495,7 +490,24 @@
 
     /* ===== SOURCE REQUIREMENTS ===== */
     .source-requirements {
-      padding: 0 0.75rem 0.75rem 1.75rem;
+      padding: 0.5rem 0.75rem 0.75rem 1rem;
+      border-left: 3px solid var(--accent);
+      margin: 0 0.75rem 0.5rem 0.75rem;
+      background: rgba(5, 150, 105, 0.03);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    [data-theme="dark"] .source-requirements {
+      background: rgba(52, 211, 153, 0.05);
+    }
+
+    .requirements-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
     }
 
     .source-requirements ul {
@@ -522,8 +534,8 @@
       position: absolute;
       left: 0;
       top: 0.5rem;
-      width: 4px;
-      height: 4px;
+      width: 5px;
+      height: 5px;
       background: var(--accent);
       border-radius: 50%;
     }
@@ -666,12 +678,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-    }
-
-    .source-page {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      flex-shrink: 0;
     }
 
     .source-content {
@@ -1201,26 +1207,13 @@
       const hierarchy = source.section_hierarchy || [];
       const title = source.section_title || hierarchy[hierarchy.length - 1] || 'Unknown Section';
       const docName = source.document_name || 'Document';
-      const page = source.page_number ? `Page ${source.page_number}` : '';
       const content = source.content || 'Source content not available.';
       let requirements = source.requirements || [];
       const isBinding = source.is_binding !== false;
       
-      // If no requirements provided, try to extract bullet points from content
+      // If no requirements provided, try intelligent extraction from content
       if (requirements.length === 0 && content) {
-        const bulletMatches = content.match(/^[-•]\s*(.+)$/gm);
-        if (bulletMatches) {
-          requirements = bulletMatches.map(b => b.replace(/^[-•]\s*/, '').trim()).filter(b => b.length > 10);
-        }
-        // Also try numbered items
-        if (requirements.length === 0) {
-          const numberedMatches = content.match(/^\d+[.)]\s*(.+)$/gm);
-          if (numberedMatches) {
-            requirements = numberedMatches.map(b => b.replace(/^\d+[.)]\s*/, '').trim()).filter(b => b.length > 10);
-          }
-        }
-        // Limit to first 5 extracted requirements
-        requirements = requirements.slice(0, 5);
+        requirements = extractRequirementsFromContent(content);
       }
       
       // Determine authority type based on document name or is_binding flag
@@ -1228,19 +1221,24 @@
       const authorityType = isCCR ? 'binding' : (isBinding ? 'binding' : 'guidance');
       const authorityLabel = authorityType === 'binding' ? 'Binding' : 'Guidance';
       
-      // Build path: Document > Section hierarchy
-      let path = docName;
-      if (title && title !== docName) {
-        path += ` › ${title}`;
+      // Build full breadcrumb path: Document › Hierarchy › Section Title
+      const pathParts = [docName];
+      if (hierarchy.length > 0) {
+        pathParts.push(...hierarchy);
       }
+      if (title && !hierarchy.includes(title) && title !== docName) {
+        pathParts.push(title);
+      }
+      const path = pathParts.join(' › ');
       
       const sourceId = `${messageId}-source-${index}`;
       
-      // Build requirements list HTML - always show if we have any
+      // Build requirements list HTML with "Key Requirements" label
       let requirementsHtml = '';
       if (requirements.length > 0) {
         requirementsHtml = `
           <div class="source-requirements">
+            <div class="requirements-label">Key Requirements</div>
             <ul>
               ${requirements.map(req => `<li>${escapeHtml(req)}</li>`).join('')}
             </ul>
@@ -1255,7 +1253,6 @@
             <div class="source-info">
               <div class="source-path">${escapeHtml(path)}</div>
               <div class="source-meta">
-                <span class="source-page">${escapeHtml(page)}</span>
                 <span class="authority-badge authority-${authorityType}">${authorityLabel}</span>
               </div>
             </div>
@@ -1272,6 +1269,61 @@
           </div>
         </div>
       `;
+    }
+    
+    // Intelligent requirement extraction from content
+    function extractRequirementsFromContent(content) {
+      if (!content) return [];
+      const requirements = [];
+      
+      // 1. Explicit bullets (-, •, *, numbered)
+      const bulletMatches = content.match(/^[\s]*[-•*]\s+(.+)$/gm);
+      if (bulletMatches) {
+        bulletMatches.forEach(match => {
+          const text = match.replace(/^[\s]*[-•*]\s+/, '').trim();
+          if (text.length > 15 && text.length < 200) {
+            requirements.push(text);
+          }
+        });
+      }
+      
+      const numberedMatches = content.match(/^[\s]*\d+[.)]\s+(.+)$/gm);
+      if (numberedMatches) {
+        numberedMatches.forEach(match => {
+          const text = match.replace(/^[\s]*\d+[.)]\s+/, '').trim();
+          if (text.length > 15 && text.length < 200) {
+            requirements.push(text);
+          }
+        });
+      }
+      
+      // 2. Measurement patterns (numbers with units)
+      const measurementPattern = /[^.]*\b(\d+)\s*(feet|foot|ft|inches|inch|days?|percent|%|square feet|sq\.?\s*ft)[^.]*\./gi;
+      const measurementMatches = content.match(measurementPattern);
+      if (measurementMatches) {
+        measurementMatches.forEach(match => {
+          const text = match.trim();
+          if (text.length > 15 && text.length < 200 && !requirements.includes(text)) {
+            requirements.push(text);
+          }
+        });
+      }
+      
+      // 3. Requirement keywords
+      const keywordPattern = /[^.]*\b(must|shall|required|prohibited|not permitted|not allowed|maximum|minimum|limited to|cannot exceed|may not)[^.]*\./gi;
+      const keywordMatches = content.match(keywordPattern);
+      if (keywordMatches) {
+        keywordMatches.forEach(match => {
+          const text = match.trim();
+          if (text.length > 15 && text.length < 200 && !requirements.includes(text)) {
+            requirements.push(text);
+          }
+        });
+      }
+      
+      // Dedupe and limit to 7
+      const unique = [...new Set(requirements)];
+      return unique.slice(0, 7);
     }
 
     function toggleSourceExpand(sourceId) {
