@@ -38,11 +38,11 @@
 
 ### What Questions Can It Answer?
 
-- *"What is the maximum fence height along an alley?"*
-- *"How do I calculate Floor Area Ratio (FAR)?"*
-- *"What plants are approved for fire-resistant landscaping?"*
-- *"What are the setback requirements for R-1 lots?"*
-- *"What are the NDE-3 easement restrictions for my lot?"*
+- *"What is the minimum conifer tree spacing required for wildfire mitigation?"*
+- *"How far must garage windows be from grade to require obscured glazing?"*
+- *"What fence height is allowed within 8 feet of an alley?"*
+- *"What are the quiet hours in Discovery West?"*
+- *"What is the maximum building height for cottages in cluster housing?"*
 
 Every answer includes the **document name**, **section**, and **page number** so you can verify it yourself.
 
@@ -55,8 +55,9 @@ Every answer includes the **document name**, **section**, and **page number** so
 Discovery West's architectural standards span multiple documents totaling hundreds of pages:
 
 - **Architectural Design Guidelines** (143 pages, 15 exhibits)
-- **CC&Rs Declaration** (complex legal language)
-- **Rules and Regulations** (operational policies)
+- **CC&Rs Declaration** (57 pages of complex legal language)
+- **Rules and Regulations** (community operational policies)
+- **City of Bend Development Code** (Article XIX Discovery West Overlay Zone)
 
 Finding the right answer means:
 - ❌ Searching through lengthy PDFs
@@ -94,13 +95,19 @@ Each answer shows a confidence level:
 - **Low** — Limited information found; consult documents directly
 
 ### 📄 Source Transparency
-Expand any citation to see the **exact text** from the source document — without opening the PDF.
+Expand any citation to see the **exact text** from the source document — without opening the PDF. Each source is clearly labeled with its authority type:
+- **Binding** — CC&Rs and City of Bend Code (legally enforceable)
+- **ARC Guidance** — Design Guidelines (enforced by ARC)
+- **DWOA Guidance** — Rules & Regulations (community policies)
 
 ### 💬 Conversation Memory
 Ask follow-up questions naturally. The system remembers what you discussed within a session.
 
 ### 🌗 Light & Dark Themes
 Comfortable viewing in any environment.
+
+### 🎯 Rotating Sample Questions
+Each visit presents new sample questions showcasing nuanced, specific topics across all four document types — helping users discover the depth of information available.
 
 ### 🎨 Discovery West Branding
 Professional design featuring official Discovery West logos, charcoal and burnt orange color scheme, and direct links to source documents.
@@ -195,16 +202,32 @@ ARC Bot follows a simple process to answer your questions:
 
 ## Example Questions
 
-Here are real questions ARC Bot can answer, along with what to expect:
+Here are real questions ARC Bot can answer, organized by source document:
 
+**Design Guidelines (ARC Guidance):**
 | Question | What You'll Learn |
 |----------|-------------------|
-| *"What is the FAR requirement?"* | Maximum home size calculation (50% of lot), what counts toward FAR |
-| *"What colors can I paint my house?"* | Approved color palettes, submission requirements |
-| *"Can I have a detached ADU?"* | ADU rules, size limits, setback requirements |
-| *"What trees can I plant in Zone 1?"* | Fire-resistant species from Exhibit F |
-| *"What are the NDE fence requirements?"* | Fence types, heights, and materials near Non-Development Easements |
-| *"How do I submit for ARC review?"* | Application process, fees, timelines from Exhibit A |
+| *"What is the minimum conifer tree spacing for wildfire mitigation?"* | Specific spacing requirements for fire safety |
+| *"What fence height is allowed within 8 feet of an alley?"* | Location-specific fence requirements |
+| *"What roofing materials are prohibited in Discovery West?"* | Material restrictions and alternatives |
+
+**CC&Rs (Binding):**
+| Question | What You'll Learn |
+|----------|-------------------|
+| *"What is the minimum rental period allowed in Discovery West?"* | Rental restrictions and enforcement |
+| *"When does an assessment become delinquent?"* | Payment timelines and consequences |
+
+**Rules & Regulations (DWOA Guidance):**
+| Question | What You'll Learn |
+|----------|-------------------|
+| *"What are the quiet hours in Discovery West?"* | Noise restrictions and timeframes |
+| *"Where can visitors park overnight?"* | Parking rules and designated areas |
+
+**City of Bend Code (Binding):**
+| Question | What You'll Learn |
+|----------|-------------------|
+| *"What is the maximum building height for cottages in cluster housing?"* | Zoning-specific height limits |
+| *"What are the setback requirements for R-1 small lots?"* | Municipal setback standards |
 
 ### Tips for Best Results
 
@@ -283,6 +306,7 @@ ARC Bot connects several services to deliver accurate, cited answers:
 | **Database** | Supabase (PostgreSQL + pgvector) | Document storage and vector search |
 | **LLM** | OpenAI GPT-4o | Question answering and reasoning |
 | **Embeddings** | text-embedding-3-large (1536 dims) | Semantic search capability |
+| **Total Chunks** | 244 | Complete knowledge base |
 
 ### Why These Choices?
 
@@ -296,7 +320,7 @@ ARC Bot connects several services to deliver accurate, cited answers:
 
 ## Project Status
 
-### ✅ Complete
+### ✅ Production Ready
 
 | Component | Details |
 |-----------|---------|
@@ -304,11 +328,14 @@ ARC Bot connects several services to deliver accurate, cited answers:
 | Document Ingestion | Structure-aware chunking with section detection |
 | Hybrid Retrieval | Vector similarity + full-text search |
 | AI Agent | GPT-4o with tool calling, JSON response format, session memory |
-| Chat Frontend | Discovery West branded UI with official logos, enhanced welcome panel, question chips |
+| Chat Frontend | Discovery West branded UI with official logos, enhanced welcome panel |
+| Rotating Question Library | 26 nuanced questions across 4 document types |
+| Authority Labels | Binding, ARC Guidance, and DWOA Guidance badges |
 | **Architectural Design Guidelines** | **148 chunks**, all 15 exhibits (A-O) |
 | **CC&Rs Declaration** | **83 chunks** with legal covenants and enforcement |
 | **Rules & Regulations** | **1 chunk** with community rules |
 | **City of Bend Code** | **12 chunks** with Discovery West Overlay Zone |
+| **Total Knowledge Base** | **244 chunks** across **4 governing documents** |
 
 ### 🔲 Planned
 
@@ -317,7 +344,6 @@ ARC Bot connects several services to deliver accurate, cited answers:
 | Dynamic Follow-up Suggestions | Medium | AI-generated contextual questions |
 | Response Letter Archive | Low | Precedent search from past decisions |
 | Query Analytics | Low | Track common questions and gaps |
-| Optimized Reranker | Low | GPT-4o-mini or fewer chunks if re-enabled |
 
 ---
 
@@ -447,4 +473,4 @@ This project is developed for the Discovery West community. Source code and docu
 
 ---
 
-*Last Updated: January 2, 2026*
+*Last Updated: January 2, 2026 — Internal Launch Ready*

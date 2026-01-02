@@ -1,6 +1,6 @@
 # ARC Bot (Architectural Review Console) — Answer Contract
 
-**Version:** 2.2  
+**Version:** 2.3  
 **Last Updated:** January 2, 2026  
 **Status:** Canonical Reference
 
@@ -174,11 +174,15 @@ The frontend renders the JSON response as:
 
 ### 3.5 Authority Badges
 
-Sources are tagged with authority level:
-- **Binding** — CC&Rs, Declaration documents (legally enforceable)
-- **Guidance** — Design Guidelines, Rules (ARC-enforced but not legally binding)
+Sources are tagged with authority level based on their document type:
 
-This helps users understand the weight of each requirement.
+| Badge | Documents | Meaning |
+|-------|-----------|---------|
+| **Binding** | CC&Rs, City of Bend Code | Legally enforceable requirements |
+| **ARC Guidance** | Design Guidelines | Enforced by Architectural Review Committee |
+| **DWOA Guidance** | Rules & Regulations | Community policies enforced by DWOA |
+
+This helps users understand the weight and enforcement mechanism of each requirement.
 
 ---
 
@@ -530,6 +534,7 @@ Before sending a response, verify:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.3 | 2026-01-02 | AI Agent | Updated authority badges: Binding, ARC Guidance, DWOA Guidance with document mapping |
 | 2.2 | 2026-01-02 | AI Agent | Updated answer guidelines to be more concise and focused; sources remain comprehensive |
 | 2.1 | 2026-01-01 | AI Agent | Added CC&Rs and Rules & Regulations to knowledge base; minor formatting updates |
 | 2.0 | 2025-12-31 | AI Agent | Major restructure: JSON response format, requirements grouped by source, confidence as metadata |

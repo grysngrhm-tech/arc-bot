@@ -1,8 +1,8 @@
 # ARC Bot (Architectural Review Console) — Implementation Status
 
-**Version:** 1.6  
+**Version:** 1.7  
 **Last Updated:** January 2, 2026  
-**Status:** Production Ready
+**Status:** Internal Launch Ready
 
 ---
 
@@ -17,7 +17,9 @@
 | Hybrid Retrieval Tool | ✅ Complete | Tested and working |
 | Reranker Tool | ⏸️ Disabled | Disconnected for performance (adds ~60s latency) |
 | Main AI Agent Workflow | ✅ Complete | GPT-4o with enforced JSON response format |
-| Chat Frontend | ✅ Complete | Discovery West branded UI with official logos, enhanced welcome panel, suggested question chips |
+| Chat Frontend | ✅ Complete | Discovery West branded UI with official logos, enhanced welcome panel |
+| Rotating Question Library | ✅ Complete | 26 nuanced questions across 4 document types, refreshed on page load |
+| Authority Labels | ✅ Complete | Binding, ARC Guidance, and DWOA Guidance badges aligned across UI |
 
 ---
 
@@ -384,7 +386,9 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 8. ✅ **CC&Rs & Rules Ingestion** — All governing documents now searchable
 9. ✅ **Enhanced Response Format** — JSON structure with expandable sources
 10. ✅ **City Code Ingestion** — Discovery West Overlay Zone (BDC Article XIX)
-11. ✅ **UI Branding Refresh** — Discovery West branded design with official logos, enhanced welcome panel, document-targeted question chips, direct PDF links
+11. ✅ **UI Branding Refresh** — Discovery West branded design with official logos, enhanced welcome panel, direct PDF links
+12. ✅ **Rotating Question Library** — 26 nuanced questions across 4 document types with random selection
+13. ✅ **Authority Labels** — Binding, ARC Guidance, and DWOA Guidance badges with consistent display
 
 ### 8.2 Future Enhancements
 
@@ -442,7 +446,8 @@ The AI Agent now returns structured JSON responses:
 | Discovery West Branding | Official pinecone logo, charcoal/burnt orange color scheme |
 | Enhanced Welcome Panel | Expanded description explaining what ARC Bot is and how it works |
 | Direct Document Links | Links to actual PDF source documents (Guidelines, CC&Rs, Rules, City Code) |
-| Suggested Question Chips | Document-targeted sample questions in 2-column grid layout |
+| Rotating Question Library | 26 nuanced questions (5-10 per document type) with random rotation on each visit |
+| Authority Labels | Aligned labels: Binding (CC&Rs, City Code), ARC Guidance (Design Guidelines), DWOA Guidance (Rules) |
 | Montserrat Typography | Professional typography matching Discovery West aesthetic |
 | Staggered Animations | Smooth fade-in animations for welcome panel elements |
 
@@ -478,6 +483,7 @@ The AI Agent now returns structured JSON responses:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.7 | 2026-01-02 | AI Agent | Internal launch ready: Rotating question library (26 nuanced questions), Authority labels (Binding, ARC Guidance, DWOA Guidance), Documentation refresh |
 | 1.6 | 2026-01-02 | AI Agent | UI branding refresh: Discovery West logos, charcoal/orange color scheme, Montserrat typography, enhanced welcome panel, document-targeted question chips, direct PDF links |
 | 1.5 | 2026-01-02 | AI Agent | Fixed embedding model mismatch (3-small→3-large); Enabled JSON response format; Increased chunk limit to 15; Disabled reranker for performance; Concise answer format |
 | 1.4 | 2026-01-02 | AI Agent | Added City of Bend Development Code - Discovery West (12 chunks); Fixed source modal UI (removed dual toggle) |
