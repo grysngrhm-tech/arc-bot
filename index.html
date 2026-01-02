@@ -130,8 +130,13 @@
     .header-icon {
       width: 40px;
       height: 40px;
-      color: var(--accent);
       flex-shrink: 0;
+    }
+
+    .header-logo {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
     }
 
     .header-titles {
@@ -716,10 +721,15 @@
     }
 
     .welcome-icon {
-      width: 72px;
-      height: 72px;
-      color: var(--accent);
+      width: 80px;
+      height: 96px;
       margin: 0 auto 1rem;
+    }
+
+    .welcome-logo {
+      width: 80px;
+      height: 96px;
+      object-fit: contain;
     }
 
     .welcome-header h2 {
@@ -742,11 +752,41 @@
       padding: 0 1rem;
     }
 
+    .welcome-description h4 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+
     .welcome-description p {
       font-size: 0.875rem;
       color: var(--text-secondary);
       line-height: 1.7;
-      margin: 0;
+      margin: 0 0 0.75rem 0;
+    }
+
+    .welcome-description p:last-child {
+      margin-bottom: 0;
+    }
+
+    .welcome-features {
+      font-size: 0.8125rem;
+      background: var(--bg-card);
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-top: 1rem;
+    }
+
+    .welcome-features strong {
+      color: var(--text-primary);
+    }
+
+    .welcome-features em {
+      color: var(--accent);
+      font-style: normal;
+      font-weight: 500;
     }
 
     /* ===== DOCUMENT LINKS ===== */
@@ -813,30 +853,43 @@
       text-align: center;
     }
 
+    .suggested-questions h3 {
+      text-align: center;
+    }
+
     .question-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      text-align: left;
     }
 
     .question-chip {
-      background: transparent;
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 0.625rem 1rem;
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
       font-size: 0.8125rem;
       font-family: inherit;
       color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.2s ease;
+      text-align: left;
+      line-height: 1.4;
     }
 
     .question-chip:hover {
       background: var(--accent);
       border-color: var(--accent);
       color: var(--text-on-accent);
-      transform: scale(1.02);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    @media (max-width: 640px) {
+      .question-chips {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* Staggered animations for welcome panel elements */
@@ -1166,9 +1219,31 @@
     <!-- Header -->
     <header class="header">
       <div class="header-brand">
-        <!-- Pinecone/Evergreen icon representing Discovery West's Pacific Northwest aesthetic -->
-        <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2L9 7h6L12 2zM7 9l-3 5h5l-2-5zM17 9l2 5h-5l3-5zM12 9l-3 5h6l-3-5zM5 16l-3 5h6l-3-5zM12 16l-3 5h6l-3-5zM19 16l-3 5h6l-3-5z"/>
+        <!-- Official Discovery West Pinecone Logo -->
+        <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" fill="#c96f3c">
+          <!-- Top tip -->
+          <path d="M50 0 L58 18 L42 18 Z"/>
+          <!-- Row 2 - two angled segments -->
+          <path d="M42 22 L35 36 L22 36 L30 22 Z"/>
+          <path d="M58 22 L70 22 L78 36 L65 36 Z"/>
+          <!-- Row 3 - three segments -->
+          <path d="M30 40 L22 54 L8 54 L18 40 Z"/>
+          <path d="M38 40 L62 40 L58 54 L42 54 Z"/>
+          <path d="M70 40 L82 40 L92 54 L78 54 Z"/>
+          <!-- Row 4 - three segments -->
+          <path d="M18 58 L8 72 L2 72 L12 58 Z"/>
+          <path d="M26 58 L74 58 L68 72 L32 72 Z"/>
+          <path d="M82 58 L88 58 L98 72 L92 72 Z"/>
+          <!-- Row 5 - two segments -->
+          <path d="M12 76 L32 76 L24 90 L6 90 Z"/>
+          <path d="M68 76 L88 76 L94 90 L76 90 Z"/>
+          <!-- Row 6 - center -->
+          <path d="M36 76 L64 76 L58 90 L42 90 Z"/>
+          <!-- Bottom segments -->
+          <path d="M24 94 L42 94 L36 108 L18 108 Z"/>
+          <path d="M58 94 L76 94 L82 108 L64 108 Z"/>
+          <!-- Bottom tip -->
+          <path d="M46 94 L54 94 L50 118 Z"/>
         </svg>
         <div class="header-titles">
           <h1>Architectural Review Console</h1>
@@ -1199,24 +1274,60 @@
     <main class="chat-area" id="chatArea">
       <div class="welcome-panel" id="welcomePanel">
         <div class="welcome-header">
-          <!-- Large pinecone icon -->
-          <svg class="welcome-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L9 7h6L12 2zM7 9l-3 5h5l-2-5zM17 9l2 5h-5l3-5zM12 9l-3 5h6l-3-5zM5 16l-3 5h6l-3-5zM12 16l-3 5h6l-3-5zM19 16l-3 5h6l-3-5z"/>
+          <!-- Official Discovery West Pinecone Logo -->
+          <svg class="welcome-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" fill="#c96f3c">
+            <!-- Top tip -->
+            <path d="M50 0 L58 18 L42 18 Z"/>
+            <!-- Row 2 - two angled segments -->
+            <path d="M42 22 L35 36 L22 36 L30 22 Z"/>
+            <path d="M58 22 L70 22 L78 36 L65 36 Z"/>
+            <!-- Row 3 - three segments -->
+            <path d="M30 40 L22 54 L8 54 L18 40 Z"/>
+            <path d="M38 40 L62 40 L58 54 L42 54 Z"/>
+            <path d="M70 40 L82 40 L92 54 L78 54 Z"/>
+            <!-- Row 4 - three segments -->
+            <path d="M18 58 L8 72 L2 72 L12 58 Z"/>
+            <path d="M26 58 L74 58 L68 72 L32 72 Z"/>
+            <path d="M82 58 L88 58 L98 72 L92 72 Z"/>
+            <!-- Row 5 - two segments -->
+            <path d="M12 76 L32 76 L24 90 L6 90 Z"/>
+            <path d="M68 76 L88 76 L94 90 L76 90 Z"/>
+            <!-- Row 6 - center -->
+            <path d="M36 76 L64 76 L58 90 L42 90 Z"/>
+            <!-- Bottom segments -->
+            <path d="M24 94 L42 94 L36 108 L18 108 Z"/>
+            <path d="M58 94 L76 94 L82 108 L64 108 Z"/>
+            <!-- Bottom tip -->
+            <path d="M46 94 L54 94 L50 118 Z"/>
           </svg>
           <h2>Welcome to ARC Bot</h2>
-          <p class="welcome-tagline">Your AI assistant for Discovery West architectural guidelines</p>
+          <p class="welcome-tagline">Your AI-powered assistant for Discovery West architectural guidelines</p>
         </div>
         
         <div class="welcome-description">
-          <p>Get instant answers about exterior modifications, design requirements, and community standards. 
-          ARC Bot searches the official governing documents and provides accurate, cited responses to help 
-          you plan your project.</p>
+          <h4>What is the Architectural Review Console?</h4>
+          <p>ARC Bot is an AI-powered assistant that searches Discovery West's official governing 
+          documents to answer your architectural and community questions. Using hybrid search 
+          technology, it finds relevant information from multiple sources and synthesizes accurate, 
+          comprehensive answers.</p>
+          
+          <h4>What Can You Ask?</h4>
+          <p>Ask about exterior modifications (paint colors, fencing, landscaping), design requirements 
+          (setbacks, heights, materials), the ARC approval process, CC&R restrictions, community rules, 
+          or City of Bend overlay zone regulations.</p>
+          
+          <p class="welcome-features">
+            <strong>Every answer includes:</strong> Direct citations to source documents with 
+            key requirements extracted from the text. Sources marked <em>Binding</em> (like CC&Rs 
+            and City Code) carry legal weight, while <em>Guidance</em> sources offer best-practice 
+            recommendations. A confidence rating indicates how well the sources support the answer.
+          </p>
         </div>
         
         <div class="welcome-documents">
           <h3>Source Documents</h3>
           <div class="document-links">
-            <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+            <a href="https://discoverywestbend.com/wp-content/uploads/2025/02/250130-DW-ARC-Guidelines-in-thier-entireity-2.18.25.pdf" target="_blank" rel="noopener" class="doc-link">
               <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
@@ -1224,7 +1335,7 @@
               <span class="doc-name">Design Guidelines</span>
               <span class="doc-desc">Architectural standards and requirements</span>
             </a>
-            <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+            <a href="https://discoverywestbend.com/wp-content/uploads/2020/02/Discovery-West-CCRs-Recorded.pdf" target="_blank" rel="noopener" class="doc-link">
               <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
@@ -1232,7 +1343,7 @@
               <span class="doc-name">CC&Rs</span>
               <span class="doc-desc">Covenants, conditions, and restrictions</span>
             </a>
-            <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+            <a href="https://discoverywestbend.com/wp-content/uploads/2022/06/Rules-and-Regulations.pdf" target="_blank" rel="noopener" class="doc-link">
               <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
@@ -1338,23 +1449,59 @@
       chatArea.innerHTML = `
         <div class="welcome-panel" id="welcomePanel">
           <div class="welcome-header">
-            <svg class="welcome-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L9 7h6L12 2zM7 9l-3 5h5l-2-5zM17 9l2 5h-5l3-5zM12 9l-3 5h6l-3-5zM5 16l-3 5h6l-3-5zM12 16l-3 5h6l-3-5zM19 16l-3 5h6l-3-5z"/>
+            <svg class="welcome-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" fill="#c96f3c">
+              <!-- Top tip -->
+              <path d="M50 0 L58 18 L42 18 Z"/>
+              <!-- Row 2 - two angled segments -->
+              <path d="M42 22 L35 36 L22 36 L30 22 Z"/>
+              <path d="M58 22 L70 22 L78 36 L65 36 Z"/>
+              <!-- Row 3 - three segments -->
+              <path d="M30 40 L22 54 L8 54 L18 40 Z"/>
+              <path d="M38 40 L62 40 L58 54 L42 54 Z"/>
+              <path d="M70 40 L82 40 L92 54 L78 54 Z"/>
+              <!-- Row 4 - three segments -->
+              <path d="M18 58 L8 72 L2 72 L12 58 Z"/>
+              <path d="M26 58 L74 58 L68 72 L32 72 Z"/>
+              <path d="M82 58 L88 58 L98 72 L92 72 Z"/>
+              <!-- Row 5 - two segments -->
+              <path d="M12 76 L32 76 L24 90 L6 90 Z"/>
+              <path d="M68 76 L88 76 L94 90 L76 90 Z"/>
+              <!-- Row 6 - center -->
+              <path d="M36 76 L64 76 L58 90 L42 90 Z"/>
+              <!-- Bottom segments -->
+              <path d="M24 94 L42 94 L36 108 L18 108 Z"/>
+              <path d="M58 94 L76 94 L82 108 L64 108 Z"/>
+              <!-- Bottom tip -->
+              <path d="M46 94 L54 94 L50 118 Z"/>
             </svg>
             <h2>Welcome to ARC Bot</h2>
-            <p class="welcome-tagline">Your AI assistant for Discovery West architectural guidelines</p>
+            <p class="welcome-tagline">Your AI-powered assistant for Discovery West architectural guidelines</p>
           </div>
           
           <div class="welcome-description">
-            <p>Get instant answers about exterior modifications, design requirements, and community standards. 
-            ARC Bot searches the official governing documents and provides accurate, cited responses to help 
-            you plan your project.</p>
+            <h4>What is the Architectural Review Console?</h4>
+            <p>ARC Bot is an AI-powered assistant that searches Discovery West's official governing 
+            documents to answer your architectural and community questions. Using hybrid search 
+            technology, it finds relevant information from multiple sources and synthesizes accurate, 
+            comprehensive answers.</p>
+            
+            <h4>What Can You Ask?</h4>
+            <p>Ask about exterior modifications (paint colors, fencing, landscaping), design requirements 
+            (setbacks, heights, materials), the ARC approval process, CC&R restrictions, community rules, 
+            or City of Bend overlay zone regulations.</p>
+            
+            <p class="welcome-features">
+              <strong>Every answer includes:</strong> Direct citations to source documents with 
+              key requirements extracted from the text. Sources marked <em>Binding</em> (like CC&Rs 
+              and City Code) carry legal weight, while <em>Guidance</em> sources offer best-practice 
+              recommendations. A confidence rating indicates how well the sources support the answer.
+            </p>
           </div>
           
           <div class="welcome-documents">
             <h3>Source Documents</h3>
             <div class="document-links">
-              <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+              <a href="https://discoverywestbend.com/wp-content/uploads/2025/02/250130-DW-ARC-Guidelines-in-thier-entireity-2.18.25.pdf" target="_blank" rel="noopener" class="doc-link">
                 <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
@@ -1362,7 +1509,7 @@
                 <span class="doc-name">Design Guidelines</span>
                 <span class="doc-desc">Architectural standards and requirements</span>
               </a>
-              <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+              <a href="https://discoverywestbend.com/wp-content/uploads/2020/02/Discovery-West-CCRs-Recorded.pdf" target="_blank" rel="noopener" class="doc-link">
                 <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
@@ -1370,7 +1517,7 @@
                 <span class="doc-name">CC&Rs</span>
                 <span class="doc-desc">Covenants, conditions, and restrictions</span>
               </a>
-              <a href="https://discoverywestbend.com/design-guidelines/" target="_blank" rel="noopener" class="doc-link">
+              <a href="https://discoverywestbend.com/wp-content/uploads/2022/06/Rules-and-Regulations.pdf" target="_blank" rel="noopener" class="doc-link">
                 <svg class="doc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
