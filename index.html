@@ -1283,11 +1283,8 @@
           <div class="welcome-getstarted">
             <h3>Get Started</h3>
             <p class="section-intro">Select a question or type your own below</p>
-            <div class="question-chips">
-              <button class="question-chip" onclick="askSuggestedQuestion(this)">What exterior paint colors are approved?</button>
-              <button class="question-chip" onclick="askSuggestedQuestion(this)">What modifications require ARC approval?</button>
-              <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the rules for short-term rentals?</button>
-              <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the maximum building heights in Discovery West?</button>
+            <div class="question-chips" id="questionChips">
+              <!-- Questions populated dynamically by JavaScript -->
             </div>
           </div>
         </div>
@@ -1326,6 +1323,67 @@
   <script>
     // ===== CONFIGURATION =====
     const API_URL = 'https://n8n.srv1208741.hstgr.cloud/webhook/arc-chat';
+    
+    // ===== QUESTION LIBRARY =====
+    // Organized by source document - 5+ questions each targeting specific nuanced details
+    const questionLibrary = {
+      // Design Guidelines (Guidance) - Architectural standards
+      designGuidelines: [
+        "What is the minimum conifer tree spacing required for wildfire mitigation?",
+        "How far must garage windows be from grade to require obscured glazing?",
+        "What fence height is allowed within 8 feet of an alley?",
+        "What offset is required for homes with more than two garage bays?",
+        "What type of fencing is required parallel to a Non-Development Easement?",
+        "What is the FAR percentage if my home includes an ADU?",
+        "What roofing materials are prohibited in Discovery West?",
+        "What is the minimum street tree caliper at time of planting?",
+        "What materials are required for fence posts in Discovery West?",
+        "How close can a fence be to home siding per wildfire requirements?"
+      ],
+      // CC&Rs (Binding) - Covenants & restrictions
+      ccrs: [
+        "What is the minimum rental period allowed under the CC&Rs?",
+        "How many days until an unpaid assessment becomes delinquent?",
+        "Do home swap arrangements count as short-term rentals?",
+        "Can the Association pursue multiple enforcement remedies simultaneously?",
+        "What triggers the Association's right to impose fines on an owner?"
+      ],
+      // Rules & Regulations (Guidance) - Community policies
+      rulesRegs: [
+        "What are the parking restrictions in Discovery West?",
+        "Are there restrictions on outdoor storage or equipment?",
+        "What are the rules for holiday decorations?",
+        "Are commercial vehicles allowed to park on residential lots?",
+        "What are the quiet hours in Discovery West?"
+      ],
+      // City of Bend Code (Binding) - Overlay Zone regulations
+      cityCode: [
+        "What is the maximum building height for cottages in cluster housing?",
+        "What is the height limit for buildings on Skyliners Road?",
+        "What is the maximum building height for mews houses?",
+        "How is building height measured in Discovery West?",
+        "What are the setback requirements for R-1 small lots?",
+        "What is the maximum lot coverage for large R-3 lots?"
+      ]
+    };
+
+    // Get one random question from each document category
+    function getRandomQuestions() {
+      return [
+        questionLibrary.designGuidelines[Math.floor(Math.random() * questionLibrary.designGuidelines.length)],
+        questionLibrary.ccrs[Math.floor(Math.random() * questionLibrary.ccrs.length)],
+        questionLibrary.rulesRegs[Math.floor(Math.random() * questionLibrary.rulesRegs.length)],
+        questionLibrary.cityCode[Math.floor(Math.random() * questionLibrary.cityCode.length)]
+      ];
+    }
+
+    // Generate question chips HTML
+    function generateQuestionChipsHTML() {
+      const questions = getRandomQuestions();
+      return questions.map(q => 
+        `<button class="question-chip" onclick="askSuggestedQuestion(this)">${q}</button>`
+      ).join('\n              ');
+    }
     
     // ===== STATE =====
     let isLoading = false;
@@ -1420,11 +1478,8 @@
             <div class="welcome-getstarted">
               <h3>Get Started</h3>
               <p class="section-intro">Select a question or type your own below</p>
-              <div class="question-chips">
-                <button class="question-chip" onclick="askSuggestedQuestion(this)">What exterior paint colors are approved?</button>
-                <button class="question-chip" onclick="askSuggestedQuestion(this)">What modifications require ARC approval?</button>
-                <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the rules for short-term rentals?</button>
-                <button class="question-chip" onclick="askSuggestedQuestion(this)">What are the maximum building heights in Discovery West?</button>
+              <div class="question-chips" id="questionChips">
+                ${generateQuestionChipsHTML()}
               </div>
             </div>
           </div>
@@ -1984,6 +2039,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       initTheme();
       getSessionId();
+      // Populate initial question chips with random selection
+      const questionChipsContainer = document.getElementById('questionChips');
+      if (questionChipsContainer) {
+        questionChipsContainer.innerHTML = generateQuestionChipsHTML();
+      }
       document.getElementById('messageInput').focus();
     });
   </script>
