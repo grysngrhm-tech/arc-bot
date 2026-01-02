@@ -1237,7 +1237,7 @@
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                   </svg>
-                  <span class="doc-badge guidance">Guidance</span>
+                  <span class="doc-badge guidance">ARC Guidance</span>
                 </div>
                 <span class="doc-name">Design Guidelines</span>
                 <span class="doc-desc">Architectural standards</span>
@@ -1259,7 +1259,7 @@
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                   </svg>
-                  <span class="doc-badge guidance">Guidance</span>
+                  <span class="doc-badge guidance">DWOA Guidance</span>
                 </div>
                 <span class="doc-name">Rules & Regulations</span>
                 <span class="doc-desc">Community policies</span>
@@ -1432,7 +1432,7 @@
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                       <polyline points="14 2 14 8 20 8"></polyline>
                     </svg>
-                    <span class="doc-badge guidance">Guidance</span>
+                    <span class="doc-badge guidance">ARC Guidance</span>
                   </div>
                   <span class="doc-name">Design Guidelines</span>
                   <span class="doc-desc">Architectural standards</span>
@@ -1454,7 +1454,7 @@
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                       <polyline points="14 2 14 8 20 8"></polyline>
                     </svg>
-                    <span class="doc-badge guidance">Guidance</span>
+                    <span class="doc-badge guidance">DWOA Guidance</span>
                   </div>
                   <span class="doc-name">Rules & Regulations</span>
                   <span class="doc-desc">Community policies</span>
@@ -1640,10 +1640,27 @@
         requirements = extractRequirementsFromContent(content);
       }
       
-      // Determine authority type based on document name or is_binding flag
-      const isCCR = docName.toLowerCase().includes('cc&r') || docName.toLowerCase().includes('ccr') || docName.toLowerCase().includes('declaration');
-      const authorityType = isCCR ? 'binding' : (isBinding ? 'binding' : 'guidance');
-      const authorityLabel = authorityType === 'binding' ? 'Binding' : 'Guidance';
+      // Determine authority type based on document name
+      const docNameLower = docName.toLowerCase();
+      let authorityType, authorityLabel;
+
+      if (docNameLower.includes('cc&r') || docNameLower.includes('ccr') || docNameLower.includes('declaration')) {
+        authorityType = 'binding';
+        authorityLabel = 'Binding';
+      } else if (docNameLower.includes('city of bend') || docNameLower.includes('development code') || docNameLower.includes('bdc')) {
+        authorityType = 'binding';
+        authorityLabel = 'Binding';
+      } else if (docNameLower.includes('design guideline') || docNameLower.includes('architectural')) {
+        authorityType = 'guidance';
+        authorityLabel = 'ARC Guidance';
+      } else if (docNameLower.includes('rules') || docNameLower.includes('regulation')) {
+        authorityType = 'guidance';
+        authorityLabel = 'DWOA Guidance';
+      } else {
+        // Fallback based on is_binding flag
+        authorityType = isBinding ? 'binding' : 'guidance';
+        authorityLabel = isBinding ? 'Binding' : 'Guidance';
+      }
       
       // Build full breadcrumb path: Document › Hierarchy › Section Title
       const pathParts = [docName];
