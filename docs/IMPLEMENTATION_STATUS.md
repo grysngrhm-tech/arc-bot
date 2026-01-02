@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — Implementation Status
 
-**Version:** 1.3  
-**Last Updated:** January 1, 2026  
+**Version:** 1.4  
+**Last Updated:** January 2, 2026  
 **Status:** Production Ready
 
 ---
@@ -12,7 +12,7 @@
 |-----------|--------|---------|
 | Supabase Database | ✅ Complete | Schema, indexes, functions deployed |
 | Storage Bucket | ✅ Complete | `arc-documents` bucket created |
-| Document Ingestion Workflow | ✅ Complete | 232 chunks ingested (3 documents) |
+| Document Ingestion Workflow | ✅ Complete | 244 chunks ingested (4 documents) |
 | Exhibit Supplements | ✅ Complete | All exhibits A-O vectorized |
 | Hybrid Retrieval Tool | ✅ Complete | Tested and working |
 | Reranker Tool | ✅ Complete | GPT-4o scoring |
@@ -55,8 +55,8 @@
 
 | Table | Purpose | Row Count |
 |-------|---------|-----------|
-| `documents` | Source document registry | 3 |
-| `knowledge_chunks` | Main chunk storage with embeddings | 232 |
+| `documents` | Source document registry | 4 |
+| `knowledge_chunks` | Main chunk storage with embeddings | 244 |
 | `ingestion_batches` | Audit trail for imports | 0 |
 | `query_log` | Query analytics | 0 |
 
@@ -246,7 +246,8 @@ Check for Error (IF)
 | Architectural Design Guidelines | design_guidelines | 143 | 148 | ✅ Complete |
 | CC&Rs Declaration | ccr | 57 | 83 | ✅ Complete |
 | Rules & Regulations | rules_regulations | 1 | 1 | ✅ Complete |
-| **Total** | | **201** | **232** | |
+| City of Bend - Discovery West | city_code | N/A | 12 | ✅ Complete |
+| **Total** | | **201+** | **244** | |
 
 ### 5.2 Document Details
 
@@ -267,6 +268,13 @@ Check for Error (IF)
 - Ingested: January 1, 2026
 - Chunk Distribution: 1 chunk (single page document)
 - Content: Community rules (trash, parking, lighting, etc.)
+
+**City of Bend Development Code - Discovery West:**
+- Source: https://bend.municipal.codes/BDC/2.7_ArtXIX
+- Ingested: January 2, 2026
+- Chunk Distribution: 12 chunks across 10 code sections
+- Content: Article XIX Discovery West Master Planned Development (districts, permitted uses, setbacks, live/work townhomes, cluster housing, street standards)
+- Sections: 2.7.3700-2.7.3790
 
 ### 5.3 Exhibit Coverage
 
@@ -368,6 +376,7 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 7. ✅ **Exhibit Supplements** — All exhibits A-O manually transcribed and vectorized
 8. ✅ **CC&Rs & Rules Ingestion** — All governing documents now searchable
 9. ✅ **Enhanced Response Format** — JSON structure with expandable sources
+10. ✅ **City Code Ingestion** — Discovery West Overlay Zone (BDC Article XIX)
 
 ### 8.2 Future Enhancements
 
@@ -438,6 +447,7 @@ The AI Agent now returns structured JSON responses:
 |------|---------|
 | [database/001_initial_schema.sql](../database/001_initial_schema.sql) | Complete Supabase schema |
 | [database/002_storage_bucket.sql](../database/002_storage_bucket.sql) | Storage bucket setup |
+| [database/004_dw_overlay_zone.sql](../database/004_dw_overlay_zone.sql) | Discovery West code chunks |
 | [docs/ARCHITECTURE.md](ARCHITECTURE.md) | System architecture |
 | [docs/DATA_MODEL.md](DATA_MODEL.md) | Database schema details |
 | [docs/RETRIEVAL_STRATEGY.md](RETRIEVAL_STRATEGY.md) | Search logic |
@@ -454,6 +464,7 @@ The AI Agent now returns structured JSON responses:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.4 | 2026-01-02 | AI Agent | Added City of Bend Development Code - Discovery West (12 chunks); Fixed source modal UI (removed dual toggle) |
 | 1.3 | 2026-01-01 | AI Agent | Ingested CC&Rs (83 chunks) and Rules & Regulations (1 chunk); Enhanced response format with JSON structure; Added expandable sources UI |
 | 1.2 | 2025-12-31 | AI Agent | Added exhibit supplements (148 total chunks), full exhibit A-O coverage |
 | 1.1 | 2025-12-31 | AI Agent | Added TOC-based section detection documentation |
