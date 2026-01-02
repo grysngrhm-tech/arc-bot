@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — Answer Contract
 
-**Version:** 1.0  
-**Last Updated:** December 31, 2025  
+**Version:** 2.1  
+**Last Updated:** January 1, 2026  
 **Status:** Canonical Reference
 
 ---
@@ -62,147 +62,122 @@ When retrieval finds no relevant content.
 
 ## 3. Substantive Answer Format
 
-### 3.1 Required Components
+### 3.1 Response Structure Overview
 
+ARC Bot v2.0 uses a **structured JSON response** that the frontend renders into an interactive UI. The response separates the answer text from sources and confidence metadata.
+
+### 3.2 JSON Response Format
+
+```json
+{
+  "answer": "Comprehensive answer text without section headers...",
+  "sources": [
+    {
+      "document_name": "Architectural Design Guidelines",
+      "section_title": "Section 4.2 - Fencing",
+      "section_hierarchy": ["Chapter 4", "Section 4.2"],
+      "page_number": 42,
+      "is_binding": true,
+      "requirements": [
+        "Maximum height: 6 feet (rear yard)",
+        "Allowed materials: Wood, vinyl, wrought iron, or masonry"
+      ],
+      "content": "Full text from the source document chunk..."
+    }
+  ],
+  "confidence": {
+    "level": "High",
+    "explanation": "Multiple sections directly address this topic with clear requirements."
+  }
+}
 ```
-**Short Answer**
-[1-2 sentences directly answering the question]
 
-**Requirements** (if applicable)
-- [Requirement 1 from documents]
-- [Requirement 2 from documents]
-- [Requirement 3 from documents]
+### 3.3 Component Details
 
-**What to Submit** (if applicable)
-- [Required submittal item 1]
-- [Required submittal item 2]
+#### Answer
 
-**Additional Notes** (if applicable)
-- [Relevant context or exceptions]
-
-**Sources**
-- [Document Name], [Section], Page [X]
-- [Document Name], [Section], Page [X]
-
-**Confidence:** [High/Medium/Low] — [Brief explanation]
-```
-
-### 3.2 Component Details
-
-#### Short Answer
-
-**Purpose:** Give the user an immediate, direct answer.
+**Purpose:** Give the user a comprehensive, direct answer to their question.
 
 **Guidelines:**
-- Maximum 2 sentences
+- Write flowing prose that directly answers the question
+- Include relevant context and details naturally
+- Do NOT include section headers like "Short Answer:", "Requirements:", or "Sources:"
+- Do NOT include confidence at the end of the text
+- Keep length appropriate (2-4 paragraphs typical)
 - No hedging words ("perhaps", "maybe", "possibly")
-- State the answer, not that you found an answer
 
 **Good:**
 ```
-Fences in rear yards are limited to 6 feet in height. Front yard fences are not permitted except as approved decorative elements.
+Yes, wild strawberries are considered fire-resistant plants. They are specifically listed as approved fire-resistant ground covers in the Architectural Design Guidelines. Fragaria species (wild strawberries) appear on the approved plant list under the ground cover category.
 ```
 
 **Bad:**
 ```
-Based on my search of the documents, I found some information that may be relevant to your question about fence heights which I will explain below.
-```
+**Short Answer:** Based on my search, I found information that may be relevant...
 
-#### Requirements
-
-**Purpose:** List specific rules or requirements from documents.
-
-**Guidelines:**
-- Use bullet points
-- One requirement per bullet
-- Include measurements/specifics when available
-- Quote document language when precise wording matters
-
-**Good:**
-```
 **Requirements:**
-- Maximum height: 6 feet (rear yard), 4 feet (side yard forward of rear building line)
-- Allowed materials: Wood, vinyl, wrought iron, or masonry
-- Color must complement the home's exterior palette
-- Gates must swing inward, not into common areas
+- Wild strawberries are listed...
+
+**Confidence:** High — ...
 ```
 
-**Bad:**
-```
-**Requirements:**
-- Fences should generally be reasonable in height
-- Use appropriate materials
-- Try to match your house
-```
+#### Sources (with Nested Requirements)
 
-#### What to Submit
-
-**Purpose:** Tell users what they need for ARC approval.
+**Purpose:** Group requirements by their source document for traceability.
 
 **Guidelines:**
-- List specific documents/drawings required
-- Mention if samples are needed
-- Include application form references
+- Each source should include its specific requirements as an array
+- Requirements are extracted from that source only (not duplicated)
+- Include `is_binding` to distinguish CC&Rs (legally binding) from guidelines
+- The `content` field contains the full source text for user reference
 
-**Good:**
-```
-**What to Submit:**
-- ARC Application Form (Exhibit A)
-- Site plan showing fence location and setbacks
-- Elevation drawings showing height and design
-- Material samples or manufacturer specifications
-- Color samples if different from home exterior
-```
+**Structure per source:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `document_name` | string | Name of the source document |
+| `section_title` | string | Specific section title |
+| `section_hierarchy` | array | Path to the section |
+| `page_number` | number | Page reference |
+| `is_binding` | boolean | true for CC&Rs, false for guidelines |
+| `requirements` | array | Bullet points extracted from this source |
+| `content` | string | Full text of the source chunk |
 
-#### Additional Notes
+#### Confidence (Metadata Only)
 
-**Purpose:** Provide relevant context, exceptions, or warnings.
-
-**Guidelines:**
-- Use only when genuinely helpful
-- Keep brief (1-3 bullets max)
-- Include exceptions or special cases
-
-**Good:**
-```
-**Additional Notes:**
-- Pool safety fences may have different requirements per city code
-- Temporary construction fencing does not require ARC approval
-- Corner lots may have additional visibility requirements
-```
-
-#### Sources
-
-**Purpose:** Enable verification of all claims.
+**Purpose:** Signal reliability via UI badge, not in answer text.
 
 **Guidelines:**
-- List every document chunk used in the answer
-- Include document name, section path, and page number
-- Order by relevance or document hierarchy
+- Confidence is provided as separate metadata, NOT in the answer text
+- Frontend renders this as a clickable badge showing level (High/Medium/Low)
+- User can click badge to see the explanation
+- Do NOT write "Confidence: High" in the answer field
 
-**Format:**
+**Structure:**
+```json
+{
+  "level": "High",
+  "explanation": "Multiple sections directly address this topic with clear requirements."
+}
 ```
-**Sources:**
-- Architectural Design Guidelines, Chapter 4 > Section 4.2 "Fencing", Page 42
-- CC&Rs Declaration, Article VII > Section 7.3 "Exterior Modifications", Page 23
-```
 
-#### Confidence
+### 3.4 Frontend Rendering
 
-**Purpose:** Signal reliability of the answer.
+The frontend renders the JSON response as:
 
-**Guidelines:**
-- Always include at end of substantive answers
-- Include brief explanation of why
+1. **Header** — "ARC Bot" label + clickable confidence badge + copy button
+2. **Answer Section** — Clean prose answer with "Answer" label
+3. **Sources & Requirements** — Expandable accordions per source:
+   - Source title with page number and authority badge (Binding/Guidance)
+   - Requirements bullets from that source
+   - Expandable "Show source text" to reveal full content
 
-**Format:**
-```
-**Confidence:** High — Multiple sections directly address this topic with clear requirements.
+### 3.5 Authority Badges
 
-**Confidence:** Medium — The guidelines discuss this generally but your specific case may vary.
+Sources are tagged with authority level:
+- **Binding** — CC&Rs, Declaration documents (legally enforceable)
+- **Guidance** — Design Guidelines, Rules (ARC-enforced but not legally binding)
 
-**Confidence:** Low — I found related information but nothing that directly answers this question.
-```
+This helps users understand the weight of each requirement.
 
 ---
 
@@ -463,76 +438,74 @@ I found [X] past ARC response(s) that addressed similar situations:
 
 **User:** What's the maximum height for a backyard fence?
 
+**JSON Response:**
+```json
+{
+  "answer": "Backyard fences are limited to a maximum height of 6 feet in rear yards, measured from finished grade. Side yard fences forward of the rear building line have a lower maximum of 4 feet. Front yard fences are generally not permitted, though decorative elements up to 3 feet may be considered on a case-by-case basis.\n\nTo install a fence, you'll need to submit an ARC Application Form along with a site plan showing the fence location and dimensions, elevation drawings showing the proposed height, and material and color specifications.",
+  "sources": [
+    {
+      "document_name": "Architectural Design Guidelines",
+      "section_title": "Section 4.2 - Fencing",
+      "section_hierarchy": ["Chapter 4", "Section 4.2"],
+      "page_number": 42,
+      "is_binding": true,
+      "requirements": [
+        "Maximum height: 6 feet in rear yards (measured from finished grade)",
+        "Side yard fences: 4 feet maximum forward of rear building line",
+        "Front yard fences: Generally not permitted; decorative elements up to 3 feet may be considered"
+      ],
+      "content": "Fencing in rear yards shall not exceed six feet (6') in height as measured from the finished grade..."
+    }
+  ],
+  "confidence": {
+    "level": "High",
+    "explanation": "The guidelines clearly specify these height limits with specific measurements."
+  }
+}
 ```
-**Short Answer**
-Backyard fences are limited to a maximum height of 6 feet in rear yards.
 
-**Requirements:**
-- Maximum height: 6 feet (measured from finished grade)
-- Side yard fences: 4 feet maximum forward of rear building line
-- Front yard fences: Generally not permitted; decorative elements up to 3 feet may be considered
+### 9.2 Example: Fire-Resistant Plants Question
 
-**What to Submit:**
-- ARC Application Form
-- Site plan showing fence location with dimensions
-- Elevation drawing showing proposed height
-- Material and color specifications
+**User:** Are strawberries a fire-resistant plant?
 
-**Sources:**
-- Architectural Design Guidelines, Chapter 4 > Section 4.2 "Fencing", Page 42-43
-
-**Confidence:** High — The guidelines clearly specify these height limits.
-```
-
-### 9.2 Example: Process Question
-
-**User:** How do I apply for ARC approval?
-
-```
-**Short Answer**
-Submit an ARC Application Form (Exhibit A) with required drawings and specifications at least 30 days before starting work.
-
-**Process:**
-1. Download ARC Application Form (Exhibit A)
-2. Complete all sections of the form
-3. Attach required documentation (site plan, elevations, materials)
-4. Submit to ARC via [submission method]
-5. ARC reviews within 30 days
-6. Receive written response with approval, denial, or modification request
-
-**What to Submit:**
-- Completed ARC Application Form
-- Site plan (to scale) showing proposed changes
-- Elevation drawings if applicable
-- Material samples or specifications
-- Color samples
-- Contractor information (if using)
-
-**Sources:**
-- Architectural Design Guidelines, Chapter 2 "Application Process", Pages 8-12
-- ARC Application Form (Exhibit A)
-
-**Confidence:** High — The application process is clearly documented.
+**JSON Response:**
+```json
+{
+  "answer": "Yes, wild strawberries are considered fire-resistant plants. Specifically, wild strawberry species (Fragaria species) are listed as approved fire-resistant ground covers in the Architectural Design Guidelines.",
+  "sources": [
+    {
+      "document_name": "Architectural Design Guidelines",
+      "section_title": "Exhibit F - Approved Fire-Resistant Plants",
+      "section_hierarchy": ["Exhibits", "Exhibit F", "Ground Covers"],
+      "page_number": 115,
+      "is_binding": true,
+      "requirements": [
+        "Wild strawberry species (Fragaria species) are listed as approved fire-resistant ground covers"
+      ],
+      "content": "The following ground covers are approved fire-resistant plants for use in Discovery West landscaping: ... Wild Strawberry (Fragaria species) ..."
+    }
+  ],
+  "confidence": {
+    "level": "High",
+    "explanation": "The document explicitly lists wild strawberries as fire-resistant."
+  }
+}
 ```
 
 ### 9.3 Example: No Results
 
 **User:** Can I have chickens in my backyard?
 
-```
-I could not find specific information about keeping chickens or livestock in the Discovery West governing documents.
-
-**This could mean:**
-- The topic may be governed by local city/county ordinances rather than HOA rules
-- It may be addressed under general "nuisance" provisions
-- The ARC may evaluate such requests on a case-by-case basis
-
-**Recommended Next Steps:**
-- Check local city/county regulations for residential livestock
-- Contact HOA management to inquire about pet/animal policies
-- Submit a formal inquiry to the ARC if you believe this is an architectural matter
-
-**Confidence:** N/A — No relevant sources found in architectural guidelines or CC&Rs.
+**JSON Response:**
+```json
+{
+  "answer": "I could not find specific information about keeping chickens or livestock in the Discovery West governing documents. This topic may be governed by local city or county ordinances rather than HOA rules, or it may be addressed under general nuisance provisions.\n\nI recommend checking local city/county regulations for residential livestock, contacting HOA management to inquire about pet and animal policies, or submitting a formal inquiry to the ARC if you believe this is an architectural matter.",
+  "sources": [],
+  "confidence": {
+    "level": "Low",
+    "explanation": "No relevant sources found in architectural guidelines or CC&Rs."
+  }
+}
 ```
 
 ---
@@ -541,14 +514,14 @@ I could not find specific information about keeping chickens or livestock in the
 
 Before sending a response, verify:
 
-- [ ] Short answer directly addresses the question
-- [ ] All requirements are from retrieved documents
-- [ ] Every factual claim has a citation
-- [ ] Sources include document name, section, and page
-- [ ] Confidence level is appropriate and explained
-- [ ] Response follows the required structure
-- [ ] No information invented or assumed
-- [ ] Length is appropriate (not too long/short)
+- [ ] Answer text is comprehensive and directly addresses the question
+- [ ] Answer text does NOT contain section headers (Short Answer, Requirements, Sources, Confidence)
+- [ ] All requirements are grouped under their source in the sources array
+- [ ] Each source includes document_name, section_title, page_number, and is_binding
+- [ ] Requirements array contains specific, actionable items from that source
+- [ ] Confidence is provided as separate metadata (level + explanation)
+- [ ] No information invented or assumed beyond retrieved documents
+- [ ] Response is valid JSON
 
 ---
 
@@ -556,5 +529,7 @@ Before sending a response, verify:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.1 | 2026-01-01 | AI Agent | Added CC&Rs and Rules & Regulations to knowledge base; minor formatting updates |
+| 2.0 | 2025-12-31 | AI Agent | Major restructure: JSON response format, requirements grouped by source, confidence as metadata |
 | 1.0 | 2025-12-31 | AI Agent | Initial answer contract |
 

@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — Implementation Status
 
-**Version:** 1.2  
-**Last Updated:** December 31, 2025  
+**Version:** 1.3  
+**Last Updated:** January 1, 2026  
 **Status:** Production Ready
 
 ---
@@ -12,12 +12,12 @@
 |-----------|--------|---------|
 | Supabase Database | ✅ Complete | Schema, indexes, functions deployed |
 | Storage Bucket | ✅ Complete | `arc-documents` bucket created |
-| Document Ingestion Workflow | ✅ Complete | 148 chunks ingested |
+| Document Ingestion Workflow | ✅ Complete | 232 chunks ingested (3 documents) |
 | Exhibit Supplements | ✅ Complete | All exhibits A-O vectorized |
 | Hybrid Retrieval Tool | ✅ Complete | Tested and working |
 | Reranker Tool | ✅ Complete | GPT-4o scoring |
-| Main AI Agent Workflow | ✅ Complete | GPT-4o with session memory |
-| Chat Frontend | ✅ Complete | GitHub Pages deployment |
+| Main AI Agent Workflow | ✅ Complete | GPT-4o with JSON response format |
+| Chat Frontend | ✅ Complete | Enhanced UI with expandable sources |
 
 ---
 
@@ -55,8 +55,8 @@
 
 | Table | Purpose | Row Count |
 |-------|---------|-----------|
-| `documents` | Source document registry | 1 |
-| `knowledge_chunks` | Main chunk storage with embeddings | 148 |
+| `documents` | Source document registry | 3 |
+| `knowledge_chunks` | Main chunk storage with embeddings | 232 |
 | `ingestion_batches` | Audit trail for imports | 0 |
 | `query_log` | Query analytics | 0 |
 
@@ -244,8 +244,9 @@ Check for Error (IF)
 | Document | Type | Pages | Chunks | Status |
 |----------|------|-------|--------|--------|
 | Architectural Design Guidelines | design_guidelines | 143 | 148 | ✅ Complete |
-| CC&Rs | ccr | - | - | 🔲 Pending |
-| Rules & Regulations | rules_regulations | - | - | 🔲 Pending |
+| CC&Rs Declaration | ccr | 57 | 83 | ✅ Complete |
+| Rules & Regulations | rules_regulations | 1 | 1 | ✅ Complete |
+| **Total** | | **201** | **232** | |
 
 ### 5.2 Document Details
 
@@ -254,6 +255,18 @@ Check for Error (IF)
 - Ingested: December 31, 2025
 - Document ID: `8937a606-f3f9-417f-b676-ef058dd75e6a`
 - Chunk Distribution: 148 chunks across 143 pages
+
+**CC&Rs Declaration:**
+- File: `ccrs/ccrs-declaration.pdf`
+- Ingested: January 1, 2026
+- Chunk Distribution: 83 chunks across 57 pages
+- Content: Legal covenants, enforcement, violations, committee structure
+
+**Rules & Regulations:**
+- File: `rules/Rules-and-Regulations.pdf`
+- Ingested: January 1, 2026
+- Chunk Distribution: 1 chunk (single page document)
+- Content: Community rules (trash, parking, lighting, etc.)
 
 ### 5.3 Exhibit Coverage
 
@@ -344,7 +357,7 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 
 ## 8. Next Steps
 
-### 8.1 Completed (Phase 1-4)
+### 8.1 Completed (Phase 1-5)
 
 1. ✅ **Database Schema** — Supabase with pgvector
 2. ✅ **Document Ingestion** — Structure-aware chunking with TOC detection
@@ -353,27 +366,73 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 5. ✅ **Main AI Agent** — Tools Agent with session memory
 6. ✅ **Chat Frontend** — GitHub Pages with theme toggle
 7. ✅ **Exhibit Supplements** — All exhibits A-O manually transcribed and vectorized
+8. ✅ **CC&Rs & Rules Ingestion** — All governing documents now searchable
+9. ✅ **Enhanced Response Format** — JSON structure with expandable sources
 
-### 8.2 Immediate Next Steps
+### 8.2 Future Enhancements
 
-1. **Ingest Remaining Documents**
-   - CC&Rs Declaration
-   - Rules & Regulations
-
-2. **Dynamic Follow-up Questions**
+1. **Dynamic Follow-up Questions**
    - Add AI-generated contextual suggestions
    - Requires small backend modification
 
-### 8.3 Future Enhancements
-
-3. **Response Letters Ingestion** — Precedent tracking
-4. **Query Caching** — Reduce API costs
-5. **Analytics Dashboard** — Query patterns, coverage gaps
-6. **Enable Reranker Tool** — Currently disabled; re-enable after fixing expression parsing
+2. **Response Letters Ingestion** — Precedent tracking
+3. **Query Caching** — Reduce API costs
+4. **Analytics Dashboard** — Query patterns, coverage gaps
+5. **Enable Reranker Tool** — Currently disabled; re-enable after fixing expression parsing
 
 ---
 
-## 9. File References
+## 9. Response Format (v2)
+
+### 9.1 JSON Response Structure
+
+The AI Agent now returns structured JSON responses:
+
+```json
+{
+  "answer": "Comprehensive prose answer without headers",
+  "sources": [
+    {
+      "document_name": "CC&Rs Declaration",
+      "section_title": "Section Title",
+      "section_hierarchy": ["Parent", "Child"],
+      "page_number": 42,
+      "is_binding": true,
+      "requirements": [
+        "Specific requirement 1",
+        "Specific requirement 2"
+      ],
+      "content": "Full source text..."
+    }
+  ],
+  "confidence": {
+    "level": "High",
+    "explanation": "Reasoning for confidence level"
+  }
+}
+```
+
+### 9.2 Frontend Features
+
+| Feature | Description |
+|---------|-------------|
+| Expandable Sources | Click source header to expand/collapse requirements |
+| Source Text Toggle | "Show source text" button reveals full chunk content |
+| Confidence Tooltip | Click confidence badge for explanation |
+| Copy Answer | Copy button in message header |
+| Authority Badges | Visual indicator for binding vs. guidance documents |
+| Auto-extracted Requirements | Falls back to parsing content if AI doesn't provide array |
+
+### 9.3 Key Files
+
+| File | Purpose |
+|------|---------|
+| [scripts/system-prompt.txt](../scripts/system-prompt.txt) | AI Agent system prompt with JSON format |
+| [scripts/format-response-node.js](../scripts/format-response-node.js) | n8n Code node for parsing AI output |
+
+---
+
+## 10. File References
 
 | File | Purpose |
 |------|---------|
@@ -386,13 +445,16 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 | [docs/ANSWER_CONTRACT.md](ANSWER_CONTRACT.md) | Response format |
 | [docs/CHUNKING_STRATEGY.md](CHUNKING_STRATEGY.md) | Document processing |
 | [docs/RISKS_AND_MITIGATIONS.md](RISKS_AND_MITIGATIONS.md) | Risk register |
+| [scripts/system-prompt.txt](../scripts/system-prompt.txt) | AI Agent system prompt |
+| [scripts/format-response-node.js](../scripts/format-response-node.js) | Response formatting code |
 
 ---
 
-## 10. Version History
+## 11. Version History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.3 | 2026-01-01 | AI Agent | Ingested CC&Rs (83 chunks) and Rules & Regulations (1 chunk); Enhanced response format with JSON structure; Added expandable sources UI |
 | 1.2 | 2025-12-31 | AI Agent | Added exhibit supplements (148 total chunks), full exhibit A-O coverage |
 | 1.1 | 2025-12-31 | AI Agent | Added TOC-based section detection documentation |
 | 1.0 | 2025-12-31 | AI Agent | Initial implementation status after Phase 1 |

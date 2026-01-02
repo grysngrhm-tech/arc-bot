@@ -258,6 +258,333 @@
     .confidence-medium { color: var(--confidence-medium); }
     .confidence-low { color: var(--confidence-low); }
 
+    /* ===== CONFIDENCE BADGE - INTERACTIVE ===== */
+    .confidence-badge {
+      cursor: pointer;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .confidence-badge:hover {
+      opacity: 0.8;
+    }
+
+    .confidence-tooltip {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 280px;
+      padding: 0.75rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.8125rem;
+      font-weight: 400;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      z-index: 100;
+      display: none;
+      animation: tooltipFadeIn 0.15s ease;
+    }
+
+    .confidence-tooltip::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 16px;
+      width: 10px;
+      height: 10px;
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+      transform: rotate(45deg);
+    }
+
+    .confidence-badge.tooltip-open .confidence-tooltip {
+      display: block;
+    }
+
+    @keyframes tooltipFadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== MESSAGE HEADER ACTIONS ===== */
+    .message-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .message-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: none;
+      padding: 0.25rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .copy-btn:hover {
+      color: var(--text-secondary);
+      background: var(--bg-source);
+    }
+
+    .copy-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .copy-btn.copied {
+      color: var(--confidence-high);
+    }
+
+    /* ===== ANSWER SECTION ===== */
+    .answer-section {
+      margin-bottom: 0.75rem;
+    }
+
+    .answer-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.375rem;
+    }
+
+    .answer-text {
+      line-height: 1.7;
+      color: var(--text-primary);
+    }
+
+    .answer-text p {
+      margin-bottom: 0.5rem;
+    }
+
+    .answer-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ===== SOURCES & REQUIREMENTS SECTION ===== */
+    .sources-section {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .sources-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== SOURCE ITEM WITH REQUIREMENTS ===== */
+    .source-item {
+      background: var(--bg-source);
+      border-radius: var(--radius-md);
+      margin-bottom: 0.625rem;
+      overflow: hidden;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .source-item:hover {
+      border-color: var(--border);
+    }
+
+    .source-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .source-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      cursor: pointer;
+      user-select: none;
+      transition: var(--transition);
+    }
+
+    .source-header:hover {
+      background: var(--bg-source-expanded);
+    }
+
+    .source-expand-icon {
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      transition: transform var(--transition);
+      flex-shrink: 0;
+      margin-top: 0.25rem;
+    }
+
+    .source-item.expanded .source-expand-icon {
+      transform: rotate(90deg);
+    }
+
+    .source-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .source-path {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.125rem;
+      line-height: 1.4;
+    }
+
+    .source-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .source-page {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ===== AUTHORITY BADGE ===== */
+    .authority-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.625rem;
+      font-weight: 600;
+      padding: 0.125rem 0.375rem;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .authority-binding {
+      background: rgba(5, 150, 105, 0.15);
+      color: var(--accent);
+    }
+
+    .authority-guidance {
+      background: rgba(100, 116, 139, 0.15);
+      color: var(--text-muted);
+    }
+
+    [data-theme="dark"] .authority-binding {
+      background: rgba(52, 211, 153, 0.15);
+    }
+
+    [data-theme="dark"] .authority-guidance {
+      background: rgba(148, 163, 184, 0.15);
+    }
+
+    /* ===== SOURCE REQUIREMENTS ===== */
+    .source-requirements {
+      padding: 0 0.75rem 0.75rem 1.75rem;
+    }
+
+    .source-requirements ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .source-requirements li {
+      position: relative;
+      padding-left: 1rem;
+      margin-bottom: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .source-requirements li:last-child {
+      margin-bottom: 0;
+    }
+
+    .source-requirements li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    /* ===== SOURCE TEXT EXPANDABLE ===== */
+    .source-text-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 0.75rem;
+      margin: 0 0.75rem 0.75rem 0.75rem;
+      background: var(--bg-source-expanded);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      transition: var(--transition);
+      border: none;
+      width: calc(100% - 1.5rem);
+      text-align: left;
+    }
+
+    .source-text-toggle:hover {
+      color: var(--text-secondary);
+      background: var(--border);
+    }
+
+    .source-text-toggle svg {
+      width: 12px;
+      height: 12px;
+      transition: transform var(--transition);
+    }
+
+    .source-item.text-expanded .source-text-toggle svg {
+      transform: rotate(180deg);
+    }
+
+    .source-content {
+      display: none;
+      padding: 0.75rem;
+      margin: 0 0.75rem 0.75rem 0.75rem;
+      background: var(--bg-source-expanded);
+      border-radius: var(--radius-sm);
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-height: 200px;
+      overflow-y: auto;
+      border-left: 3px solid var(--accent);
+    }
+
+    .source-item.text-expanded .source-content {
+      display: block;
+      animation: slideDown 0.2s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; max-height: 0; }
+      to { opacity: 1; max-height: 200px; }
+    }
+
     /* ===== MESSAGE BODY ===== */
     .message-body {
       line-height: 1.7;
@@ -791,17 +1118,17 @@
     }
 
     function renderBotMessage(response) {
-      const answer = response.answer || response.response || 'No response received.';
+      const rawAnswer = response.answer || response.response || 'No response received.';
       const sources = response.sources || [];
       let confidence = response.confidence || null;
       
       // Try to extract confidence from answer text if not provided separately
       if (!confidence || !confidence.level) {
-        const confidenceMatch = answer.match(/\*\*Confidence:\*\*\s*(High|Medium|Low)/i) ||
-                                answer.match(/Confidence:\s*(High|Medium|Low)/i);
+        const confidenceMatch = rawAnswer.match(/\*\*Confidence:\*\*\s*(High|Medium|Low)/i) ||
+                                rawAnswer.match(/Confidence:\s*(High|Medium|Low)/i);
         if (confidenceMatch) {
           const level = confidenceMatch[1];
-          const explanationMatch = answer.match(/Confidence:\s*(?:High|Medium|Low)\s*[—–-]\s*([^\n]+)/i);
+          const explanationMatch = rawAnswer.match(/Confidence:\s*(?:High|Medium|Low)\s*[—–-]\s*([^\n]+)/i);
           confidence = {
             level: level.charAt(0).toUpperCase() + level.slice(1).toLowerCase(),
             explanation: explanationMatch ? explanationMatch[1].trim() : ''
@@ -811,32 +1138,58 @@
         }
       }
       
-      const confidenceClass = confidence.level ? confidence.level.toLowerCase() : 'unknown';
+      // Clean answer text - remove confidence section and section headers
+      let cleanAnswer = rawAnswer
+        .replace(/\*\*Confidence:\*\*[^\n]*/gi, '')
+        .replace(/Confidence:\s*(?:High|Medium|Low)\s*[—–-][^\n]*/gi, '')
+        .replace(/\*\*Short Answer:?\*\*\s*/gi, '')
+        .replace(/\*\*Requirements:?\*\*\s*/gi, '')
+        .replace(/\*\*Sources:?\*\*[\s\S]*$/gi, '') // Remove sources section from text
+        .replace(/\*\*What to Submit:?\*\*\s*/gi, '')
+        .replace(/\*\*Additional Notes:?\*\*\s*/gi, '')
+        .trim();
       
-      // Only show sources section if there are sources with actual content
+      const confidenceClass = confidence.level ? confidence.level.toLowerCase() : 'unknown';
+      const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+      
+      // Build sources section with requirements
       let sourcesHtml = '';
       const validSources = sources.filter(s => s && (s.content || s.section_title || s.document_name));
       if (validSources.length > 0) {
         sourcesHtml = `
           <div class="sources-section">
-            <div class="sources-title">View Source Documents</div>
-            ${validSources.map((source, index) => renderSource(source, index)).join('')}
+            <div class="sources-title">Sources & Requirements</div>
+            ${validSources.map((source, index) => renderSourceWithRequirements(source, index, messageId)).join('')}
           </div>
         `;
       }
 
       return `
-        <div class="message message-bot">
+        <div class="message message-bot" id="${messageId}">
           <div class="message-content">
             <div class="message-header">
-              <span class="message-sender">ARC Bot</span>
-              <span class="confidence-badge confidence-${confidenceClass}" title="${escapeHtml(confidence.explanation || '')}">
-                <span class="confidence-dot"></span>
-                ${escapeHtml(confidence.level || 'Unknown')}
-              </span>
+              <div class="message-header-left">
+                <span class="message-sender">ARC Bot</span>
+              </div>
+              <div class="message-header-right">
+                <span class="confidence-badge confidence-${confidenceClass}" onclick="toggleConfidenceTooltip(this, event)" data-explanation="${escapeHtml(confidence.explanation || 'No additional details available.')}">
+                  <span class="confidence-dot"></span>
+                  ${escapeHtml(confidence.level || 'Unknown')}
+                  <div class="confidence-tooltip">${escapeHtml(confidence.explanation || 'No additional details available.')}</div>
+                </span>
+                <button class="copy-btn" onclick="copyAnswer(this, '${messageId}')" title="Copy answer">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+              </div>
             </div>
-            <div class="message-body">
-              ${formatMarkdown(answer)}
+            <div class="answer-section">
+              <div class="answer-label">Answer</div>
+              <div class="answer-text" data-raw-answer="${escapeHtml(cleanAnswer)}">
+                ${formatAnswerText(cleanAnswer)}
+              </div>
             </div>
             ${sourcesHtml}
           </div>
@@ -844,12 +1197,36 @@
       `;
     }
 
-    function renderSource(source, index) {
+    function renderSourceWithRequirements(source, index, messageId) {
       const hierarchy = source.section_hierarchy || [];
       const title = source.section_title || hierarchy[hierarchy.length - 1] || 'Unknown Section';
       const docName = source.document_name || 'Document';
       const page = source.page_number ? `Page ${source.page_number}` : '';
       const content = source.content || 'Source content not available.';
+      let requirements = source.requirements || [];
+      const isBinding = source.is_binding !== false;
+      
+      // If no requirements provided, try to extract bullet points from content
+      if (requirements.length === 0 && content) {
+        const bulletMatches = content.match(/^[-•]\s*(.+)$/gm);
+        if (bulletMatches) {
+          requirements = bulletMatches.map(b => b.replace(/^[-•]\s*/, '').trim()).filter(b => b.length > 10);
+        }
+        // Also try numbered items
+        if (requirements.length === 0) {
+          const numberedMatches = content.match(/^\d+[.)]\s*(.+)$/gm);
+          if (numberedMatches) {
+            requirements = numberedMatches.map(b => b.replace(/^\d+[.)]\s*/, '').trim()).filter(b => b.length > 10);
+          }
+        }
+        // Limit to first 5 extracted requirements
+        requirements = requirements.slice(0, 5);
+      }
+      
+      // Determine authority type based on document name or is_binding flag
+      const isCCR = docName.toLowerCase().includes('cc&r') || docName.toLowerCase().includes('ccr') || docName.toLowerCase().includes('declaration');
+      const authorityType = isCCR ? 'binding' : (isBinding ? 'binding' : 'guidance');
+      const authorityLabel = authorityType === 'binding' ? 'Binding' : 'Guidance';
       
       // Build path: Document > Section hierarchy
       let path = docName;
@@ -857,13 +1234,39 @@
         path += ` › ${title}`;
       }
       
-      return `
-        <div class="source-item" id="source-${index}">
-          <div class="source-header" onclick="toggleSource(${index})">
-            <span class="source-expand-icon">▸</span>
-            <span class="source-path">${escapeHtml(path)}</span>
-            <span class="source-page">${escapeHtml(page)}</span>
+      const sourceId = `${messageId}-source-${index}`;
+      
+      // Build requirements list HTML - always show if we have any
+      let requirementsHtml = '';
+      if (requirements.length > 0) {
+        requirementsHtml = `
+          <div class="source-requirements">
+            <ul>
+              ${requirements.map(req => `<li>${escapeHtml(req)}</li>`).join('')}
+            </ul>
           </div>
+        `;
+      }
+      
+      return `
+        <div class="source-item expanded" id="${sourceId}">
+          <div class="source-header" onclick="toggleSourceExpand('${sourceId}')">
+            <span class="source-expand-icon">▸</span>
+            <div class="source-info">
+              <div class="source-path">${escapeHtml(path)}</div>
+              <div class="source-meta">
+                <span class="source-page">${escapeHtml(page)}</span>
+                <span class="authority-badge authority-${authorityType}">${authorityLabel}</span>
+              </div>
+            </div>
+          </div>
+          ${requirementsHtml}
+          <button class="source-text-toggle" onclick="toggleSourceText('${sourceId}', event)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+            <span>Show source text</span>
+          </button>
           <div class="source-content">
             ${escapeHtml(content)}
           </div>
@@ -871,11 +1274,122 @@
       `;
     }
 
-    function toggleSource(index) {
-      const sourceItem = document.getElementById(`source-${index}`);
+    function toggleSourceExpand(sourceId) {
+      const sourceItem = document.getElementById(sourceId);
       if (sourceItem) {
         sourceItem.classList.toggle('expanded');
       }
+    }
+
+    function toggleSourceText(sourceId, event) {
+      event.stopPropagation();
+      const sourceItem = document.getElementById(sourceId);
+      if (sourceItem) {
+        sourceItem.classList.toggle('text-expanded');
+        const toggleBtn = sourceItem.querySelector('.source-text-toggle span');
+        if (toggleBtn) {
+          toggleBtn.textContent = sourceItem.classList.contains('text-expanded') ? 'Hide source text' : 'Show source text';
+        }
+      }
+    }
+
+    function formatAnswerText(text) {
+      if (!text) return '';
+      
+      let html = escapeHtml(text);
+      
+      // Bold: **text**
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      
+      // Handle bullet lists first before line breaks
+      const lines = html.split('\n');
+      let inList = false;
+      let result = [];
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line.startsWith('- ')) {
+          if (!inList) {
+            result.push('<ul>');
+            inList = true;
+          }
+          result.push(`<li>${line.substring(2)}</li>`);
+        } else {
+          if (inList) {
+            result.push('</ul>');
+            inList = false;
+          }
+          if (line) {
+            result.push(`<p>${line}</p>`);
+          }
+        }
+      }
+      if (inList) {
+        result.push('</ul>');
+      }
+      
+      html = result.join('');
+      
+      // Clean up empty paragraphs
+      html = html.replace(/<p><\/p>/g, '');
+      
+      return html || '<p>No answer available.</p>';
+    }
+
+    function toggleConfidenceTooltip(badge, event) {
+      event.stopPropagation();
+      
+      // Close any other open tooltips
+      document.querySelectorAll('.confidence-badge.tooltip-open').forEach(b => {
+        if (b !== badge) {
+          b.classList.remove('tooltip-open');
+        }
+      });
+      
+      badge.classList.toggle('tooltip-open');
+    }
+
+    // Close tooltip when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.confidence-badge')) {
+        document.querySelectorAll('.confidence-badge.tooltip-open').forEach(badge => {
+          badge.classList.remove('tooltip-open');
+        });
+      }
+    });
+
+    function copyAnswer(button, messageId) {
+      const messageEl = document.getElementById(messageId);
+      if (!messageEl) return;
+      
+      const answerEl = messageEl.querySelector('.answer-text');
+      if (!answerEl) return;
+      
+      // Get the raw answer text from data attribute or innerText
+      const rawAnswer = answerEl.getAttribute('data-raw-answer') || answerEl.innerText;
+      
+      navigator.clipboard.writeText(rawAnswer).then(() => {
+        // Show success state
+        button.classList.add('copied');
+        button.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        `;
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          button.classList.remove('copied');
+          button.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          `;
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+      });
     }
 
     function renderTypingIndicator() {
