@@ -1,6 +1,6 @@
 # ARC Bot (Architectural Review Console) — Retrieval Strategy
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Last Updated:** January 2, 2026  
 **Status:** Canonical Reference
 
@@ -537,24 +537,31 @@ GROUP BY source;
 
 ## 11. Failure Modes
 
-### 11.1 No Results
+### 11.1 No Results (Empty Search)
 
-**Trigger:** Zero chunks with relevance > 0.3
+**Trigger:** Search returns zero chunks (empty array)
 
-**Response:** Return special "no_results" flag to agent
+**Agent Behavior:** Say "I could not find any information about [topic] in the governing documents." Return empty sources array with Low confidence.
+
+**Response Format:**
 ```json
 {
   "status": "no_results",
   "message": "No relevant content found in governing documents",
-  "query": "original query"
+  "query": "original query",
+  "chunks": []
 }
 ```
 
+**Important:** This is the ONLY scenario where the agent should say "I cannot find information." If ANY chunks are returned, the agent should attempt an answer.
+
 ### 11.2 Low Confidence Results
 
-**Trigger:** Highest relevance score < 0.5
+**Trigger:** Search returns chunks but with low relevance scores (< 0.5)
 
-**Response:** Return results with "low_confidence" flag
+**Agent Behavior:** STILL attempt an answer using the available chunks. Set confidence to "Low" and include a caveat like "Based on the available documents, the closest related information I found is..."
+
+**Response Format:**
 ```json
 {
   "status": "low_confidence",
@@ -563,6 +570,8 @@ GROUP BY source;
   "warning": "Results may not directly answer the question"
 }
 ```
+
+**Important:** Low relevance results should still be passed to the agent. The agent uses confidence levels (High/Medium/Low) to signal uncertainty to users, rather than refusing to answer.
 
 ### 11.3 Embedding API Failure
 
@@ -635,7 +644,7 @@ Using different embedding models (e.g., `text-embedding-3-small` vs `text-embedd
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.2 | 2026-01-02 | AI Agent | Added performance benchmarks; Updated reranker status to disabled; Added embedding consistency requirements |
+| 1.2 | 2026-01-02 | AI Agent | Clarified failure modes: "No Results" means empty search (agent says "not found"), "Low Confidence" means low-relevance chunks returned (agent still attempts answer with Low confidence) |
 | 1.1 | 2025-12-31 | AI Agent | Added implementation status and test results |
 | 1.0 | 2025-12-31 | AI Agent | Initial retrieval strategy |
 
