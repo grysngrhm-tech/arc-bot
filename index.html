@@ -2,8 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Architectural Review Console | Discovery West</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="Discovery West architectural guidelines assistant. Get instant answers about CC&Rs, design guidelines, and community rules with citations from official documents.">
+  <meta name="theme-color" content="#c96f3c">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+  <!-- iOS PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ARC Bot">
+  <meta name="format-detection" content="telephone=no">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Favicons and App Icons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="assets/icons/icon-167.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180.png">
+  
+  <!-- iOS Splash Screens (basic) -->
+  <link rel="apple-touch-startup-image" href="assets/icons/icon-512.png">
+  
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1285,9 +1312,315 @@
         font-size: 0.5625rem;
       }
     }
+
+    /* ===== PWA: OFFLINE BANNER ===== */
+    .offline-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10000;
+      background: var(--color-error, #dc2626);
+      color: white;
+      text-align: center;
+      padding: 0.5rem 1rem;
+      padding-top: calc(0.5rem + env(safe-area-inset-top));
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transform: translateY(-100%);
+      transition: transform 0.3s ease;
+    }
+    
+    .offline-banner.visible {
+      transform: translateY(0);
+    }
+    
+    .offline-banner.online {
+      background: var(--color-success, #16a34a);
+    }
+
+    /* ===== PWA: INSTALL BANNER ===== */
+    .install-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 1rem;
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .install-banner.visible {
+      transform: translateY(0);
+    }
+    
+    .install-banner-content {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .install-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+    
+    .install-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-width: 0;
+    }
+    
+    .install-text strong {
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+    }
+    
+    .install-text span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .install-text svg {
+      flex-shrink: 0;
+    }
+    
+    .install-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    
+    .install-btn {
+      background: var(--accent-orange);
+      color: white;
+      border: none;
+      padding: 0.625rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+      transition: background 0.2s ease;
+    }
+    
+    .install-btn:hover {
+      background: var(--accent-orange-hover, #b85a2a);
+    }
+    
+    .install-dismiss {
+      background: transparent;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+    }
+    
+    .install-dismiss:hover {
+      background: var(--bg-card);
+    }
+
+    /* ===== MOBILE: SAFE AREA HANDLING ===== */
+    @supports (padding: env(safe-area-inset-top)) {
+      .header {
+        padding-top: calc(0.875rem + env(safe-area-inset-top));
+      }
+      
+      .input-area {
+        padding-bottom: calc(0.875rem + env(safe-area-inset-bottom));
+      }
+      
+      .app-container {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+    }
+
+    /* ===== MOBILE: TOUCH TARGETS ===== */
+    @media (max-width: 768px) {
+      /* Ensure minimum 44x44px touch targets */
+      .question-chip {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+      }
+      
+      .copy-answer-btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.75rem;
+      }
+      
+      .source-toggle {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+      }
+      
+      .source-item {
+        min-height: 44px;
+        padding: 0.75rem;
+      }
+      
+      .theme-toggle {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.625rem;
+      }
+      
+      .new-chat-btn {
+        min-height: 44px;
+        min-width: 44px;
+      }
+      
+      .confidence-badge {
+        min-height: 36px;
+        padding: 0.5rem 0.75rem;
+      }
+      
+      /* Larger tap areas for error retry */
+      .error-retry-btn {
+        min-height: 44px;
+        padding: 0.625rem 1rem;
+      }
+    }
+
+    /* ===== MOBILE: INPUT OPTIMIZATION ===== */
+    @media (max-width: 768px) {
+      /* Prevent iOS zoom on input focus - must be 16px+ */
+      .message-input {
+        font-size: 16px !important;
+      }
+      
+      /* Better input area for mobile */
+      .input-area {
+        gap: 0.5rem;
+      }
+      
+      .message-input {
+        padding: 0.875rem 1rem;
+        min-height: 48px;
+      }
+      
+      .send-btn {
+        min-height: 48px;
+        min-width: 48px;
+      }
+    }
+
+    /* ===== MOBILE: VIEWPORT FIXES ===== */
+    html {
+      /* Prevent overscroll bounce */
+      overscroll-behavior: none;
+      /* Smooth scrolling */
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      /* Prevent pull-to-refresh on mobile */
+      overscroll-behavior-y: contain;
+      /* Enable momentum scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .chat-area {
+      /* Prevent overscroll on chat area */
+      overscroll-behavior: contain;
+    }
+
+    /* ===== MOBILE: STANDALONE MODE ADJUSTMENTS ===== */
+    @media (display-mode: standalone) {
+      /* When running as installed PWA */
+      .header {
+        padding-top: calc(1rem + env(safe-area-inset-top));
+      }
+      
+      /* Hide footer in standalone mode for more space */
+      .app-footer {
+        display: none;
+      }
+    }
+
+    /* ===== MOBILE: LANDSCAPE ORIENTATION ===== */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .welcome-panel {
+        padding: 1rem;
+      }
+      
+      .welcome-hero {
+        padding: 0.75rem 0;
+      }
+      
+      .welcome-hero h2 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .welcome-tagline {
+        display: none;
+      }
+      
+      .welcome-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- PWA: Offline Banner -->
+  <div class="offline-banner" id="offlineBanner">
+    You're offline — cached content only
+  </div>
+  
+  <!-- PWA: Install Banner -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-banner-content">
+      <img src="assets/icons/icon-72.png" alt="ARC Bot" class="install-icon">
+      <div class="install-text">
+        <strong>Install ARC Bot</strong>
+        <span id="iosInstructions" style="display: none;">
+          Tap <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> then "Add to Home Screen"
+        </span>
+      </div>
+    </div>
+    <div class="install-actions">
+      <button class="install-btn" id="androidInstallBtn" onclick="promptInstall()">
+        Install
+      </button>
+      <button class="install-dismiss" onclick="dismissInstallBanner()" aria-label="Dismiss">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+
   <div class="app-container">
     <!-- Header -->
     <header class="header">
@@ -1339,6 +1672,12 @@
             id="messageInput"
             placeholder="Ask about guidelines, requirements, or processes..."
             rows="1"
+            inputmode="text"
+            enterkeyhint="send"
+            autocapitalize="sentences"
+            autocomplete="off"
+            autocorrect="on"
+            spellcheck="true"
             onkeydown="handleKeyDown(event)"
             oninput="autoResize(this)"
           ></textarea>
@@ -1450,7 +1789,7 @@
             <img class="welcome-icon welcome-logo" src="assets/pinecone-logo.png" alt="Discovery West Logo">
             <h2>Welcome to ARC Bot</h2>
             <p class="welcome-tagline">Your AI assistant for Discovery West. Ask about architectural guidelines, CC&Rs, community rules, or City of Bend regulations — get answers with direct citations from official documents.</p>
-            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v1.6</p>
+            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v1.7</p>
           </div>
           
           <!-- Two-Column Content Area -->
@@ -2460,6 +2799,145 @@
     }
 
     // ===== INITIALIZATION =====
+    // ===== PWA: SERVICE WORKER REGISTRATION =====
+    let deferredInstallPrompt = null;
+    let isAppInstalled = false;
+    
+    async function registerServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register('./sw.js');
+          console.log('[PWA] Service worker registered:', registration.scope);
+          
+          // Handle updates
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New content available, could prompt user to refresh
+                console.log('[PWA] New version available');
+              }
+            });
+          });
+        } catch (error) {
+          console.error('[PWA] Service worker registration failed:', error);
+        }
+      }
+    }
+    
+    // ===== PWA: INSTALL PROMPT HANDLING =====
+    function setupInstallPrompt() {
+      // Check if already installed
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        isAppInstalled = true;
+        hideInstallBanner();
+        return;
+      }
+      
+      // Listen for beforeinstallprompt (Android/Desktop)
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        showInstallBanner('android');
+      });
+      
+      // Detect iOS
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS && !isAppInstalled && !localStorage.getItem('arc-install-dismissed')) {
+        // Show iOS install instructions after a delay
+        setTimeout(() => showInstallBanner('ios'), 3000);
+      }
+      
+      // Listen for successful install
+      window.addEventListener('appinstalled', () => {
+        isAppInstalled = true;
+        deferredInstallPrompt = null;
+        hideInstallBanner();
+        console.log('[PWA] App installed successfully');
+      });
+    }
+    
+    function showInstallBanner(platform) {
+      // Don't show if already dismissed this session
+      if (localStorage.getItem('arc-install-dismissed')) return;
+      
+      const banner = document.getElementById('installBanner');
+      const iosInstructions = document.getElementById('iosInstructions');
+      const androidButton = document.getElementById('androidInstallBtn');
+      
+      if (banner) {
+        if (platform === 'ios') {
+          iosInstructions.style.display = 'block';
+          androidButton.style.display = 'none';
+        } else {
+          iosInstructions.style.display = 'none';
+          androidButton.style.display = 'flex';
+        }
+        banner.classList.add('visible');
+      }
+    }
+    
+    function hideInstallBanner() {
+      const banner = document.getElementById('installBanner');
+      if (banner) {
+        banner.classList.remove('visible');
+      }
+    }
+    
+    function dismissInstallBanner() {
+      hideInstallBanner();
+      localStorage.setItem('arc-install-dismissed', 'true');
+    }
+    
+    async function promptInstall() {
+      if (!deferredInstallPrompt) return;
+      
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      
+      if (outcome === 'accepted') {
+        console.log('[PWA] User accepted install prompt');
+      } else {
+        console.log('[PWA] User dismissed install prompt');
+      }
+      
+      deferredInstallPrompt = null;
+      hideInstallBanner();
+    }
+    
+    // ===== PWA: OFFLINE DETECTION =====
+    let isOnline = navigator.onLine;
+    
+    function updateOnlineStatus() {
+      const wasOnline = isOnline;
+      isOnline = navigator.onLine;
+      
+      const banner = document.getElementById('offlineBanner');
+      if (banner) {
+        if (!isOnline) {
+          banner.classList.add('visible');
+        } else {
+          banner.classList.remove('visible');
+          // Show brief "back online" message
+          if (!wasOnline) {
+            banner.textContent = '✓ Back online';
+            banner.classList.add('visible', 'online');
+            setTimeout(() => {
+              banner.classList.remove('visible', 'online');
+              banner.textContent = 'You\'re offline — cached content only';
+            }, 2000);
+          }
+        }
+      }
+    }
+    
+    function setupOfflineDetection() {
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
+      // Initial check
+      updateOnlineStatus();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       initTheme();
       getSessionId();
@@ -2475,6 +2953,11 @@
       if (messageInput) {
         messageInput.focus();
       }
+      
+      // PWA initialization
+      registerServiceWorker();
+      setupInstallPrompt();
+      setupOfflineDetection();
     });
   </script>
 
