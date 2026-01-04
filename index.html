@@ -2865,16 +2865,17 @@
       const iosInstructions = document.getElementById('iosInstructions');
       const androidButton = document.getElementById('androidInstallBtn');
       
-      if (banner) {
-        if (platform === 'ios') {
-          iosInstructions.style.display = 'block';
-          androidButton.style.display = 'none';
-        } else {
-          iosInstructions.style.display = 'none';
-          androidButton.style.display = 'flex';
-        }
-        banner.classList.add('visible');
+      // Ensure all required elements exist before manipulating
+      if (!banner || !iosInstructions || !androidButton) return;
+      
+      if (platform === 'ios') {
+        iosInstructions.style.display = 'block';
+        androidButton.style.display = 'none';
+      } else {
+        iosInstructions.style.display = 'none';
+        androidButton.style.display = 'flex';
       }
+      banner.classList.add('visible');
     }
     
     function hideInstallBanner() {
