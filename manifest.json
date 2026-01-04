@@ -1,7 +1,7 @@
 {
   "name": "ARC Bot - Architectural Review Console",
   "short_name": "ARC Bot",
-  "description": "Discovery West architectural guidelines assistant. Get instant answers about CC&Rs, design guidelines, and community rules with citations from official documents.",
+  "description": "Discovery West architectural guidelines assistant with voice support. Get instant answers about CC&Rs, design guidelines, and community rules with citations from official documents.",
   "start_url": "/arc-bot/",
   "scope": "/arc-bot/",
   "display": "standalone",
@@ -91,7 +91,15 @@
       "purpose": "maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "assets/screenshots/mobile-chat.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "ARC Bot chat interface on mobile"
+    }
+  ],
   "related_applications": [],
   "prefer_related_applications": false
 }
-
