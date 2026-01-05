@@ -489,8 +489,17 @@
     }
 
     .speak-btn.loading {
-      opacity: 0.6;
+      color: var(--accent);
       pointer-events: none;
+    }
+    
+    .speak-btn.loading .speaker-icon {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     /* ===== ANSWER SECTION ===== */
@@ -1228,6 +1237,17 @@
     }
     
     /* Listening state - expanding rings */
+    /* Connecting state - subtle pulsing */
+    .voice-input-mode[data-state="connecting"] .voice-input-orb-core {
+      animation: voice-orb-connecting 0.8s ease-in-out infinite;
+      opacity: 0.7;
+    }
+    
+    @keyframes voice-orb-connecting {
+      0%, 100% { transform: scale(0.95); opacity: 0.5; }
+      50% { transform: scale(1); opacity: 0.8; }
+    }
+    
     .voice-input-mode[data-state="listening"] .voice-input-orb-ring {
       animation: voice-ring-expand 2s ease-out infinite;
     }
@@ -1283,6 +1303,10 @@
       font-size: 0.875rem;
       color: var(--text-secondary);
       font-weight: 500;
+    }
+    
+    .voice-input-mode[data-state="connecting"] .voice-input-status {
+      color: var(--text-muted);
     }
     
     .voice-input-mode[data-state="listening"] .voice-input-status {
@@ -2058,7 +2082,7 @@
             <img class="welcome-icon welcome-logo" src="assets/pinecone-logo.png" alt="Discovery West Logo">
             <h2>Welcome to ARC Bot</h2>
             <p class="welcome-tagline">Your AI assistant for Discovery West. Ask about architectural guidelines, CC&Rs, community rules, or City of Bend regulations — get answers with direct citations from official documents.</p>
-            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v2.1</p>
+            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v2.2</p>
           </div>
           
           <!-- Two-Column Content Area -->
@@ -3092,9 +3116,12 @@
     let currentTTSAudio = null; // Track currently playing TTS audio
     
     // ===== TEXT-TO-SPEECH =====
+    // Track if we're currently preparing/playing TTS
+    let ttsAudioUrl = null;
+    
     async function speakMessage(button) {
       // If already speaking, stop
-      if (button.classList.contains('speaking')) {
+      if (button.classList.contains('speaking') || button.classList.contains('loading')) {
         stopSpeaking();
         return;
       }
@@ -3112,11 +3139,17 @@
       const text = answerTextEl.getAttribute('data-raw-answer') || answerTextEl.textContent;
       if (!text || text.trim().length === 0) return;
       
-      // Show loading state
+      // Show loading state immediately
       button.classList.add('loading');
+      if (voiceMode) {
+        setVoiceInputState('speaking');
+      }
+      
+      console.log('[TTS] Starting audio fetch for', text.length, 'chars');
+      const startTime = performance.now();
       
       try {
-        // Call TTS webhook
+        // Fetch TTS audio with streaming support
         const response = await fetch(TTS_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -3127,45 +3160,23 @@
           throw new Error('TTS request failed');
         }
         
-        // Get audio blob
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
+        console.log('[TTS] Response received in', Math.round(performance.now() - startTime), 'ms');
         
-        // Create and play audio
-        currentTTSAudio = new Audio(audioUrl);
+        // Try streaming playback first, fall back to blob if needed
+        const playedStreaming = await tryStreamingPlayback(response, button);
         
-        currentTTSAudio.onplay = () => {
-          button.classList.remove('loading');
-          button.classList.add('speaking');
-        };
-        
-        currentTTSAudio.onended = () => {
-          button.classList.remove('speaking');
-          URL.revokeObjectURL(audioUrl);
-          currentTTSAudio = null;
-          
-          // In voice mode, return to listening after speaking
-          if (voiceMode && voiceSessionActive) {
-            setVoiceInputState('listening');
-          }
-        };
-        
-        currentTTSAudio.onerror = (e) => {
-          console.error('[TTS] Audio playback error:', e);
-          button.classList.remove('loading', 'speaking');
-          currentTTSAudio = null;
-        };
-        
-        // In voice mode, show speaking state
-        if (voiceMode) {
-          setVoiceInputState('speaking');
+        if (!playedStreaming) {
+          console.log('[TTS] Streaming not available, using blob fallback');
+          // Response already consumed, need to re-fetch
+          await playAudioBlob(text.trim(), button);
         }
-        
-        await currentTTSAudio.play();
         
       } catch (error) {
         console.error('[TTS] Error:', error);
         button.classList.remove('loading', 'speaking');
+        if (voiceMode) {
+          stopVoiceMode();
+        }
         
         // Show brief error feedback
         button.title = 'Audio unavailable';
@@ -3175,16 +3186,176 @@
       }
     }
     
+    // Try to play audio using MediaSource for streaming (faster start)
+    async function tryStreamingPlayback(response, button) {
+      // Check if MediaSource is supported and can handle audio/mpeg
+      if (!window.MediaSource || !MediaSource.isTypeSupported('audio/mpeg')) {
+        console.log('[TTS] MediaSource not supported for audio/mpeg');
+        return false;
+      }
+      
+      try {
+        const mediaSource = new MediaSource();
+        const audio = new Audio();
+        ttsAudioUrl = URL.createObjectURL(mediaSource);
+        audio.src = ttsAudioUrl;
+        currentTTSAudio = audio;
+        
+        return new Promise((resolve, reject) => {
+          mediaSource.addEventListener('sourceopen', async () => {
+            try {
+              const sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
+              const reader = response.body.getReader();
+              let firstChunk = true;
+              
+              const pump = async () => {
+                const { done, value } = await reader.read();
+                
+                if (done) {
+                  // Wait for buffer to finish updating before ending stream
+                  if (!sourceBuffer.updating) {
+                    mediaSource.endOfStream();
+                  } else {
+                    sourceBuffer.addEventListener('updateend', () => {
+                      if (mediaSource.readyState === 'open') {
+                        mediaSource.endOfStream();
+                      }
+                    }, { once: true });
+                  }
+                  return;
+                }
+                
+                // Append chunk to buffer
+                if (!sourceBuffer.updating) {
+                  sourceBuffer.appendBuffer(value);
+                }
+                
+                // Start playing on first chunk
+                if (firstChunk) {
+                  firstChunk = false;
+                  console.log('[TTS] First chunk received, starting playback');
+                  button.classList.remove('loading');
+                  button.classList.add('speaking');
+                  
+                  try {
+                    await audio.play();
+                    resolve(true);
+                  } catch (playError) {
+                    console.error('[TTS] Autoplay failed:', playError);
+                    reject(playError);
+                  }
+                }
+                
+                // Wait for buffer to be ready, then continue
+                if (sourceBuffer.updating) {
+                  sourceBuffer.addEventListener('updateend', pump, { once: true });
+                } else {
+                  pump();
+                }
+              };
+              
+              pump();
+              
+            } catch (e) {
+              console.error('[TTS] Streaming error:', e);
+              reject(e);
+            }
+          });
+          
+          // Handle audio ending
+          audio.onended = () => {
+            console.log('[TTS] Streaming audio finished');
+            button.classList.remove('speaking');
+            cleanupTTSAudio();
+            
+            // Exit voice mode after speaking
+            if (voiceMode) {
+              console.log('[TTS] Audio finished, exiting voice mode');
+              stopVoiceMode();
+            }
+          };
+          
+          audio.onerror = (e) => {
+            console.error('[TTS] Audio error:', e);
+            reject(e);
+          };
+          
+          // Timeout in case streaming doesn't work
+          setTimeout(() => {
+            if (!audio.playing && firstChunk) {
+              reject(new Error('Streaming timeout'));
+            }
+          }, 10000);
+        });
+        
+      } catch (e) {
+        console.log('[TTS] Streaming setup failed:', e);
+        return false;
+      }
+    }
+    
+    // Fallback: Play audio using blob (waits for full download)
+    async function playAudioBlob(text, button) {
+      const response = await fetch(TTS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      
+      if (!response.ok) {
+        throw new Error('TTS request failed');
+      }
+      
+      const audioBlob = await response.blob();
+      ttsAudioUrl = URL.createObjectURL(audioBlob);
+      
+      currentTTSAudio = new Audio(ttsAudioUrl);
+      
+      currentTTSAudio.onplay = () => {
+        button.classList.remove('loading');
+        button.classList.add('speaking');
+      };
+      
+      currentTTSAudio.onended = () => {
+        button.classList.remove('speaking');
+        cleanupTTSAudio();
+        
+        // Exit voice mode after speaking
+        if (voiceMode) {
+          console.log('[TTS] Audio finished, exiting voice mode');
+          stopVoiceMode();
+        }
+      };
+      
+      currentTTSAudio.onerror = (e) => {
+        console.error('[TTS] Audio playback error:', e);
+        button.classList.remove('loading', 'speaking');
+        cleanupTTSAudio();
+      };
+      
+      console.log('[TTS] Playing blob audio');
+      await currentTTSAudio.play();
+    }
+    
+    // Clean up TTS audio resources
+    function cleanupTTSAudio() {
+      if (ttsAudioUrl) {
+        URL.revokeObjectURL(ttsAudioUrl);
+        ttsAudioUrl = null;
+      }
+      currentTTSAudio = null;
+    }
+    
     function stopSpeaking() {
       if (currentTTSAudio) {
         currentTTSAudio.pause();
         currentTTSAudio.currentTime = 0;
-        currentTTSAudio = null;
       }
+      cleanupTTSAudio();
       
-      // Remove speaking class from all buttons
-      document.querySelectorAll('.speak-btn.speaking').forEach(btn => {
-        btn.classList.remove('speaking');
+      // Remove speaking/loading class from all buttons
+      document.querySelectorAll('.speak-btn.speaking, .speak-btn.loading').forEach(btn => {
+        btn.classList.remove('speaking', 'loading');
       });
     }
     
@@ -3243,13 +3414,13 @@
         voiceInputMode.setAttribute('data-state', state);
       }
       
-      // Update status text
+      // Update status text with clearer messages
       const statusMessages = {
         idle: 'Tap microphone to speak',
-        connecting: 'Connecting...',
-        listening: 'Listening...',
-        processing: 'Thinking...',
-        speaking: 'Speaking...'
+        connecting: 'Connecting to voice...',
+        listening: 'Listening... speak now',
+        processing: 'Getting your answer...',
+        speaking: 'Reading answer...'
       };
       
       if (statusText) {
@@ -3272,18 +3443,14 @@
         statusText.textContent = message;
         statusText.style.color = '#ef4444';
         
-        // Reset after 3 seconds
+        // Reset after 3 seconds and exit voice mode
         setTimeout(() => {
           statusText.style.color = '';
+          // Exit voice mode on any error (user can tap mic to try again)
           if (voiceMode) {
-            setVoiceInputState('listening');
+            stopVoiceMode();
           }
         }, 3000);
-      }
-      
-      // Also stop voice mode on serious errors
-      if (message.includes('permission') || message.includes('microphone')) {
-        stopVoiceMode();
       }
     }
     
@@ -3501,8 +3668,10 @@ For simple greetings, clarifying questions, or requests to repeat, you may respo
             break;
             
           case 'response.done':
-            // Response complete - audio will be handled via TTS
-            setVoiceInputState('listening');
+            // Response cycle complete
+            // Don't reset to listening here - let TTS completion handle the exit
+            // This prevents the "bounce back to listening" bug
+            console.log('[Voice] Response cycle complete');
             break;
             
           case 'error':
