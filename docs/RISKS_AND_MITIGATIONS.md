@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — Risks and Mitigations
 
-**Version:** 1.4  
-**Last Updated:** January 2, 2026  
+**Version:** 2.0  
+**Last Updated:** January 5, 2026  
 **Status:** Canonical Reference
 
 ---
@@ -438,14 +438,72 @@ High usage or inefficient queries may result in unexpected OpenAI API costs.
 | Vector search | ~$0 | Supabase (within free tier) |
 | Reranking (GPT-4o) | $0.01-0.03 | Depends on candidate count |
 | Answer generation | $0.02-0.05 | Depends on response length |
-| **Total** | ~$0.03-0.08 | Per substantive query |
+| **Text Mode Total** | ~$0.03-0.08 | Per substantive query |
+| **Voice Mode Audio** | $0.06-0.15 | ~30s question + ~30s response |
+| **Voice Mode Total** | ~$0.10-0.25 | Per voice interaction |
 
 **Monitoring:**
 - Track daily/monthly API costs
 - Alert on cost spikes
 - Review high-cost queries
+- Monitor voice mode usage separately
 
 **Residual Risk:** Low — Moderate usage expected. Costs manageable with monitoring.
+
+---
+
+### 5.4 Voice Mode Audio Quality
+
+**Risk ID:** OPS-004  
+**Severity:** Medium  
+**Category:** Operational
+
+**Description:**  
+Voice mode quality may be affected by network latency, browser compatibility, or microphone issues.
+
+**Impact:**
+- Frustrating user experience
+- Misunderstood questions leading to wrong answers
+- Users abandoning voice mode
+
+**Mitigation Strategies:**
+| Strategy | Implementation | Status |
+|----------|----------------|--------|
+| Error handling | Clear error messages for audio issues | Design |
+| Fallback to text | Unified chat allows easy mode switching | Design |
+| Browser compatibility | WebRTC support detection | Design |
+| Network resilience | Graceful handling of connection drops | Design |
+
+**Monitoring:**
+- Track voice mode usage vs. abandonment
+- Log WebRTC connection errors
+- User feedback on voice quality
+
+**Residual Risk:** Medium — WebRTC is generally reliable, but edge cases exist. Text fallback mitigates.
+
+---
+
+### 5.5 Voice Mode Misuse
+
+**Risk ID:** OPS-005  
+**Severity:** Low  
+**Category:** Operational
+
+**Description:**  
+Voice mode could be used to repeatedly query the system, driving up costs or overwhelming resources.
+
+**Impact:**
+- Higher than expected Realtime API costs
+- Potential for abuse
+
+**Mitigation Strategies:**
+| Strategy | Implementation | Status |
+|----------|----------------|--------|
+| Session limits | Ephemeral tokens expire in 60 seconds | Design |
+| Rate limiting | n8n webhook rate limiting | Future |
+| Monitoring | Track voice session creation rates | Design |
+
+**Residual Risk:** Low — Token expiration limits long sessions. Community users unlikely to abuse.
 
 ---
 
@@ -732,6 +790,7 @@ if (pos >= 0) {
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.0 | 2026-01-05 | AI Agent | Added voice mode risks (OPS-004, OPS-005); Updated cost estimates for voice; PWA considerations |
 | 1.4 | 2026-01-02 | AI Agent | Added embedding mismatch risk; Updated performance metrics; Added lessons learned for embeddings and reranking |
 | 1.3 | 2025-12-31 | AI Agent | Added exhibit extraction resolution (148 total chunks) |
 | 1.2 | 2025-12-31 | AI Agent | Added section title detection bug analysis |

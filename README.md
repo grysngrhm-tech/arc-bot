@@ -1,6 +1,6 @@
 # ARC Bot — Architectural Review Console
 
-> **A smart reference assistant that helps you find answers in Discovery West's architectural standards — with citations you can trust.**
+> **A smart reference assistant that helps you find answers in Discovery West's architectural standards — with citations you can trust. Now with voice mode!**
 
 ---
 
@@ -82,6 +82,12 @@ ARC Bot puts all governing documents at your fingertips:
 
 ## Key Features
 
+### 🎤 Voice Mode (NEW in v2.0)
+Speak your questions naturally and hear the answers read aloud. Voice and text share the same conversation — switch between them seamlessly during ARC meetings or while reviewing plans.
+
+### 📱 Mobile PWA
+Install ARC Bot on your phone like a native app. Works offline, fast loading, and optimized for touch with large tap targets and safe area handling for notched devices.
+
 ### 📚 Evidence-Based Answers
 Every response cites specific sections from official documents. No guessing, no "I think it says..."
 
@@ -102,6 +108,9 @@ Expand any citation to see the **exact text** from the source document — witho
 
 ### 💬 Conversation Memory
 Ask follow-up questions naturally. The system remembers what you discussed within a session.
+
+### ⚡ Reliable & Responsive
+Automatic retry with exponential backoff, request cancellation, and graceful error handling keep the app responsive even when networks are slow.
 
 ### 🌗 Light & Dark Themes
 Comfortable viewing in any environment.
@@ -159,10 +168,10 @@ No login required. Just type your question and press Enter.
 
 ## How It Works
 
-ARC Bot follows a simple process to answer your questions:
+ARC Bot follows a simple process to answer your questions — whether typed or spoken:
 
 ```
-   YOUR QUESTION
+   YOUR QUESTION (typed or spoken)
         │
         ▼
 ┌───────────────────┐
@@ -185,16 +194,27 @@ ARC Bot follows a simple process to answer your questions:
 └─────────┬─────────┘
           │
           ▼
-   CITED RESPONSE
+   CITED RESPONSE (displayed + spoken in voice mode)
 ```
 
 ### Step-by-Step
 
-1. **You ask a question** in plain English
+1. **You ask a question** — type it or tap the mic and speak
 2. **The system searches** all ingested documents using both meaning and keywords
 3. **Results are ranked** by how well they answer your specific question
 4. **An AI assistant** synthesizes the findings into a clear answer
 5. **Citations are attached** so you can verify the source
+6. **In voice mode** — the answer is also read aloud with natural speech
+
+### Voice Mode Details
+
+Voice mode uses OpenAI's Realtime API for natural, low-latency conversations:
+
+- **Tap the microphone** to start speaking
+- **Your question appears** in the chat as a user message
+- **The answer appears** with full formatting (source cards, confidence badges)
+- **Audio plays** alongside the formatted response
+- **Switch freely** between typing and speaking in the same conversation
 
 **Important:** The AI only uses information it finds in the documents. It cannot make up rules or give opinions.
 
@@ -243,33 +263,35 @@ ARC Bot connects several services to deliver accurate, cited answers:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                           ARC BOT SYSTEM                                │
+│                           ARC BOT SYSTEM v2.0                           │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │   ┌─────────────────┐                                                   │
 │   │   YOU (User)    │                                                   │
 │   │   Browser/Phone │                                                   │
 │   └────────┬────────┘                                                   │
-│            │ Ask question                                               │
+│            │ Type or Speak question                                     │
 │            ▼                                                            │
 │   ┌─────────────────┐                                                   │
-│   │  CHAT FRONTEND  │  Static website hosted on GitHub Pages            │
-│   │  (index.html)   │  • Shows chat interface                           │
-│   └────────┬────────┘  • Displays answers with citations                │
-│            │                                                            │
-│            ▼                                                            │
-│   ┌─────────────────┐                                                   │
-│   │  n8n WORKFLOWS  │  Orchestration engine (self-hosted)               │
-│   │  (AI Agent)     │  • Routes questions to the right tools            │
-│   └────────┬────────┘  • Manages conversation flow                      │
-│            │                                                            │
+│   │  CHAT FRONTEND  │  Progressive Web App (PWA)                        │
+│   │  (index.html)   │  • Unified voice + text chat                      │
+│   └────────┬────────┘  • Offline support via Service Worker             │
+│            │           • Mobile-optimized touch interface               │
+│        ┌───┴───────────────────────────────┐                            │
+│        │                                   │                            │
+│        ▼ [Text Mode]                       ▼ [Voice Mode]               │
+│   ┌─────────────────┐               ┌─────────────────┐                 │
+│   │  n8n WORKFLOWS  │               │ OpenAI Realtime │                 │
+│   │  (Main Agent)   │◄──────────────│      API        │                 │
+│   └────────┬────────┘  get_arc_     │   (WebRTC)      │                 │
+│            │           answer()     └─────────────────┘                 │
 │       ┌────┴────┐                                                       │
 │       ▼         ▼                                                       │
 │  ┌─────────┐  ┌─────────┐                                               │
 │  │RETRIEVAL│  │ OpenAI  │  External AI Service                          │
 │  │  TOOL   │  │   API   │  • Generates embeddings for search            │
 │  └────┬────┘  └────┬────┘  • Powers the AI assistant (GPT-4o)           │
-│       │            │                                                    │
+│       │            │       • Realtime API for voice I/O                 │
 │       ▼            │                                                    │
 │  ┌─────────────────┴───┐                                                │
 │  │      SUPABASE       │  Cloud database                                │
@@ -289,10 +311,11 @@ ARC Bot connects several services to deliver accurate, cited answers:
 
 | Component | What It Does | Why It Matters |
 |-----------|--------------|----------------|
-| **Chat Frontend** | The webpage you interact with | Simple, works on any device |
+| **PWA Frontend** | The app you interact with | Works offline, installable on phones |
 | **n8n Workflows** | Coordinates the AI agent and tools | Flexible, visual automation |
 | **Supabase** | Stores documents and enables search | Fast vector + text search |
-| **OpenAI API** | Provides AI understanding | High-quality embeddings and responses |
+| **OpenAI API** | Provides AI understanding | Embeddings, reasoning, voice |
+| **OpenAI Realtime** | Enables voice conversations | Low-latency speech I/O via WebRTC |
 
 ---
 
@@ -300,30 +323,35 @@ ARC Bot connects several services to deliver accurate, cited answers:
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
-| **Frontend** | HTML, CSS, JavaScript | Static site, no server needed |
+| **Frontend** | HTML, CSS, JavaScript (PWA) | Installable app, works offline |
 | **Hosting** | GitHub Pages | Free, reliable hosting |
 | **Orchestration** | n8n (self-hosted) | AI agent workflow management |
 | **Database** | Supabase (PostgreSQL + pgvector) | Document storage and vector search |
 | **LLM** | OpenAI GPT-4o | Question answering and reasoning |
+| **Voice** | OpenAI Realtime API | Low-latency speech I/O via WebRTC |
 | **Embeddings** | text-embedding-3-large (1536 dims) | Semantic search capability |
 | **Total Chunks** | 244 | Complete knowledge base |
 
 ### Why These Choices?
 
-- **Static frontend** — No server to maintain, loads fast, works offline
+- **PWA frontend** — Installable, works offline, native-like experience
 - **n8n** — Visual workflow builder, easy to modify without coding
 - **Supabase** — Managed PostgreSQL with vector search built-in
 - **GPT-4o** — Best-in-class reasoning with tool/function support
+- **Realtime API** — Natural voice conversations with function calling
 - **1536 dimensions** — Optimal quality within Supabase index limits
 
 ---
 
 ## Project Status
 
-### ✅ Production Ready
+### ✅ Production Ready (v2.0)
 
 | Component | Details |
 |-----------|---------|
+| **Voice Mode** | Unified voice + text chat with OpenAI Realtime API |
+| **PWA** | Installable on iOS/Android, offline support, mobile-optimized |
+| **Error Handling** | AbortController, exponential backoff, cancel/retry UI |
 | Database Schema | PostgreSQL with pgvector, hybrid search functions |
 | Document Ingestion | Structure-aware chunking with section detection |
 | Hybrid Retrieval | Vector similarity + full-text search |
@@ -360,6 +388,7 @@ Detailed technical documentation is available in the `docs/` folder:
 | [AGENT_GUARDRAILS.md](docs/AGENT_GUARDRAILS.md) | AI behavior rules and system prompts |
 | [ANSWER_CONTRACT.md](docs/ANSWER_CONTRACT.md) | Response format and citation requirements |
 | [IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) | Build status, test results, lessons learned |
+| [VOICE_MODE_SETUP.md](docs/VOICE_MODE_SETUP.md) | Voice mode configuration and n8n workflow |
 | [RISKS_AND_MITIGATIONS.md](docs/RISKS_AND_MITIGATIONS.md) | Known risks and how they're addressed |
 
 ---
@@ -473,4 +502,4 @@ This project is developed for the Discovery West community. Source code and docu
 
 ---
 
-*Last Updated: January 2, 2026 — Internal Launch Ready*
+*Last Updated: January 5, 2026 — v2.0 with Voice Mode & PWA*

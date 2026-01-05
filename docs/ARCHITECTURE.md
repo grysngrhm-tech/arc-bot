@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — System Architecture
 
-**Version:** 1.1  
-**Last Updated:** January 2, 2026  
+**Version:** 2.0  
+**Last Updated:** January 5, 2026  
 **Status:** Canonical Reference
 
 ---
@@ -49,36 +49,37 @@ ARC Bot (Architectural Review Console) is an evidence-based reference system tha
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                              USER INTERFACE                                  │
-│                     (GitHub Pages - Static HTML/JS)                          │
+│                          USER INTERFACE (PWA)                                │
+│                     (GitHub Pages - Progressive Web App)                     │
 │                                                                              │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  Chat Input  │  Message History  │  Source Citations Panel          │   │
+│   │  Voice/Text Input  │  Unified Chat  │  Source Citations Panel       │   │
 │   └─────────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    │ HTTPS POST
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         n8n ORCHESTRATION LAYER                              │
-│                          (Self-hosted n8n instance)                          │
-│                                                                              │
-│   ┌───────────┐    ┌───────────────┐    ┌──────────────────────────────┐   │
-│   │  Webhook  │───▶│   AI Agent    │───▶│  Answer Synthesis & Format   │   │
-│   │  Trigger  │    │ (Tools Agent) │    │                              │   │
-│   └───────────┘    └───────┬───────┘    └──────────────────────────────┘   │
-│                            │                                                 │
-│                    Tool Calls                                                │
-│                            │                                                 │
-│   ┌────────────────────────┼────────────────────────┐                       │
-│   │                        │                        │                       │
-│   ▼                        ▼                        ▼                       │
-│ ┌──────────────┐   ┌──────────────┐   ┌──────────────────────┐             │
-│ │   Hybrid     │   │   Reranker   │   │   Context Assembly   │             │
-│ │  Retrieval   │   │    Tool      │   │       Tool           │             │
-│ │    Tool      │   │              │   │                      │             │
-│ └──────────────┘   └──────────────┘   └──────────────────────┘             │
-└─────────────────────────────────────────────────────────────────────────────┘
+                    │                              │
+                    │ Text Mode                    │ Voice Mode
+                    │ (HTTPS POST)                 │ (WebRTC)
+                    ▼                              ▼
+┌────────────────────────────────┐    ┌──────────────────────────────────────┐
+│   n8n ORCHESTRATION LAYER      │    │      OPENAI REALTIME API             │
+│   (Self-hosted n8n instance)   │    │                                      │
+│                                │    │  ┌────────────────────────────────┐  │
+│ ┌──────────┐  ┌──────────────┐│    │  │  Voice Session (WebRTC)        │  │
+│ │ Webhook  │─▶│   AI Agent   ││◀───│──│  - Speech-to-text              │  │
+│ │ Trigger  │  │(Tools Agent) ││    │  │  - Text-to-speech              │  │
+│ └──────────┘  └──────┬───────┘│    │  │  - get_arc_answer() function   │  │
+│                      │        │    │  └────────────────────────────────┘  │
+│              Tool Calls       │    │                                      │
+│                      │        │    └──────────────────────────────────────┘
+│ ┌────────────────────┼───────┐│
+│ │                    │       ││
+│ ▼                    ▼       ▼│
+│┌────────────┐ ┌────────────┐ ││
+││  Hybrid    │ │  Reranker  │ ││
+││ Retrieval  │ │   Tool     │ ││
+││   Tool     │ │ (optional) │ ││
+│└────────────┘ └────────────┘ ││
+└────────────────────────────────┘
          │                                           │
          │ SQL Queries                               │ API Calls
          ▼                                           ▼
@@ -98,14 +99,14 @@ ARC Bot (Architectural Review Console) is an evidence-based reference system tha
 │                                  │    │   │  - 1536 dimensions          │   │
 │  ┌────────────────────────────┐ │    │   └─────────────────────────────┘   │
 │  │    Indexes                 │ │    │                                     │
-│  │    • HNSW (pgvector)       │ │    └─────────────────────────────────────┘
-│  │    • GIN (full-text)       │ │
-│  └────────────────────────────┘ │
-│                                  │
-│  ┌────────────────────────────┐ │
-│  │    Storage Bucket          │ │
-│  │    • Original PDFs         │ │
-│  │    • Source preservation   │ │
+│  │    • HNSW (pgvector)       │ │    │   ┌─────────────────────────────┐   │
+│  │    • GIN (full-text)       │ │    │   │  Realtime API               │   │
+│  └────────────────────────────┘ │    │   │  - Voice I/O via WebRTC     │   │
+│                                  │    │   │  - Function calling         │   │
+│  ┌────────────────────────────┐ │    │   │  - gpt-4o-realtime          │   │
+│  │    Storage Bucket          │ │    │   └─────────────────────────────┘   │
+│  │    • Original PDFs         │ │    │                                     │
+│  │    • Source preservation   │ │    └─────────────────────────────────────┘
 │  └────────────────────────────┘ │
 └─────────────────────────────────┘
 ```
@@ -153,22 +154,34 @@ ARC Bot (Architectural Review Console) is an evidence-based reference system tha
 
 ## 3. Component Responsibilities
 
-### 3.1 Frontend (GitHub Pages)
+### 3.1 Frontend (GitHub Pages - PWA)
 
-**Technology:** Static HTML, CSS, JavaScript  
+**Technology:** Progressive Web App (HTML, CSS, JavaScript)  
 **Hosting:** GitHub Pages (grysngrhm-tech)
 
 **Responsibilities:**
-- Render chat interface
-- Send user messages to n8n webhook
+- Render unified voice + text chat interface
+- Send user messages to n8n webhook (text mode)
+- Establish WebRTC connection to OpenAI Realtime API (voice mode)
 - Display formatted responses with citations
 - Maintain conversation history (client-side)
 - Link to source documents when available
+- Service worker for offline caching
+- Install prompt for mobile devices
+- Handle microphone permissions and audio playback
+
+**PWA Features:**
+- Installable on iOS and Android
+- Offline support via Service Worker
+- Mobile-optimized touch targets
+- Safe area handling for notched devices
+- Custom install prompts
 
 **Does NOT:**
 - Process or transform data
 - Store conversation history server-side
 - Make decisions about answer quality
+- Store API keys (all auth is server-side)
 
 ### 3.2 n8n Orchestration Layer
 
@@ -236,6 +249,52 @@ ARC Bot (Architectural Review Console) is an evidence-based reference system tha
 | GPT-4o | Agent reasoning, answer synthesis | Temperature: 0.1 |
 | GPT-4o | Reranking decisions | Temperature: 0 |
 | text-embedding-3-large | Query and document embedding | 1536 dimensions |
+| gpt-4o-realtime-preview | Voice conversations | WebRTC, VAD enabled |
+
+### 3.5 Voice Mode Architecture
+
+**Technology:** OpenAI Realtime API via WebRTC  
+**Authentication:** Ephemeral tokens from n8n backend
+
+**Voice Flow:**
+```
+1. User taps microphone button
+          │
+          ▼
+2. Frontend requests ephemeral token from n8n
+          │
+          ▼
+3. n8n calls OpenAI to create Realtime session
+          │
+          ▼
+4. Frontend establishes WebRTC connection with token
+          │
+          ▼
+5. User speaks → Realtime API transcribes
+          │
+          ▼
+6. Realtime API calls get_arc_answer() function
+          │
+          ▼
+7. Frontend handles function → calls Main Agent → returns answer
+          │
+          ▼
+8. Realtime API reads answer aloud + Frontend renders in chat
+```
+
+**Key Design Decision:** Voice mode acts as a "voice interface" to the Main Agent:
+- The Realtime API does NOT generate its own answers
+- All questions route through the same Main Agent workflow
+- Ensures identical answers between voice and text modes
+- Voice responses include natural citations and confidence caveats
+
+**Components:**
+| Component | Purpose |
+|-----------|---------|
+| Voice Session Workflow | Creates ephemeral tokens via n8n |
+| WebRTC Connection | Real-time audio streaming |
+| get_arc_answer() Function | Routes voice questions to Main Agent |
+| formatAnswerForVoice() | Adds natural citations for speech |
 
 ---
 
@@ -400,6 +459,7 @@ For full implementation details, see [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_S
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.0 | 2026-01-05 | AI Agent | Added voice mode architecture (Realtime API, WebRTC); PWA frontend; Unified voice+text chat |
 | 1.2 | 2026-01-02 | AI Agent | Updated performance targets with actuals; Reranking now optional; Added embedding consistency constraint |
 | 1.1 | 2025-12-31 | AI Agent | Added implementation reference section |
 | 1.0 | 2025-12-31 | AI Agent | Initial canonical architecture |

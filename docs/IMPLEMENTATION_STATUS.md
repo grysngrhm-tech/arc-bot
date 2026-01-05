@@ -1,8 +1,8 @@
 # ARC Bot (Architectural Review Console) — Implementation Status
 
-**Version:** 1.7  
-**Last Updated:** January 2, 2026  
-**Status:** Internal Launch Ready
+**Version:** 2.0  
+**Last Updated:** January 5, 2026  
+**Status:** Production Ready with Voice Mode
 
 ---
 
@@ -10,6 +10,10 @@
 
 | Component | Status | Details |
 |-----------|--------|---------|
+| **Voice Mode** | ✅ Complete | Unified voice+text chat via OpenAI Realtime API |
+| **PWA** | ✅ Complete | Installable app, offline support, mobile-optimized |
+| **Error Handling** | ✅ Complete | AbortController, exponential backoff, cancel/retry UI |
+| Voice Session Workflow | ✅ Complete | Ephemeral token generation for WebRTC |
 | Supabase Database | ✅ Complete | Schema, indexes, functions deployed |
 | Storage Bucket | ✅ Complete | `arc-documents` bucket created |
 | Document Ingestion Workflow | ✅ Complete | 244 chunks ingested (4 documents) |
@@ -17,9 +21,9 @@
 | Hybrid Retrieval Tool | ✅ Complete | Tested and working |
 | Reranker Tool | ⏸️ Disabled | Disconnected for performance (adds ~60s latency) |
 | Main AI Agent Workflow | ✅ Complete | GPT-4o with enforced JSON response format |
-| Chat Frontend | ✅ Complete | Discovery West branded UI with official logos, enhanced welcome panel |
-| Rotating Question Library | ✅ Complete | 26 nuanced questions across 4 document types, refreshed on page load |
-| Authority Labels | ✅ Complete | Binding, ARC Guidance, and DWOA Guidance badges aligned across UI |
+| Chat Frontend | ✅ Complete | Discovery West branded UI with voice input |
+| Rotating Question Library | ✅ Complete | 26 nuanced questions across 4 document types |
+| Authority Labels | ✅ Complete | Binding, ARC Guidance, DWOA Guidance badges |
 
 ---
 
@@ -460,10 +464,133 @@ The AI Agent now returns structured JSON responses:
 
 ---
 
-## 10. File References
+## 10. Voice Mode (v2.0)
+
+### 10.1 Overview
+
+Voice mode allows users to speak questions and hear answers read aloud. Voice and text share the same conversation, with identical formatting and source citations.
+
+### 10.2 Architecture
+
+```
+User speaks → WebRTC → OpenAI Realtime API → get_arc_answer() → Main Agent → Response
+                                                                      ↓
+                                            Chat renders formatted message + Audio plays
+```
+
+**Key Design Decision:** Voice mode is a "voice interface" to the Main Agent, not a separate AI:
+- Realtime API configured with meta-prompt that delegates all questions
+- `get_arc_answer()` function routes questions to the same Main Agent workflow
+- Identical answers between voice and text modes
+- Voice responses include natural source citations
+
+### 10.3 n8n Workflow: Voice Session
+
+| Property | Value |
+|----------|-------|
+| **Name** | ARC Bot - Voice Session |
+| **ID** | `eNkvTZbFPjbkQIz2` |
+| **Webhook Path** | `/arc-voice-session` |
+| **Purpose** | Generate ephemeral tokens for Realtime API |
+
+**Flow:**
+```
+Webhook (POST) → HTTP Request (OpenAI Realtime Sessions) → Return client_secret
+```
+
+### 10.4 Frontend Voice Functions
+
+| Function | Purpose |
+|----------|---------|
+| `toggleVoiceMode()` | Start/stop voice mode, transform input area |
+| `setVoiceInputState(state)` | Update UI for listening/processing/speaking |
+| `handleGetAnswer(callId, args)` | Handle function call, route to Main Agent, render response |
+| `formatAnswerForVoice(data)` | Add natural citations for speech output |
+
+### 10.5 Voice Meta-Prompt
+
+The Realtime API is configured with a meta-prompt that forces delegation:
+
+```
+You are a voice interface for ARC Bot...
+
+CRITICAL RULE: You do NOT have architectural knowledge. For ANY question about:
+- Architectural guidelines, requirements, or standards
+- CC&Rs, covenants, conditions, or restrictions
+- Community rules and regulations
+...
+
+You MUST call the get_arc_answer function and then read the response naturally.
+```
+
+---
+
+## 11. PWA Features (v1.7+)
+
+### 11.1 Overview
+
+ARC Bot is a Progressive Web App that can be installed on iOS and Android devices, works offline, and provides a native-like experience.
+
+### 11.2 Components
 
 | File | Purpose |
 |------|---------|
+| `manifest.json` | PWA metadata, icons, theme colors |
+| `sw.js` | Service worker for caching |
+| `assets/icons/` | Various icon sizes for platforms |
+
+### 11.3 Service Worker Strategy
+
+- **Cache-first** for static assets (HTML, CSS, JS, images)
+- **Network-first** for API calls
+- **Precaching** of app shell on install
+- **Cache versioning** (`arc-bot-v2.0`) for updates
+
+### 11.4 Mobile Optimizations
+
+| Feature | Implementation |
+|---------|----------------|
+| Touch targets | Minimum 48px for interactive elements |
+| Safe areas | CSS `env(safe-area-inset-*)` for notched devices |
+| Input handling | `inputmode`, `enterkeyhint` for mobile keyboards |
+| Viewport | `viewport-fit=cover`, `overscroll-behavior: none` |
+| Install prompts | Custom UI for iOS and Android |
+
+---
+
+## 12. Error Handling (v1.5+)
+
+### 12.1 Features
+
+| Feature | Implementation |
+|---------|----------------|
+| Request timeout | 45-second AbortController timeout |
+| Retry logic | Exponential backoff (1s, 2s, 4s) up to 3 retries |
+| Cancel button | Stop pending request, show retry option |
+| Error classification | Network, timeout, server, rate limit categories |
+| Graceful degradation | User-friendly error messages with retry |
+
+### 12.2 Error Types
+
+```javascript
+const ErrorTypes = {
+  NETWORK_ERROR: 'network',
+  TIMEOUT_ERROR: 'timeout',
+  SERVER_ERROR: 'server',
+  RATE_LIMIT: 'rate_limit',
+  UNKNOWN: 'unknown'
+};
+```
+
+---
+
+## 13. File References
+
+| File | Purpose |
+|------|---------|
+| `index.html` | Main PWA frontend with voice mode |
+| `manifest.json` | PWA manifest |
+| `sw.js` | Service worker |
 | [database/001_initial_schema.sql](../database/001_initial_schema.sql) | Complete Supabase schema |
 | [database/002_storage_bucket.sql](../database/002_storage_bucket.sql) | Storage bucket setup |
 | [database/004_dw_overlay_zone.sql](../database/004_dw_overlay_zone.sql) | Discovery West code chunks |
@@ -473,22 +600,25 @@ The AI Agent now returns structured JSON responses:
 | [docs/AGENT_GUARDRAILS.md](AGENT_GUARDRAILS.md) | AI behavior rules |
 | [docs/ANSWER_CONTRACT.md](ANSWER_CONTRACT.md) | Response format |
 | [docs/CHUNKING_STRATEGY.md](CHUNKING_STRATEGY.md) | Document processing |
+| [docs/VOICE_MODE_SETUP.md](VOICE_MODE_SETUP.md) | Voice mode setup guide |
 | [docs/RISKS_AND_MITIGATIONS.md](RISKS_AND_MITIGATIONS.md) | Risk register |
 | [scripts/system-prompt.txt](../scripts/system-prompt.txt) | AI Agent system prompt |
 | [scripts/format-response-node.js](../scripts/format-response-node.js) | Response formatting code |
 
 ---
 
-## 11. Version History
+## 14. Version History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.7 | 2026-01-02 | AI Agent | Internal launch ready: Rotating question library (26 nuanced questions), Authority labels (Binding, ARC Guidance, DWOA Guidance), Documentation refresh |
-| 1.6 | 2026-01-02 | AI Agent | UI branding refresh: Discovery West logos, charcoal/orange color scheme, Montserrat typography, enhanced welcome panel, document-targeted question chips, direct PDF links |
-| 1.5 | 2026-01-02 | AI Agent | Fixed embedding model mismatch (3-small→3-large); Enabled JSON response format; Increased chunk limit to 15; Disabled reranker for performance; Concise answer format |
-| 1.4 | 2026-01-02 | AI Agent | Added City of Bend Development Code - Discovery West (12 chunks); Fixed source modal UI (removed dual toggle) |
-| 1.3 | 2026-01-01 | AI Agent | Ingested CC&Rs (83 chunks) and Rules & Regulations (1 chunk); Enhanced response format with JSON structure; Added expandable sources UI |
-| 1.2 | 2025-12-31 | AI Agent | Added exhibit supplements (148 total chunks), full exhibit A-O coverage |
-| 1.1 | 2025-12-31 | AI Agent | Added TOC-based section detection documentation |
-| 1.0 | 2025-12-31 | AI Agent | Initial implementation status after Phase 1 |
+| 2.0 | 2026-01-05 | AI Agent | **Major Release:** Unified voice+text chat via OpenAI Realtime API; Voice as interface to Main Agent; PWA optimization complete; Mobile touch targets and safe areas |
+| 1.8 | 2026-01-05 | AI Agent | Voice mode with full-screen overlay; OpenAI Realtime API integration; WebRTC audio |
+| 1.7 | 2026-01-05 | AI Agent | PWA features: Service worker, manifest, install prompts; Mobile optimizations |
+| 1.6 | 2026-01-04 | AI Agent | Error handling: AbortController, exponential backoff, cancel/retry UI |
+| 1.5 | 2026-01-02 | AI Agent | Internal launch ready: Rotating question library, Authority labels |
+| 1.4 | 2026-01-02 | AI Agent | UI branding refresh: Discovery West logos, charcoal/orange color scheme |
+| 1.3 | 2026-01-02 | AI Agent | Fixed embedding model mismatch; Enabled JSON response format |
+| 1.2 | 2026-01-02 | AI Agent | Added City of Bend Development Code (12 chunks) |
+| 1.1 | 2026-01-01 | AI Agent | Ingested CC&Rs (83 chunks) and Rules & Regulations (1 chunk) |
+| 1.0 | 2025-12-31 | AI Agent | Initial implementation with Design Guidelines (148 chunks) |
 
