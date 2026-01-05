@@ -1321,6 +1321,29 @@
       color: #16a34a;
     }
     
+    /* Voice Done Button - only visible during listening */
+    .voice-done-btn {
+      display: none;
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-pill);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .voice-done-btn:hover {
+      background: #a85a30;
+      transform: scale(1.05);
+    }
+    
+    .voice-input-mode[data-state="listening"] .voice-done-btn {
+      display: block;
+    }
+    
     /* Speaking indicator on bot messages */
     .message-bot.speaking .message-header-left::after {
       content: '';
@@ -1973,6 +1996,9 @@
               </div>
             </div>
             <span class="voice-input-status" id="voiceInputStatus">Listening...</span>
+            <button class="voice-done-btn" id="voiceDoneBtn" onclick="submitVoiceInput()" title="Submit voice input">
+              Done
+            </button>
           </div>
         </div>
         <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send message">
@@ -2082,7 +2108,7 @@
             <img class="welcome-icon welcome-logo" src="assets/pinecone-logo.png" alt="Discovery West Logo">
             <h2>Welcome to ARC Bot</h2>
             <p class="welcome-tagline">Your AI assistant for Discovery West. Ask about architectural guidelines, CC&Rs, community rules, or City of Bend regulations — get answers with direct citations from official documents.</p>
-            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v2.2</p>
+            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v2.3</p>
           </div>
           
           <!-- Two-Column Content Area -->
@@ -3114,6 +3140,7 @@
     let voiceMode = false;
     let currentVoiceTranscript = ''; // Track current user speech
     let currentTTSAudio = null; // Track currently playing TTS audio
+    let transcriptionTimeout = null; // Timeout for transcription recovery
     
     // ===== TEXT-TO-SPEECH =====
     // Track if we're currently preparing/playing TTS
@@ -3282,7 +3309,7 @@
           
           // Timeout in case streaming doesn't work
           setTimeout(() => {
-            if (!audio.playing && firstChunk) {
+            if (audio.paused && firstChunk) {
               reject(new Error('Streaming timeout'));
             }
           }, 10000);
@@ -3398,6 +3425,12 @@
       setVoiceInputState('idle');
       currentVoiceTranscript = '';
       
+      // Clear any pending transcription timeout
+      if (transcriptionTimeout) {
+        clearTimeout(transcriptionTimeout);
+        transcriptionTimeout = null;
+      }
+      
       // Clean up voice session
       stopVoiceCapture();
       cleanupVoiceSession();
@@ -3430,6 +3463,19 @@
       // Update voice button appearance
       if (voiceBtn) {
         voiceBtn.classList.toggle('listening', state === 'listening');
+      }
+    }
+    
+    // Manual submit for voice input (if VAD doesn't detect speech end)
+    function submitVoiceInput() {
+      if (dataChannel && dataChannel.readyState === 'open') {
+        console.log('[Voice] Manual submit - committing audio buffer');
+        // Commit the audio buffer to force processing
+        dataChannel.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
+        setVoiceInputState('processing');
+      } else {
+        console.error('[Voice] Cannot submit - data channel not open');
+        showVoiceError('Voice connection lost. Please try again.');
       }
     }
     
@@ -3603,7 +3649,7 @@ For simple greetings, clarifying questions, or requests to repeat, you may respo
             type: 'server_vad',
             threshold: 0.5,
             prefix_padding_ms: 300,
-            silence_duration_ms: 500
+            silence_duration_ms: 1200  // Increased from 500ms for more reliable detection
           },
           tools: [
             {
@@ -3631,7 +3677,8 @@ For simple greetings, clarifying questions, or requests to repeat, you may respo
     async function handleVoiceEvent(event) {
       try {
         const data = JSON.parse(event.data);
-        console.log('[Voice] Event:', data.type);
+        // Log all events with full data for debugging
+        console.log('[Voice] Event:', data.type, data);
         
         switch (data.type) {
           case 'session.created':
@@ -3641,13 +3688,29 @@ For simple greetings, clarifying questions, or requests to repeat, you may respo
             
           case 'input_audio_buffer.speech_started':
             setVoiceInputState('listening');
+            // Update status to show speech is being detected
+            const statusText = document.getElementById('voiceInputStatus');
+            if (statusText) {
+              statusText.textContent = 'Hearing you...';
+            }
             break;
             
           case 'input_audio_buffer.speech_stopped':
             setVoiceInputState('processing');
+            // Set timeout in case transcription never arrives
+            if (transcriptionTimeout) clearTimeout(transcriptionTimeout);
+            transcriptionTimeout = setTimeout(() => {
+              console.error('[Voice] Transcription timeout - no response received');
+              showVoiceError('No transcription received. Please try again.');
+            }, 30000);
             break;
             
           case 'conversation.item.input_audio_transcription.completed':
+            // Clear transcription timeout
+            if (transcriptionTimeout) {
+              clearTimeout(transcriptionTimeout);
+              transcriptionTimeout = null;
+            }
             if (data.transcript && data.transcript.trim()) {
               currentVoiceTranscript = data.transcript.trim();
               // Add user's spoken question to chat
@@ -3679,6 +3742,10 @@ For simple greetings, clarifying questions, or requests to repeat, you may respo
             showVoiceError(data.error?.message || 'An error occurred');
             setVoiceInputState('idle');
             break;
+            
+          default:
+            // Log unhandled events for debugging
+            console.log('[Voice] Unhandled event:', data.type);
         }
       } catch (e) {
         console.error('[Voice] Error handling event:', e);
