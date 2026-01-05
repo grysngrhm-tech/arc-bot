@@ -501,6 +501,22 @@
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
+    
+    /* Tap to play state - shows when autoplay is blocked on mobile */
+    .speak-btn.tap-to-play {
+      color: #f59e0b;
+      animation: tap-pulse 1s ease-in-out infinite;
+      pointer-events: auto;
+    }
+    
+    .speak-btn.tap-to-play .speaker-icon {
+      animation: none;
+    }
+    
+    @keyframes tap-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
 
     /* ===== ANSWER SECTION ===== */
     .answer-section {
@@ -2108,7 +2124,7 @@
             <img class="welcome-icon welcome-logo" src="assets/pinecone-logo.png" alt="Discovery West Logo">
             <h2>Welcome to ARC Bot</h2>
             <p class="welcome-tagline">Your AI assistant for Discovery West. Ask about architectural guidelines, CC&Rs, community rules, or City of Bend regulations — get answers with direct citations from official documents.</p>
-            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v2.3</p>
+            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v2.4</p>
           </div>
           
           <!-- Two-Column Content Area -->
@@ -3145,6 +3161,11 @@
     // ===== TEXT-TO-SPEECH =====
     // Track if we're currently preparing/playing TTS
     let ttsAudioUrl = null;
+    let pendingTTSButton = null; // Track button for retry after autoplay failure
+    
+    // Detect mobile/iOS for audio handling
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     
     async function speakMessage(button) {
       // If already speaking, stop
@@ -3172,11 +3193,19 @@
         setVoiceInputState('speaking');
       }
       
-      console.log('[TTS] Starting audio fetch for', text.length, 'chars');
+      console.log('[TTS] Starting audio fetch for', text.length, 'chars', isMobile ? '(mobile)' : '(desktop)');
       const startTime = performance.now();
       
       try {
-        // Fetch TTS audio with streaming support
+        // On mobile, skip streaming and go straight to blob (more reliable)
+        // MediaSource has poor support on iOS Safari
+        if (isMobile) {
+          console.log('[TTS] Using blob playback for mobile');
+          await playAudioBlob(text.trim(), button);
+          return;
+        }
+        
+        // Desktop: Try streaming first
         const response = await fetch(TTS_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -3194,13 +3223,20 @@
         
         if (!playedStreaming) {
           console.log('[TTS] Streaming not available, using blob fallback');
-          // Response already consumed, need to re-fetch
           await playAudioBlob(text.trim(), button);
         }
         
       } catch (error) {
         console.error('[TTS] Error:', error);
         button.classList.remove('loading', 'speaking');
+        
+        // Check if it's an autoplay error
+        if (error.name === 'NotAllowedError') {
+          console.log('[TTS] Autoplay blocked - showing tap to play');
+          showTapToPlay(button);
+          return;
+        }
+        
         if (voiceMode) {
           stopVoiceMode();
         }
@@ -3213,7 +3249,23 @@
       }
     }
     
-    // Try to play audio using MediaSource for streaming (faster start)
+    // Show "tap to play" indicator when autoplay is blocked
+    function showTapToPlay(button) {
+      pendingTTSButton = button;
+      button.classList.add('tap-to-play');
+      button.title = 'Tap to play audio';
+      
+      // Update voice status if in voice mode
+      if (voiceMode) {
+        const statusText = document.getElementById('voiceInputStatus');
+        if (statusText) {
+          statusText.textContent = 'Tap speaker to hear answer';
+          statusText.style.color = '#f59e0b';
+        }
+      }
+    }
+    
+    // Try to play audio using MediaSource for streaming (faster start) - Desktop only
     async function tryStreamingPlayback(response, button) {
       // Check if MediaSource is supported and can handle audio/mpeg
       if (!window.MediaSource || !MediaSource.isTypeSupported('audio/mpeg')) {
@@ -3334,16 +3386,26 @@
       }
       
       const audioBlob = await response.blob();
-      ttsAudioUrl = URL.createObjectURL(audioBlob);
+      console.log('[TTS] Blob received:', audioBlob.size, 'bytes, type:', audioBlob.type);
       
+      ttsAudioUrl = URL.createObjectURL(audioBlob);
       currentTTSAudio = new Audio(ttsAudioUrl);
       
+      // For iOS, we need to set up the audio element differently
+      if (isIOS) {
+        currentTTSAudio.playsInline = true;
+        currentTTSAudio.setAttribute('playsinline', '');
+      }
+      
       currentTTSAudio.onplay = () => {
-        button.classList.remove('loading');
+        console.log('[TTS] Audio started playing');
+        button.classList.remove('loading', 'tap-to-play');
         button.classList.add('speaking');
+        pendingTTSButton = null;
       };
       
       currentTTSAudio.onended = () => {
+        console.log('[TTS] Audio finished');
         button.classList.remove('speaking');
         cleanupTTSAudio();
         
@@ -3356,12 +3418,19 @@
       
       currentTTSAudio.onerror = (e) => {
         console.error('[TTS] Audio playback error:', e);
-        button.classList.remove('loading', 'speaking');
+        button.classList.remove('loading', 'speaking', 'tap-to-play');
         cleanupTTSAudio();
       };
       
-      console.log('[TTS] Playing blob audio');
-      await currentTTSAudio.play();
+      console.log('[TTS] Attempting to play blob audio');
+      
+      try {
+        await currentTTSAudio.play();
+      } catch (playError) {
+        console.error('[TTS] Play failed:', playError);
+        // Re-throw to be handled by caller
+        throw playError;
+      }
     }
     
     // Clean up TTS audio resources
@@ -3371,6 +3440,7 @@
         ttsAudioUrl = null;
       }
       currentTTSAudio = null;
+      pendingTTSButton = null;
     }
     
     function stopSpeaking() {
