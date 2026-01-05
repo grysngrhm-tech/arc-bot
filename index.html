@@ -423,6 +423,76 @@
       color: var(--confidence-high);
     }
 
+    /* ===== SPEAK BUTTON & WAVEFORM ===== */
+    .speak-btn {
+      background: transparent;
+      border: none;
+      padding: 0.25rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .speak-btn:hover {
+      color: var(--text-secondary);
+      background: var(--bg-source);
+    }
+
+    .speak-btn .speaker-icon {
+      width: 14px;
+      height: 14px;
+    }
+
+    .speak-btn .waveform {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      height: 14px;
+    }
+
+    .speak-btn.speaking .speaker-icon {
+      display: none;
+    }
+
+    .speak-btn.speaking .waveform {
+      display: flex;
+    }
+
+    .speak-btn.speaking {
+      color: var(--accent);
+    }
+
+    .waveform span {
+      display: block;
+      width: 2px;
+      height: 4px;
+      background: currentColor;
+      border-radius: 1px;
+      animation: waveform-bar 0.8s ease-in-out infinite;
+    }
+
+    .waveform span:nth-child(1) { animation-delay: 0s; }
+    .waveform span:nth-child(2) { animation-delay: 0.1s; }
+    .waveform span:nth-child(3) { animation-delay: 0.2s; }
+    .waveform span:nth-child(4) { animation-delay: 0.3s; }
+    .waveform span:nth-child(5) { animation-delay: 0.4s; }
+
+    @keyframes waveform-bar {
+      0%, 100% { height: 4px; }
+      50% { height: 14px; }
+    }
+
+    .speak-btn.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
     /* ===== ANSWER SECTION ===== */
     .answer-section {
       margin-bottom: 0.75rem;
@@ -1988,7 +2058,7 @@
             <img class="welcome-icon welcome-logo" src="assets/pinecone-logo.png" alt="Discovery West Logo">
             <h2>Welcome to ARC Bot</h2>
             <p class="welcome-tagline">Your AI assistant for Discovery West. Ask about architectural guidelines, CC&Rs, community rules, or City of Bend regulations — get answers with direct citations from official documents.</p>
-            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v2.0</p>
+            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v2.1</p>
           </div>
           
           <!-- Two-Column Content Area -->
@@ -2210,6 +2280,16 @@
                   ${escapeHtml(confidence.level || 'Unknown')}
                   <div class="confidence-tooltip">${escapeHtml(confidence.explanation || 'No additional details available.')}</div>
                 </span>
+                <button class="speak-btn" onclick="speakMessage(this)" title="Read aloud">
+                  <svg class="speaker-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                  </svg>
+                  <div class="waveform">
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                </button>
                 <button class="copy-btn" onclick="copyAnswer(this, '${messageId}')" title="Copy answer">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -2999,6 +3079,7 @@
 
     // ===== VOICE MODE =====
     const VOICE_API_URL = 'https://n8n.srv1208741.hstgr.cloud/webhook/arc-voice-session';
+    const TTS_API_URL = 'https://n8n.srv1208741.hstgr.cloud/webhook/arc-tts';
     
     // Voice state
     let voiceState = 'idle'; // idle, connecting, listening, processing, speaking
@@ -3008,6 +3089,104 @@
     let voiceSessionActive = false;
     let voiceMode = false;
     let currentVoiceTranscript = ''; // Track current user speech
+    let currentTTSAudio = null; // Track currently playing TTS audio
+    
+    // ===== TEXT-TO-SPEECH =====
+    async function speakMessage(button) {
+      // If already speaking, stop
+      if (button.classList.contains('speaking')) {
+        stopSpeaking();
+        return;
+      }
+      
+      // Stop any currently playing audio
+      stopSpeaking();
+      
+      const messageEl = button.closest('.message-bot');
+      if (!messageEl) return;
+      
+      // Get the answer text
+      const answerTextEl = messageEl.querySelector('.answer-text');
+      if (!answerTextEl) return;
+      
+      const text = answerTextEl.getAttribute('data-raw-answer') || answerTextEl.textContent;
+      if (!text || text.trim().length === 0) return;
+      
+      // Show loading state
+      button.classList.add('loading');
+      
+      try {
+        // Call TTS webhook
+        const response = await fetch(TTS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text.trim() })
+        });
+        
+        if (!response.ok) {
+          throw new Error('TTS request failed');
+        }
+        
+        // Get audio blob
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        // Create and play audio
+        currentTTSAudio = new Audio(audioUrl);
+        
+        currentTTSAudio.onplay = () => {
+          button.classList.remove('loading');
+          button.classList.add('speaking');
+        };
+        
+        currentTTSAudio.onended = () => {
+          button.classList.remove('speaking');
+          URL.revokeObjectURL(audioUrl);
+          currentTTSAudio = null;
+          
+          // In voice mode, return to listening after speaking
+          if (voiceMode && voiceSessionActive) {
+            setVoiceInputState('listening');
+          }
+        };
+        
+        currentTTSAudio.onerror = (e) => {
+          console.error('[TTS] Audio playback error:', e);
+          button.classList.remove('loading', 'speaking');
+          currentTTSAudio = null;
+        };
+        
+        // In voice mode, show speaking state
+        if (voiceMode) {
+          setVoiceInputState('speaking');
+        }
+        
+        await currentTTSAudio.play();
+        
+      } catch (error) {
+        console.error('[TTS] Error:', error);
+        button.classList.remove('loading', 'speaking');
+        
+        // Show brief error feedback
+        button.title = 'Audio unavailable';
+        setTimeout(() => {
+          button.title = 'Read aloud';
+        }, 2000);
+      }
+    }
+    
+    function stopSpeaking() {
+      if (currentTTSAudio) {
+        currentTTSAudio.pause();
+        currentTTSAudio.currentTime = 0;
+        currentTTSAudio = null;
+      }
+      
+      // Remove speaking class from all buttons
+      document.querySelectorAll('.speak-btn.speaking').forEach(btn => {
+        btn.classList.remove('speaking');
+      });
+    }
     
     // Toggle voice mode on/off
     async function toggleVoiceMode() {
@@ -3157,14 +3336,8 @@
       // Create peer connection
       peerConnection = new RTCPeerConnection();
       
-      // Set up audio output
-      const audioEl = document.getElementById('voiceAudio');
-      peerConnection.ontrack = (event) => {
-        if (audioEl) {
-          audioEl.srcObject = event.streams[0];
-          audioEl.play().catch(e => console.error('[Voice] Audio play error:', e));
-        }
-      };
+      // Note: We don't set up ontrack for audio output since we use TTS API instead
+      // This avoids browser autoplay policy issues and ensures consistent voice
       
       // Get microphone stream
       localStream = await navigator.mediaDevices.getUserMedia({ 
@@ -3229,10 +3402,11 @@
       if (!dataChannel || dataChannel.readyState !== 'open') return;
       
       // Configure session with meta-prompt that delegates to Main Agent
+      // Note: modalities is text-only - we use our own TTS for audio output
       const sessionConfig = {
         type: 'session.update',
         session: {
-          modalities: ['text', 'audio'],
+          modalities: ['text'],
           instructions: `You are a voice interface for ARC Bot, the Discovery West architectural assistant in Bend, Oregon.
 
 CRITICAL RULE: You do NOT have architectural knowledge. For ANY question about:
@@ -3255,7 +3429,6 @@ After receiving the answer from the tool:
 4. If the answer includes a confidence warning, mention it
 
 For simple greetings, clarifying questions, or requests to repeat, you may respond directly without using the tool.`,
-          voice: 'alloy',
           input_audio_transcription: {
             model: 'whisper-1'
           },
@@ -3327,26 +3500,8 @@ For simple greetings, clarifying questions, or requests to repeat, you may respo
             }
             break;
             
-          case 'response.audio_transcript.delta':
-            // Voice output transcript - we don't need to display this since
-            // we're showing the formatted chat message instead
-            break;
-            
-          case 'response.audio.started':
-            setVoiceInputState('speaking');
-            // Add speaking indicator to the latest bot message
-            const speakingMsg = document.querySelector('.message-bot:last-child');
-            if (speakingMsg) {
-              speakingMsg.classList.add('speaking');
-            }
-            break;
-            
-          case 'response.audio.done':
           case 'response.done':
-            // Remove speaking indicator
-            document.querySelectorAll('.message-bot.speaking').forEach(el => {
-              el.classList.remove('speaking');
-            });
+            // Response complete - audio will be handled via TTS
             setVoiceInputState('listening');
             break;
             
@@ -3390,9 +3545,17 @@ For simple greetings, clarifying questions, or requests to repeat, you may respo
             chatArea.insertAdjacentHTML('beforeend', renderBotMessage(responseData));
             scrollToBottom();
             messages.push({ role: 'assistant', content: responseData.answer });
+            
+            // AUTO-SPEAK: Find the speak button in the new message and trigger TTS
+            const newMessage = chatArea.querySelector('.message-bot:last-child');
+            const speakBtn = newMessage?.querySelector('.speak-btn');
+            if (speakBtn) {
+              // Small delay to ensure DOM is ready
+              setTimeout(() => speakMessage(speakBtn), 100);
+            }
           }
           
-          // Format the answer for natural voice delivery
+          // Format the answer for Realtime API acknowledgment
           voiceAnswer = formatAnswerForVoice(responseData);
         } else {
           voiceAnswer = 'I encountered an error while searching the documents. Please try asking your question again.';
@@ -3409,7 +3572,8 @@ For simple greetings, clarifying questions, or requests to repeat, you may respo
           }
         }
         
-        // Send the voice-formatted answer to the Realtime API
+        // Send acknowledgment to Realtime API that function completed
+        // (Audio is handled by our TTS webhook, not Realtime API)
         const functionResult = {
           type: 'conversation.item.create',
           item: {
@@ -3421,8 +3585,7 @@ For simple greetings, clarifying questions, or requests to repeat, you may respo
         
         if (dataChannel && dataChannel.readyState === 'open') {
           dataChannel.send(JSON.stringify(functionResult));
-          
-          // Trigger response generation (voice model will read the answer)
+          // Complete the response cycle so Realtime API is ready for next input
           dataChannel.send(JSON.stringify({ type: 'response.create' }));
         }
         

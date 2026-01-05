@@ -3,9 +3,9 @@
  * Provides offline support and caching for the PWA
  */
 
-const CACHE_NAME = 'arc-bot-v2.0';
-const STATIC_CACHE = 'arc-bot-static-v2.0';
-const DYNAMIC_CACHE = 'arc-bot-dynamic-v2.0';
+const CACHE_NAME = 'arc-bot-v2.1';
+const STATIC_CACHE = 'arc-bot-static-v2.1';
+const DYNAMIC_CACHE = 'arc-bot-dynamic-v2.1';
 
 // Assets to cache immediately on install
 const PRECACHE_ASSETS = [
