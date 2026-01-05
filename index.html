@@ -1092,6 +1092,158 @@
       50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
     }
 
+    /* ===== VOICE INPUT MODE (replaces textarea when active) ===== */
+    .voice-input-mode {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      width: 100%;
+      padding: 0.5rem 1rem;
+      min-height: 46px;
+    }
+    
+    .input-area.voice-active .message-input {
+      display: none;
+    }
+    
+    .input-area.voice-active .voice-input-mode {
+      display: flex;
+    }
+    
+    .input-area.voice-active .voice-btn {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .input-area.voice-active .voice-btn svg {
+      color: #ef4444;
+    }
+    
+    /* Voice Input Orb */
+    .voice-input-orb {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .voice-input-orb-core {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent) 0%, #a85a30 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      box-shadow: 0 0 20px rgba(201, 111, 60, 0.4);
+    }
+    
+    .voice-input-orb-core svg {
+      width: 18px;
+      height: 18px;
+      color: white;
+    }
+    
+    .voice-input-orb-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      opacity: 0;
+    }
+    
+    /* Listening state - expanding rings */
+    .voice-input-mode[data-state="listening"] .voice-input-orb-ring {
+      animation: voice-ring-expand 2s ease-out infinite;
+    }
+    
+    .voice-input-mode[data-state="listening"] .voice-input-orb-ring:nth-child(2) {
+      animation-delay: 0.5s;
+    }
+    
+    .voice-input-mode[data-state="listening"] .voice-input-orb-ring:nth-child(3) {
+      animation-delay: 1s;
+    }
+    
+    @keyframes voice-ring-expand {
+      0% {
+        transform: scale(1);
+        opacity: 0.6;
+      }
+      100% {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+    
+    /* Processing state - spinning glow */
+    .voice-input-mode[data-state="processing"] .voice-input-orb-core {
+      animation: voice-orb-processing 1s ease-in-out infinite;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+    
+    @keyframes voice-orb-processing {
+      0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
+      50% { box-shadow: 0 0 35px rgba(245, 158, 11, 0.7); }
+    }
+    
+    /* Speaking state - green pulse */
+    .voice-input-mode[data-state="speaking"] .voice-input-orb-core {
+      animation: voice-orb-speaking 0.6s ease-in-out infinite;
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    }
+    
+    @keyframes voice-orb-speaking {
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(22, 163, 74, 0.4);
+      }
+      50% { 
+        transform: scale(1.1);
+        box-shadow: 0 0 30px rgba(22, 163, 74, 0.6);
+      }
+    }
+    
+    .voice-input-status {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .voice-input-mode[data-state="listening"] .voice-input-status {
+      color: #ef4444;
+    }
+    
+    .voice-input-mode[data-state="processing"] .voice-input-status {
+      color: #f59e0b;
+    }
+    
+    .voice-input-mode[data-state="speaking"] .voice-input-status {
+      color: #16a34a;
+    }
+    
+    /* Speaking indicator on bot messages */
+    .message-bot.speaking .message-header-left::after {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #16a34a;
+      border-radius: 50%;
+      margin-left: 0.5rem;
+      animation: speaking-dot 0.6s ease-in-out infinite;
+    }
+    
+    @keyframes speaking-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
     .input-wrapper {
       flex: 1;
       position: relative;
@@ -1619,321 +1771,6 @@
       }
     }
 
-    /* ===== VOICE MODE OVERLAY ===== */
-    .voice-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--bg-primary);
-      z-index: 2000;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      padding-top: calc(2rem + env(safe-area-inset-top));
-      padding-bottom: calc(2rem + env(safe-area-inset-bottom));
-    }
-    
-    .voice-overlay.active {
-      display: flex;
-      animation: fadeIn 0.2s ease;
-    }
-    
-    .voice-close {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      top: calc(1rem + env(safe-area-inset-top));
-      background: var(--bg-card);
-      border: none;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--text-secondary);
-      transition: all 0.2s ease;
-    }
-    
-    .voice-close:hover {
-      background: var(--bg-input);
-      color: var(--text-primary);
-    }
-    
-    .voice-close svg {
-      width: 24px;
-      height: 24px;
-    }
-    
-    .voice-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2rem;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-    }
-    
-    /* Voice Orb Animation */
-    .voice-orb-container {
-      position: relative;
-      width: 160px;
-      height: 160px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .voice-orb {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent-orange) 0%, #e85d04 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 2;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .voice-orb svg {
-      width: 48px;
-      height: 48px;
-      color: white;
-    }
-    
-    .voice-orb-ring {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      border: 2px solid var(--accent-orange);
-      opacity: 0;
-      z-index: 1;
-    }
-    
-    /* Idle state - subtle pulse */
-    .voice-overlay[data-state="idle"] .voice-orb {
-      animation: orb-idle 3s ease-in-out infinite;
-    }
-    
-    @keyframes orb-idle {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(201, 111, 60, 0.3); }
-      50% { transform: scale(1.02); box-shadow: 0 0 60px rgba(201, 111, 60, 0.4); }
-    }
-    
-    /* Listening state - reactive rings */
-    .voice-overlay[data-state="listening"] .voice-orb {
-      animation: none;
-      box-shadow: 0 0 60px rgba(201, 111, 60, 0.5);
-    }
-    
-    .voice-overlay[data-state="listening"] .voice-orb-ring {
-      animation: ring-expand 1.5s ease-out infinite;
-    }
-    
-    .voice-overlay[data-state="listening"] .voice-orb-ring:nth-child(2) {
-      animation-delay: 0.5s;
-    }
-    
-    .voice-overlay[data-state="listening"] .voice-orb-ring:nth-child(3) {
-      animation-delay: 1s;
-    }
-    
-    @keyframes ring-expand {
-      0% { width: 120px; height: 120px; opacity: 0.6; }
-      100% { width: 200px; height: 200px; opacity: 0; }
-    }
-    
-    /* Processing state - spinning glow */
-    .voice-overlay[data-state="processing"] .voice-orb {
-      animation: orb-processing 1s ease-in-out infinite;
-    }
-    
-    @keyframes orb-processing {
-      0%, 100% { transform: scale(0.95); box-shadow: 0 0 40px rgba(201, 111, 60, 0.4); }
-      50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(201, 111, 60, 0.6); }
-    }
-    
-    /* Speaking state - wave effect */
-    .voice-overlay[data-state="speaking"] .voice-orb {
-      animation: orb-speaking 0.5s ease-in-out infinite;
-      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-    }
-    
-    @keyframes orb-speaking {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-    }
-    
-    /* Transcript display */
-    .voice-transcript {
-      min-height: 80px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      width: 100%;
-    }
-    
-    .voice-transcript-user {
-      font-size: 1.125rem;
-      color: var(--text-primary);
-      font-weight: 500;
-      line-height: 1.5;
-      min-height: 1.5em;
-    }
-    
-    .voice-transcript-bot {
-      font-size: 0.9375rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
-    
-    .voice-status {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .voice-status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-orange);
-    }
-    
-    .voice-overlay[data-state="listening"] .voice-status-dot {
-      background: #ef4444;
-      animation: status-pulse 1s ease-in-out infinite;
-    }
-    
-    .voice-overlay[data-state="processing"] .voice-status-dot {
-      background: #f59e0b;
-      animation: status-pulse 0.5s ease-in-out infinite;
-    }
-    
-    .voice-overlay[data-state="speaking"] .voice-status-dot {
-      background: #16a34a;
-    }
-    
-    @keyframes status-pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-    
-    /* Voice action buttons */
-    .voice-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    
-    .voice-action-btn {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1rem 1.5rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--text-primary);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      min-height: 48px;
-    }
-    
-    .voice-action-btn:hover {
-      background: var(--bg-input);
-      border-color: var(--accent-orange);
-    }
-    
-    .voice-action-btn svg {
-      width: 18px;
-      height: 18px;
-    }
-    
-    .voice-action-btn.primary {
-      background: var(--accent-orange);
-      border-color: var(--accent-orange);
-      color: white;
-    }
-    
-    .voice-action-btn.primary:hover {
-      background: var(--accent-orange-hover, #b85a2a);
-    }
-    
-    .voice-action-btn.stop {
-      background: #ef4444;
-      border-color: #ef4444;
-      color: white;
-    }
-    
-    .voice-action-btn.stop:hover {
-      background: #dc2626;
-    }
-    
-    /* Voice error state */
-    .voice-error {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 12px;
-      padding: 1rem;
-      color: #ef4444;
-      font-size: 0.875rem;
-      display: none;
-      align-items: center;
-      gap: 0.75rem;
-      width: 100%;
-    }
-    
-    .voice-error.visible {
-      display: flex;
-    }
-    
-    .voice-error svg {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-    
-    /* Mobile adjustments for voice overlay */
-    @media (max-width: 480px) {
-      .voice-overlay {
-        padding: 1.5rem;
-      }
-      
-      .voice-orb-container {
-        width: 140px;
-        height: 140px;
-      }
-      
-      .voice-orb {
-        width: 100px;
-        height: 100px;
-      }
-      
-      .voice-orb svg {
-        width: 40px;
-        height: 40px;
-      }
-      
-      @keyframes ring-expand {
-        0% { width: 100px; height: 100px; opacity: 0.6; }
-        100% { width: 160px; height: 160px; opacity: 0; }
-      }
-    }
   </style>
 </head>
 <body>
@@ -2005,7 +1842,7 @@
     <!-- Input Area -->
     <footer class="input-area">
       <div class="input-container">
-        <button class="voice-btn" id="voiceBtn" onclick="openVoiceMode()" title="Voice input">
+        <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceMode()" title="Voice input">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -2028,6 +1865,21 @@
             onkeydown="handleKeyDown(event)"
             oninput="autoResize(this)"
           ></textarea>
+          <!-- Voice input mode indicator (replaces text input when active) -->
+          <div class="voice-input-mode" id="voiceInputMode" data-state="idle">
+            <div class="voice-input-orb">
+              <div class="voice-input-orb-ring"></div>
+              <div class="voice-input-orb-ring"></div>
+              <div class="voice-input-orb-ring"></div>
+              <div class="voice-input-orb-core">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                </svg>
+              </div>
+            </div>
+            <span class="voice-input-status" id="voiceInputStatus">Listening...</span>
+          </div>
         </div>
         <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send message">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2136,7 +1988,7 @@
             <img class="welcome-icon welcome-logo" src="assets/pinecone-logo.png" alt="Discovery West Logo">
             <h2>Welcome to ARC Bot</h2>
             <p class="welcome-tagline">Your AI assistant for Discovery West. Ask about architectural guidelines, CC&Rs, community rules, or City of Bend regulations — get answers with direct citations from official documents.</p>
-            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v1.8</p>
+            <p class="welcome-meta">ARC Bot provides information only — it does not issue approvals or legal advice. Powered by <a href="https://discoverywestbend.com/" target="_blank" rel="noopener">Discovery West</a> · <a href="https://github.com/grysngrhm-tech/arc-bot" target="_blank" rel="noopener">GitHub</a> · v2.0</p>
           </div>
           
           <!-- Two-Column Content Area -->
@@ -3154,42 +3006,67 @@
     let dataChannel = null;
     let localStream = null;
     let voiceSessionActive = false;
+    let voiceMode = false;
+    let currentVoiceTranscript = ''; // Track current user speech
     
-    function openVoiceMode() {
-      const overlay = document.getElementById('voiceOverlay');
-      if (overlay) {
-        overlay.classList.add('active');
-        setVoiceState('idle');
-        document.body.style.overflow = 'hidden';
+    // Toggle voice mode on/off
+    async function toggleVoiceMode() {
+      if (voiceMode) {
+        stopVoiceMode();
+      } else {
+        await startVoiceMode();
       }
     }
     
-    function closeVoiceMode() {
-      const overlay = document.getElementById('voiceOverlay');
-      if (overlay) {
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
+    // Start voice mode - transform input area and begin listening
+    async function startVoiceMode() {
+      voiceMode = true;
+      const inputArea = document.querySelector('.input-area');
+      if (inputArea) {
+        inputArea.classList.add('voice-active');
       }
+      setVoiceInputState('connecting');
+      
+      // Clear welcome panel if showing
+      const chatArea = document.getElementById('chatArea');
+      const welcomePanel = chatArea?.querySelector('.welcome-panel');
+      if (welcomePanel) {
+        welcomePanel.remove();
+      }
+      
+      // Start voice capture
+      await startVoiceCapture();
+    }
+    
+    // Stop voice mode - return to text input
+    function stopVoiceMode() {
+      voiceMode = false;
+      const inputArea = document.querySelector('.input-area');
+      if (inputArea) {
+        inputArea.classList.remove('voice-active');
+      }
+      setVoiceInputState('idle');
+      currentVoiceTranscript = '';
       
       // Clean up voice session
       stopVoiceCapture();
       cleanupVoiceSession();
     }
     
-    function setVoiceState(state) {
+    // Update the voice input state (transforms the input area display)
+    function setVoiceInputState(state) {
       voiceState = state;
-      const overlay = document.getElementById('voiceOverlay');
-      const statusText = document.getElementById('voiceStatusText');
-      const startBtn = document.getElementById('voiceStartBtn');
-      const stopBtn = document.getElementById('voiceStopBtn');
+      const voiceInputMode = document.getElementById('voiceInputMode');
+      const statusText = document.getElementById('voiceInputStatus');
+      const voiceBtn = document.getElementById('voiceBtn');
       
-      if (overlay) {
-        overlay.setAttribute('data-state', state);
+      if (voiceInputMode) {
+        voiceInputMode.setAttribute('data-state', state);
       }
       
       // Update status text
       const statusMessages = {
-        idle: 'Tap to start speaking',
+        idle: 'Tap microphone to speak',
         connecting: 'Connecting...',
         listening: 'Listening...',
         processing: 'Thinking...',
@@ -3200,51 +3077,42 @@
         statusText.textContent = statusMessages[state] || 'Ready';
       }
       
-      // Update button visibility
-      if (startBtn && stopBtn) {
-        if (state === 'idle') {
-          startBtn.style.display = 'flex';
-          stopBtn.style.display = 'none';
-        } else {
-          startBtn.style.display = 'none';
-          stopBtn.style.display = 'flex';
-        }
+      // Update voice button appearance
+      if (voiceBtn) {
+        voiceBtn.classList.toggle('listening', state === 'listening');
       }
     }
     
+    // Show voice error as a toast notification
     function showVoiceError(message) {
-      const errorEl = document.getElementById('voiceError');
-      const errorText = document.getElementById('voiceErrorText');
+      console.error('[Voice] Error:', message);
       
-      if (errorEl && errorText) {
-        errorText.textContent = message;
-        errorEl.classList.add('visible');
+      // Show error in the voice status area
+      const statusText = document.getElementById('voiceInputStatus');
+      if (statusText) {
+        statusText.textContent = message;
+        statusText.style.color = '#ef4444';
         
-        // Hide after 5 seconds
+        // Reset after 3 seconds
         setTimeout(() => {
-          errorEl.classList.remove('visible');
-        }, 5000);
-      }
-    }
-    
-    function updateVoiceTranscript(userText, botText) {
-      const userEl = document.getElementById('voiceTranscriptUser');
-      const botEl = document.getElementById('voiceTranscriptBot');
-      
-      if (userEl && userText !== undefined) {
-        userEl.textContent = userText ? `"${userText}"` : '';
+          statusText.style.color = '';
+          if (voiceMode) {
+            setVoiceInputState('listening');
+          }
+        }, 3000);
       }
       
-      if (botEl && botText !== undefined) {
-        botEl.textContent = botText || '';
+      // Also stop voice mode on serious errors
+      if (message.includes('permission') || message.includes('microphone')) {
+        stopVoiceMode();
       }
     }
     
     async function startVoiceCapture() {
       try {
         // Request microphone permission
-        setVoiceState('connecting');
-        updateVoiceTranscript('', '');
+        setVoiceInputState('connecting');
+        currentVoiceTranscript = '';
         
         // Check if microphone is available
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -3273,7 +3141,7 @@
         
       } catch (error) {
         console.error('[Voice] Error starting capture:', error);
-        setVoiceState('idle');
+        setVoiceInputState('idle');
         
         if (error.name === 'NotAllowedError') {
           showVoiceError('Microphone permission denied. Please allow microphone access.');
@@ -3354,32 +3222,39 @@
         sdp: answerSdp
       });
       
-      setVoiceState('listening');
+      setVoiceInputState('listening');
     }
     
     function configureVoiceSession() {
       if (!dataChannel || dataChannel.readyState !== 'open') return;
       
-      // Configure session with system prompt and tools
+      // Configure session with meta-prompt that delegates to Main Agent
       const sessionConfig = {
         type: 'session.update',
         session: {
           modalities: ['text', 'audio'],
-          instructions: `You are ARC Bot, an AI assistant for the Discovery West community in Bend, Oregon. You help residents and ARC committee members understand architectural guidelines, CC&Rs, and community rules.
+          instructions: `You are a voice interface for ARC Bot, the Discovery West architectural assistant in Bend, Oregon.
 
-IMPORTANT RULES:
-1. Only answer questions about Discovery West architectural guidelines, CC&Rs, rules, and related topics.
-2. If you need to search documents, use the search_documents function.
-3. Always cite your sources when providing information from documents.
-4. If you don't know something or can't find it in the documents, say so clearly.
-5. Be concise but thorough in voice responses.
-6. Speak naturally and conversationally.
+CRITICAL RULE: You do NOT have architectural knowledge. For ANY question about:
+- Architectural guidelines, requirements, or standards
+- CC&Rs, covenants, conditions, or restrictions
+- Community rules and regulations
+- Approval processes or procedures
+- Building codes, zoning, or development requirements
+- Fences, landscaping, paint colors, roofing, or exterior modifications
+- Setbacks, height limits, or property boundaries
 
-You have access to official Discovery West documents including:
-- ARC Design Guidelines
-- CC&Rs (Covenants, Conditions & Restrictions)
-- Rules & Regulations
-- City of Bend Development Code (Overlay Zone)`,
+You MUST call the get_arc_answer function and then read the response naturally to the user.
+
+DO NOT attempt to answer architectural questions from your own knowledge. ALWAYS use the get_arc_answer tool first.
+
+After receiving the answer from the tool:
+1. Read the answer conversationally and naturally
+2. You may paraphrase slightly for better speech flow, but preserve ALL specific details, measurements, percentages, and requirements exactly
+3. Include the source citations naturally (e.g., "According to the Design Guidelines..." or "This is from the CC&Rs...")
+4. If the answer includes a confidence warning, mention it
+
+For simple greetings, clarifying questions, or requests to repeat, you may respond directly without using the tool.`,
           voice: 'alloy',
           input_audio_transcription: {
             model: 'whisper-1'
@@ -3393,17 +3268,17 @@ You have access to official Discovery West documents including:
           tools: [
             {
               type: 'function',
-              name: 'search_documents',
-              description: 'Search Discovery West official documents for relevant information about architectural guidelines, CC&Rs, rules, and regulations.',
+              name: 'get_arc_answer',
+              description: 'Get the authoritative answer to any question about Discovery West architectural guidelines, CC&Rs, rules, or regulations. Returns a complete, cited answer from official documents. You MUST use this for any architectural or community rule question.',
               parameters: {
                 type: 'object',
                 properties: {
-                  query: {
+                  question: {
                     type: 'string',
-                    description: 'The search query to find relevant document sections'
+                    description: 'The user\'s question about architectural guidelines, CC&Rs, or community rules'
                   }
                 },
-                required: ['query']
+                required: ['question']
               }
             }
           ]
@@ -3425,45 +3300,60 @@ You have access to official Discovery West documents including:
             break;
             
           case 'input_audio_buffer.speech_started':
-            setVoiceState('listening');
+            setVoiceInputState('listening');
             break;
             
           case 'input_audio_buffer.speech_stopped':
-            setVoiceState('processing');
+            setVoiceInputState('processing');
             break;
             
           case 'conversation.item.input_audio_transcription.completed':
-            if (data.transcript) {
-              updateVoiceTranscript(data.transcript, undefined);
+            if (data.transcript && data.transcript.trim()) {
+              currentVoiceTranscript = data.transcript.trim();
+              // Add user's spoken question to chat
+              const chatArea = document.getElementById('chatArea');
+              if (chatArea) {
+                chatArea.insertAdjacentHTML('beforeend', renderUserMessage(currentVoiceTranscript));
+                scrollToBottom();
+                messages.push({ role: 'user', content: currentVoiceTranscript });
+              }
             }
             break;
             
           case 'response.function_call_arguments.done':
-            // Handle function call (RAG search)
-            if (data.name === 'search_documents') {
-              await handleDocumentSearch(data.call_id, data.arguments);
+            // Handle function call (get answer from Main Agent)
+            if (data.name === 'get_arc_answer') {
+              await handleGetAnswer(data.call_id, data.arguments);
             }
             break;
             
           case 'response.audio_transcript.delta':
-            // Update bot transcript as it's being generated
-            const currentBot = document.getElementById('voiceTranscriptBot')?.textContent || '';
-            updateVoiceTranscript(undefined, currentBot + (data.delta || ''));
+            // Voice output transcript - we don't need to display this since
+            // we're showing the formatted chat message instead
             break;
             
           case 'response.audio.started':
-            setVoiceState('speaking');
+            setVoiceInputState('speaking');
+            // Add speaking indicator to the latest bot message
+            const speakingMsg = document.querySelector('.message-bot:last-child');
+            if (speakingMsg) {
+              speakingMsg.classList.add('speaking');
+            }
             break;
             
           case 'response.audio.done':
           case 'response.done':
-            setVoiceState('listening');
+            // Remove speaking indicator
+            document.querySelectorAll('.message-bot.speaking').forEach(el => {
+              el.classList.remove('speaking');
+            });
+            setVoiceInputState('listening');
             break;
             
           case 'error':
             console.error('[Voice] API Error:', data.error);
             showVoiceError(data.error?.message || 'An error occurred');
-            setVoiceState('idle');
+            setVoiceInputState('idle');
             break;
         }
       } catch (e) {
@@ -3471,70 +3361,93 @@ You have access to official Discovery West documents including:
       }
     }
     
-    async function handleDocumentSearch(callId, argsString) {
+    async function handleGetAnswer(callId, argsString) {
       try {
         const args = JSON.parse(argsString);
-        const query = args.query;
+        const question = args.question;
         
-        console.log('[Voice] Searching documents for:', query);
+        console.log('[Voice] Getting answer for:', question);
         
-        // Call the existing RAG endpoint
+        // Call the Main Agent endpoint (same as text mode)
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            message: query,
-            session_id: getSessionId()
+            message: question,
+            session_id: getSessionId() // Share session with text mode for continuity
           })
         });
         
-        let searchResults = '';
+        let voiceAnswer = '';
+        let responseData = null;
         
         if (response.ok) {
-          const data = await response.json();
-          // Format results for the voice model
-          if (data.sources && data.sources.length > 0) {
-            searchResults = data.sources.map(s => 
-              `[${s.document}${s.section ? ' - ' + s.section : ''}]: ${s.text || s.preview || ''}`
-            ).join('\n\n');
+          responseData = await response.json();
+          
+          // RENDER IN CHAT with full formatting (source cards, confidence badges, etc.)
+          const chatArea = document.getElementById('chatArea');
+          if (chatArea && responseData.answer) {
+            chatArea.insertAdjacentHTML('beforeend', renderBotMessage(responseData));
+            scrollToBottom();
+            messages.push({ role: 'assistant', content: responseData.answer });
           }
-          if (data.answer) {
-            searchResults = `Answer found: ${data.answer}\n\nSources:\n${searchResults}`;
+          
+          // Format the answer for natural voice delivery
+          voiceAnswer = formatAnswerForVoice(responseData);
+        } else {
+          voiceAnswer = 'I encountered an error while searching the documents. Please try asking your question again.';
+          
+          // Show error in chat
+          const chatArea = document.getElementById('chatArea');
+          if (chatArea) {
+            chatArea.insertAdjacentHTML('beforeend', renderError(ErrorTypes.SERVER_ERROR, { 
+              retryable: false,
+              errorTitle: 'Voice Search Error',
+              errorMessage: 'Failed to get response from the server.'
+            }));
+            scrollToBottom();
           }
         }
         
-        if (!searchResults) {
-          searchResults = 'No relevant documents found for this query.';
-        }
-        
-        // Send function result back to the model
+        // Send the voice-formatted answer to the Realtime API
         const functionResult = {
           type: 'conversation.item.create',
           item: {
             type: 'function_call_output',
             call_id: callId,
-            output: searchResults
+            output: voiceAnswer
           }
         };
         
         if (dataChannel && dataChannel.readyState === 'open') {
           dataChannel.send(JSON.stringify(functionResult));
           
-          // Trigger response generation
+          // Trigger response generation (voice model will read the answer)
           dataChannel.send(JSON.stringify({ type: 'response.create' }));
         }
         
       } catch (error) {
-        console.error('[Voice] Document search error:', error);
+        console.error('[Voice] Get answer error:', error);
         
-        // Send error result
+        // Show error in chat
+        const chatArea = document.getElementById('chatArea');
+        if (chatArea) {
+          chatArea.insertAdjacentHTML('beforeend', renderError(ErrorTypes.NETWORK_ERROR, {
+            retryable: false,
+            errorTitle: 'Voice Error',
+            errorMessage: error.message || 'An error occurred while getting your answer.'
+          }));
+          scrollToBottom();
+        }
+        
+        // Send error result to voice API
         if (dataChannel && dataChannel.readyState === 'open') {
           dataChannel.send(JSON.stringify({
             type: 'conversation.item.create',
             item: {
               type: 'function_call_output',
               call_id: callId,
-              output: 'Error searching documents. Please try again.'
+              output: 'I encountered an error while getting your answer. Please try again.'
             }
           }));
           dataChannel.send(JSON.stringify({ type: 'response.create' }));
@@ -3542,8 +3455,37 @@ You have access to official Discovery West documents including:
       }
     }
     
+    // Format answer for natural voice delivery (separate from chat rendering)
+    function formatAnswerForVoice(data) {
+      if (!data || !data.answer) {
+        return 'I could not find specific information about that in the Discovery West governing documents. You may want to contact the ARC directly for clarification.';
+      }
+      
+      let voiceAnswer = data.answer;
+      
+      // Add source citation naturally for voice
+      if (data.sources && data.sources.length > 0) {
+        const sourceNames = [...new Set(data.sources.map(s => 
+          s.document || s.document_name || 'the governing documents'
+        ))];
+        
+        if (sourceNames.length === 1) {
+          voiceAnswer += ` This information comes from ${sourceNames[0]}.`;
+        } else if (sourceNames.length > 1) {
+          voiceAnswer += ` This information comes from ${sourceNames.slice(0, -1).join(', ')} and ${sourceNames[sourceNames.length - 1]}.`;
+        }
+      }
+      
+      // Add confidence caveat for low confidence answers
+      if (data.confidence && data.confidence.level === 'Low') {
+        voiceAnswer += ` Note that I'm not fully confident in this answer. You may want to verify with the ARC directly.`;
+      }
+      
+      return voiceAnswer;
+    }
+    
     function stopVoiceCapture() {
-      setVoiceState('idle');
+      setVoiceInputState('idle');
       
       // Send end of input if session is active
       if (dataChannel && dataChannel.readyState === 'open') {
@@ -3576,8 +3518,8 @@ You have access to official Discovery West documents including:
         localStream = null;
       }
       
-      // Clear transcripts
-      updateVoiceTranscript('', '');
+      // Reset voice transcript tracker
+      currentVoiceTranscript = '';
     }
 
     // ===== INITIALIZATION =====
@@ -3759,73 +3701,7 @@ You have access to official Discovery West documents including:
     </div>
   </div>
 
-  <!-- Voice Mode Overlay -->
-  <div class="voice-overlay" id="voiceOverlay" data-state="idle">
-    <button class="voice-close" onclick="closeVoiceMode()" aria-label="Close voice mode">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
-    
-    <div class="voice-content">
-      <!-- Animated Orb -->
-      <div class="voice-orb-container">
-        <div class="voice-orb">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-            <line x1="12" y1="19" x2="12" y2="23"></line>
-            <line x1="8" y1="23" x2="16" y2="23"></line>
-          </svg>
-        </div>
-        <div class="voice-orb-ring"></div>
-        <div class="voice-orb-ring"></div>
-        <div class="voice-orb-ring"></div>
-      </div>
-      
-      <!-- Transcript Area -->
-      <div class="voice-transcript">
-        <div class="voice-transcript-user" id="voiceTranscriptUser"></div>
-        <div class="voice-transcript-bot" id="voiceTranscriptBot"></div>
-      </div>
-      
-      <!-- Status -->
-      <div class="voice-status">
-        <div class="voice-status-dot"></div>
-        <span id="voiceStatusText">Tap to start speaking</span>
-      </div>
-      
-      <!-- Error Display -->
-      <div class="voice-error" id="voiceError">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <span id="voiceErrorText"></span>
-      </div>
-      
-      <!-- Action Buttons -->
-      <div class="voice-actions" id="voiceActions">
-        <button class="voice-action-btn primary" id="voiceStartBtn" onclick="startVoiceCapture()">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-          </svg>
-          Start talking
-        </button>
-        <button class="voice-action-btn stop" id="voiceStopBtn" onclick="stopVoiceCapture()" style="display: none;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="6" y="6" width="12" height="12" rx="2"></rect>
-          </svg>
-          Stop
-        </button>
-      </div>
-    </div>
-    
-    <!-- Hidden audio element for playback -->
-    <audio id="voiceAudio" style="display: none;"></audio>
-  </div>
+  <!-- Hidden audio element for voice playback -->
+  <audio id="voiceAudio" style="display: none;"></audio>
 </body>
 </html>

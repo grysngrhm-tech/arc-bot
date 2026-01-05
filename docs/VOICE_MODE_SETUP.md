@@ -18,13 +18,33 @@ Voice mode uses OpenAI's Realtime API for natural, low-latency voice conversatio
 
 ## Architecture
 
+Voice mode is **fully integrated** into the main chat experience, ensuring identical answers and formatting between text and voice modes.
+
 ```
-User → Frontend → n8n (get token) → OpenAI (create session)
-                ↓
-        Frontend ←→ OpenAI Realtime API (WebRTC)
-                ↓
-        Frontend → n8n (RAG search) → Supabase
+User → Tap Mic → Input Area Transforms to Voice Orb
+                      ↓
+              Speech Captured via WebRTC
+                      ↓
+              Transcription Added to Chat as User Message
+                      ↓
+              Realtime API calls get_arc_answer function
+                      ↓
+              Frontend → n8n (Main Agent) → Full RAG pipeline
+                      ↓
+              Bot Response Rendered in Chat (with source cards, badges)
+                      ↓
+              Audio Response Plays (speaking indicator on message)
 ```
+
+**Key Design Decisions:**
+
+1. **Unified Chat** - Voice questions and answers appear in the same chat as text messages
+2. **Same Formatting** - Voice responses use `renderBotMessage()` with full source cards and confidence badges
+3. **Input Transformation** - The text input area transforms into a voice indicator orb when in voice mode
+4. **Seamless Switching** - Users can tap the mic anytime to speak, or type - both work in the same conversation
+5. **Audio Accompaniment** - Voice playback happens alongside the formatted message with a speaking indicator
+
+This ensures **identical experience** between voice and text modes - the only difference is input method and audio output.
 
 ## n8n Workflow: Voice Session Endpoint
 
