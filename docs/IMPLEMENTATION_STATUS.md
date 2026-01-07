@@ -351,7 +351,7 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 | Embedding model mismatch | Manual upload script used `text-embedding-3-small`, n8n used `text-embedding-3-large` | Align all embedding generation to use `text-embedding-3-large` with `dimensions: 1536` |
 | City code chunks not found | Vector similarity was 0 due to embedding mismatch | Re-uploaded chunks with correct embedding model |
 | Slow response times (~70s) | Reranker calling GPT-4o to score 15 chunks | Disabled reranker; embedding fix made it less necessary |
-| AI returns markdown instead of JSON | System prompt instructions not always followed | Enabled `responseFormat: json_object` in OpenAI Chat Model node |
+| AI returns markdown instead of JSON | System prompt instructions not always followed | Defense-in-depth: (1) `responseFormat: json_object` in OpenAI node, (2) System prompt explicit no-markdown rules, (3) Multi-strategy JSON parsing in Format Response node, (4) Frontend safety net extraction |
 | Voice state stuck on "listening" | Voice mode wouldn't exit after TTS completed | Removed `setVoiceInputState('listening')` from response handlers |
 | Invalid property check (`audio.playing`) | JavaScript audio elements don't have `.playing` property | Changed to `audio.paused` for correct logic |
 | VAD too sensitive (500ms) | User speech cut off prematurely | Increased `silence_duration_ms` to 1200ms |

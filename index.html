@@ -2048,7 +2048,17 @@
         "What roofing materials are prohibited in Discovery West?",
         "What is the minimum street tree caliper at time of planting?",
         "What materials are required for fence posts in Discovery West?",
-        "How close can a fence be to home siding per wildfire requirements?"
+        "How close can a fence be to home siding per wildfire requirements?",
+        // New questions - Exhibit-specific
+        "What fire-resistant plants are on the approved list for Discovery West?",
+        "What are the Scandinavian soffit orientation requirements?",
+        "What are the porch column detail requirements in Discovery West?",
+        // New questions - Nuanced architectural requirements
+        "Can I build my fence on a berm to increase its effective height?",
+        "What materials are allowed for patios and decks under wildfire rules?",
+        "What metal screening is required for attic vents?",
+        "What native plants should I favor over Manzanita in the NDE?",
+        "What is the minimum driveway width for fire access?"
       ],
       // CC&Rs (Binding) - Covenants & restrictions
       ccrs: [
@@ -2056,7 +2066,13 @@
         "How many days until an unpaid assessment becomes delinquent?",
         "Do home swap arrangements count as short-term rentals?",
         "Can the Association pursue multiple enforcement remedies simultaneously?",
-        "What triggers the Association's right to impose fines on an owner?"
+        "What triggers the Association's right to impose fines on an owner?",
+        // New questions - Enforcement and violations
+        "What happens if I violate an architectural covenant?",
+        "Can the ARC deny my application without giving a reason?",
+        "What notice must I receive before being fined?",
+        "Who has authority to enter my property for inspections?",
+        "Can I appeal an ARC decision?"
       ],
       // Rules & Regulations (Guidance) - Community policies
       rulesRegs: [
@@ -2064,7 +2080,11 @@
         "Are there restrictions on outdoor storage or equipment?",
         "What are the rules for holiday decorations?",
         "Are commercial vehicles allowed to park on residential lots?",
-        "What are the quiet hours in Discovery West?"
+        "What are the quiet hours in Discovery West?",
+        // New questions - Overlooked community policies
+        "What are the trash container storage requirements?",
+        "Are RVs allowed to be stored on residential lots?",
+        "What exterior lighting restrictions apply at night?"
       ],
       // City of Bend Code (Binding) - Overlay Zone regulations
       cityCode: [
@@ -2073,18 +2093,41 @@
         "What is the maximum building height for mews houses?",
         "How is building height measured in Discovery West?",
         "What are the setback requirements for R-1 small lots?",
-        "What is the maximum lot coverage for large R-3 lots?"
+        "What is the maximum lot coverage for large R-3 lots?",
+        // New questions - Districts and cluster housing
+        "What is a live/work townhome and where can they be built?",
+        "What is the minimum open space required per unit in cluster housing?",
+        "What uses are allowed in the Commercial/Mixed Employment District?",
+        "What street width is required for local streets in Discovery West?",
+        "Can I operate a retail business from my townhome?",
+        "What is the maximum building coverage for cluster housing lots?"
+      ],
+      // Multi-Document Queries - Cross-referencing multiple sources
+      multiDocument: [
+        "What enforcement actions can be taken for unapproved exterior modifications?",
+        "What architectural changes require ARC approval?",
+        "What are the building height limits in Discovery West?",
+        "What are the rules for short-term rentals in Discovery West?",
+        "What are the landscaping requirements for Discovery West homes?"
       ]
     };
 
     // Get one random question from each document category
     function getRandomQuestions() {
-      return [
+      const questions = [
         questionLibrary.designGuidelines[Math.floor(Math.random() * questionLibrary.designGuidelines.length)],
         questionLibrary.ccrs[Math.floor(Math.random() * questionLibrary.ccrs.length)],
         questionLibrary.rulesRegs[Math.floor(Math.random() * questionLibrary.rulesRegs.length)],
         questionLibrary.cityCode[Math.floor(Math.random() * questionLibrary.cityCode.length)]
       ];
+      // 30% chance to swap one question with a multi-document query
+      if (Math.random() < 0.3) {
+        const swapIndex = Math.floor(Math.random() * 4);
+        questions[swapIndex] = questionLibrary.multiDocument[
+          Math.floor(Math.random() * questionLibrary.multiDocument.length)
+        ];
+      }
+      return questions;
     }
 
     // Generate question chips HTML
@@ -2287,9 +2330,38 @@
     }
 
     function renderBotMessage(response) {
-      const rawAnswer = response.answer || response.response || 'No response received.';
-      const sources = response.sources || [];
+      let rawAnswer = response.answer || response.response || 'No response received.';
+      let sources = response.sources || [];
       let confidence = response.confidence || null;
+      
+      // SAFETY NET: If answer contains embedded JSON (parsing failed upstream), try to extract it
+      // This catches cases where n8n Format Response parsing failed
+      if (sources.length === 0 && rawAnswer.includes('"answer"')) {
+        try {
+          // Try code fence wrapped JSON first
+          const fenceMatch = rawAnswer.match(/```(?:json)?\s*([\s\S]*?)```/);
+          if (fenceMatch) {
+            const parsed = JSON.parse(fenceMatch[1].trim());
+            if (parsed.answer) rawAnswer = parsed.answer;
+            if (parsed.sources) sources = parsed.sources;
+            if (parsed.confidence) confidence = parsed.confidence;
+            console.log('[Frontend Safety Net] Extracted JSON from code fence');
+          } else {
+            // Try to find JSON object in the text
+            const jsonMatch = rawAnswer.match(/(\{[\s\S]*"answer"[\s\S]*\})/);
+            if (jsonMatch) {
+              const parsed = JSON.parse(jsonMatch[1]);
+              if (parsed.answer) rawAnswer = parsed.answer;
+              if (parsed.sources) sources = parsed.sources;
+              if (parsed.confidence) confidence = parsed.confidence;
+              console.log('[Frontend Safety Net] Extracted embedded JSON');
+            }
+          }
+        } catch (e) {
+          // Extraction failed, use original values
+          console.warn('[Frontend Safety Net] JSON extraction failed:', e.message);
+        }
+      }
       
       // Try to extract confidence from answer text if not provided separately
       if (!confidence || !confidence.level) {

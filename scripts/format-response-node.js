@@ -1,4 +1,10 @@
-// Format the agent response for the frontend
+// Format Response Node - Defense in Depth JSON Parsing
+// Source: scripts/format-response-node.js
+// Last synced: 2026-01-07
+//
+// This is the canonical source for the Format Response node code.
+// Copy this to n8n when deploying workflow updates.
+
 const agentOutput = $input.first().json;
 const sessionData = $('Load Session Memory').first().json;
 
@@ -114,13 +120,44 @@ function mergeSourcesBySection(sources) {
   });
 }
 
+// Multi-strategy JSON extraction for defense in depth
+let parsed = null;
+let parseStrategy = 'none';
+
 try {
-  let parsed;
-  const jsonMatch = rawOutput.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (jsonMatch) {
-    parsed = JSON.parse(jsonMatch[1].trim());
-  } else if (rawOutput.trim().startsWith('{')) {
-    parsed = JSON.parse(rawOutput);
+  // Strategy 1: Code fence wrapped JSON (```json ... ```)
+  const fenceMatch = rawOutput.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) {
+    try {
+      parsed = JSON.parse(fenceMatch[1].trim());
+      parseStrategy = 'code-fence';
+    } catch (e) {
+      // Continue to next strategy
+    }
+  }
+  
+  // Strategy 2: Raw JSON starting with {
+  if (!parsed && rawOutput.trim().startsWith('{')) {
+    try {
+      parsed = JSON.parse(rawOutput.trim());
+      parseStrategy = 'raw-json';
+    } catch (e) {
+      // Continue to next strategy
+    }
+  }
+  
+  // Strategy 3: JSON embedded after prose text
+  if (!parsed) {
+    const lastBrace = rawOutput.lastIndexOf('}');
+    const firstBrace = rawOutput.indexOf('{');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      try {
+        parsed = JSON.parse(rawOutput.slice(firstBrace, lastBrace + 1));
+        parseStrategy = 'embedded-json';
+      } catch (e) {
+        // Continue to fallback
+      }
+    }
   }
   
   if (parsed) {
@@ -144,10 +181,17 @@ try {
       explanation: parsed.confidence?.explanation || ''
     };
   } else {
+    // Fallback: use raw output as answer
     answer = rawOutput;
+    parseStrategy = 'fallback-raw';
+    console.warn('JSON parsing failed - using raw output. Input:', rawOutput.substring(0, 200));
   }
 } catch (e) {
   answer = rawOutput;
+  parseStrategy = 'error-fallback';
+  console.error('Format Response error:', e.message);
+  
+  // Try to extract confidence from markdown format as last resort
   const confidenceMatch = rawOutput.match(/\*\*Confidence:\*\*\s*(High|Medium|Low)\s*[—–-]?\s*([^\n]*)/i);
   if (confidenceMatch) {
     confidence = {
@@ -158,6 +202,9 @@ try {
   }
 }
 
+// Log parse strategy for monitoring
+console.log('Parse strategy used: ' + parseStrategy);
+
 return [{
   json: {
     status: 'success',
@@ -165,6 +212,7 @@ return [{
     answer: answer,
     sources: sources,
     confidence: confidence,
-    history_length: sessionData.history_count + 1
+    history_length: sessionData.history_count + 1,
+    _debug: { parseStrategy: parseStrategy }
   }
 }];
