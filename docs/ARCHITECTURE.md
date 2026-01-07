@@ -1,7 +1,7 @@
 # ARC Bot (Architectural Review Console) — System Architecture
 
-**Version:** 2.0  
-**Last Updated:** January 5, 2026  
+**Version:** 2.4  
+**Last Updated:** January 6, 2026  
 **Status:** Canonical Reference
 
 ---
@@ -459,6 +459,7 @@ For full implementation details, see [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_S
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.4 | 2026-01-06 | AI Agent | Updated for v2.4: Unified TTS architecture via n8n webhook; Mobile audio fixes; Response formatting improvements |
 | 2.0 | 2026-01-05 | AI Agent | Added voice mode architecture (Realtime API, WebRTC); PWA frontend; Unified voice+text chat |
 | 1.2 | 2026-01-02 | AI Agent | Updated performance targets with actuals; Reranking now optional; Added embedding consistency constraint |
 | 1.1 | 2025-12-31 | AI Agent | Added implementation reference section |

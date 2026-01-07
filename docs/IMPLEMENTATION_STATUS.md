@@ -1,8 +1,8 @@
 # ARC Bot (Architectural Review Console) — Implementation Status
 
-**Version:** 2.0  
-**Last Updated:** January 5, 2026  
-**Status:** Production Ready with Voice Mode
+**Version:** 2.4  
+**Last Updated:** January 6, 2026  
+**Status:** Production Ready with Voice Mode & Mobile Fixes
 
 ---
 
@@ -13,6 +13,8 @@
 | **Voice Mode** | ✅ Complete | Unified voice+text chat via OpenAI Realtime API |
 | **PWA** | ✅ Complete | Installable app, offline support, mobile-optimized |
 | **Error Handling** | ✅ Complete | AbortController, exponential backoff, cancel/retry UI |
+| **Mobile Audio** | ✅ Complete | Tap-to-play fallback, playsinline, autoplay handling |
+| **Response Formatting** | ✅ Complete | JSON parsing with proper escaping for TTS |
 | Voice Session Workflow | ✅ Complete | Ephemeral token generation for WebRTC |
 | Supabase Database | ✅ Complete | Schema, indexes, functions deployed |
 | Storage Bucket | ✅ Complete | `arc-documents` bucket created |
@@ -350,6 +352,14 @@ All exhibits from the Architectural Design Guidelines have been vectorized and a
 | City code chunks not found | Vector similarity was 0 due to embedding mismatch | Re-uploaded chunks with correct embedding model |
 | Slow response times (~70s) | Reranker calling GPT-4o to score 15 chunks | Disabled reranker; embedding fix made it less necessary |
 | AI returns markdown instead of JSON | System prompt instructions not always followed | Enabled `responseFormat: json_object` in OpenAI Chat Model node |
+| Voice state stuck on "listening" | Voice mode wouldn't exit after TTS completed | Removed `setVoiceInputState('listening')` from response handlers |
+| Invalid property check (`audio.playing`) | JavaScript audio elements don't have `.playing` property | Changed to `audio.paused` for correct logic |
+| VAD too sensitive (500ms) | User speech cut off prematurely | Increased `silence_duration_ms` to 1200ms |
+| No manual VAD override | Users couldn't submit if VAD failed | Added "Done" button to manually commit audio buffer |
+| Transcription timeout | App stuck if Realtime API failed to transcribe | 30-second timeout with error recovery |
+| Mobile autoplay blocked | `audio.play()` rejected without user gesture | Tap-to-play indicator with `playsinline` attribute |
+| TTS JSON escaping | Special characters broke OpenAI API | `JSON.stringify($json.body.text)` in n8n workflow |
+| Main Agent malformed response | AI output both text and raw JSON | Updated Format Response node to parse JSON from output |
 
 ### 7.2 n8n 2.0 Specifics
 
@@ -611,6 +621,10 @@ const ErrorTypes = {
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.4 | 2026-01-06 | AI Agent | **Bug Fixes:** Mobile audio tap-to-play fallback; TTS JSON escaping fix (`JSON.stringify`); Main Agent Format Response JSON parsing; Skip MediaSource streaming on mobile |
+| 2.3 | 2026-01-06 | AI Agent | Voice UX: VAD increased to 1200ms; Manual "Done" button; 30-second transcription timeout; Fixed `audio.paused` check |
+| 2.2 | 2026-01-06 | AI Agent | Streaming TTS via MediaSource API; Voice state management fixes; Loading animations |
+| 2.1 | 2026-01-05 | AI Agent | Unified TTS architecture: Single TTS path via n8n webhook; Removed WebRTC audio output |
 | 2.0 | 2026-01-05 | AI Agent | **Major Release:** Unified voice+text chat via OpenAI Realtime API; Voice as interface to Main Agent; PWA optimization complete; Mobile touch targets and safe areas |
 | 1.8 | 2026-01-05 | AI Agent | Voice mode with full-screen overlay; OpenAI Realtime API integration; WebRTC audio |
 | 1.7 | 2026-01-05 | AI Agent | PWA features: Service worker, manifest, install prompts; Mobile optimizations |

@@ -82,8 +82,15 @@ ARC Bot puts all governing documents at your fingertips:
 
 ## Key Features
 
-### 🎤 Voice Mode (NEW in v2.0)
+### 🎤 Voice Mode (v2.0 → v2.4)
 Speak your questions naturally and hear the answers read aloud. Voice and text share the same conversation — switch between them seamlessly during ARC meetings or while reviewing plans.
+
+**v2.4 Improvements:**
+- Enhanced mobile audio playback with tap-to-play fallback
+- Improved voice activity detection (1200ms silence threshold)
+- Manual "Done" button for VAD override
+- 30-second transcription timeout with auto-recovery
+- Streaming TTS for faster audio response (desktop)
 
 ### 📱 Mobile PWA
 Install ARC Bot on your phone like a native app. Works offline, fast loading, and optimized for touch with large tap targets and safe area handling for notched devices.
@@ -345,13 +352,15 @@ ARC Bot connects several services to deliver accurate, cited answers:
 
 ## Project Status
 
-### ✅ Production Ready (v2.0)
+### ✅ Production Ready (v2.4)
 
 | Component | Details |
 |-----------|---------|
 | **Voice Mode** | Unified voice + text chat with OpenAI Realtime API |
 | **PWA** | Installable on iOS/Android, offline support, mobile-optimized |
 | **Error Handling** | AbortController, exponential backoff, cancel/retry UI |
+| **Mobile Audio** | Tap-to-play fallback, `playsinline` support, autoplay handling |
+| **Response Formatting** | JSON parsing with proper escaping for TTS |
 | Database Schema | PostgreSQL with pgvector, hybrid search functions |
 | Document Ingestion | Structure-aware chunking with section detection |
 | Hybrid Retrieval | Vector similarity + full-text search |
@@ -502,4 +511,4 @@ This project is developed for the Discovery West community. Source code and docu
 
 ---
 
-*Last Updated: January 5, 2026 — v2.0 with Voice Mode & PWA*
+*Last Updated: January 6, 2026 — v2.4 with Voice Mode Improvements & Response Formatting Fixes*
