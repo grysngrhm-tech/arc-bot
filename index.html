@@ -2375,7 +2375,8 @@
             explanation: explanationMatch ? explanationMatch[1].trim() : ''
           };
         } else {
-          confidence = { level: 'Unknown', explanation: '' };
+          // Default to Medium per spec (only High/Medium/Low are valid)
+          confidence = { level: 'Medium', explanation: 'Confidence level not provided.' };
         }
       }
       
@@ -2390,7 +2391,10 @@
         .replace(/\*\*Additional Notes:?\*\*\s*/gi, '')
         .trim();
       
-      const confidenceClass = confidence.level ? confidence.level.toLowerCase() : 'unknown';
+      // Ensure confidence level maps to valid CSS class (high/medium/low only)
+      const validLevels = ['high', 'medium', 'low'];
+      const normalizedLevel = confidence.level ? confidence.level.toLowerCase() : 'medium';
+      const confidenceClass = validLevels.includes(normalizedLevel) ? normalizedLevel : 'medium';
       const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
       
       // Build sources section with requirements
@@ -2415,7 +2419,7 @@
               <div class="message-header-right">
                 <span class="confidence-badge confidence-${confidenceClass}" onclick="toggleConfidenceTooltip(this, event)" data-explanation="${escapeHtml(confidence.explanation || 'No additional details available.')}">
                   <span class="confidence-dot"></span>
-                  ${escapeHtml(confidence.level || 'Unknown')}
+                  ${escapeHtml(confidence.level || 'Medium')}
                   <div class="confidence-tooltip">${escapeHtml(confidence.explanation || 'No additional details available.')}</div>
                 </span>
                 <button class="speak-btn" onclick="speakMessage(this)" title="Read aloud">
