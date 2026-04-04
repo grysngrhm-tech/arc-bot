@@ -91,15 +91,6 @@
       "purpose": "maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "assets/screenshots/mobile-chat.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "ARC Bot chat interface on mobile"
-    }
-  ],
   "related_applications": [],
   "prefer_related_applications": false
 }

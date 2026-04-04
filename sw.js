@@ -3,7 +3,6 @@
  * Provides offline support and caching for the PWA
  */
 
-const CACHE_NAME = 'arc-bot-v2.4';
 const STATIC_CACHE = 'arc-bot-static-v2.4';
 const DYNAMIC_CACHE = 'arc-bot-dynamic-v2.4';
 
@@ -32,9 +31,15 @@ self.addEventListener('install', (event) => {
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
-      .then((cache) => {
+      .then(async (cache) => {
         console.log('[SW] Precaching static assets');
-        return cache.addAll(PRECACHE_ASSETS);
+        for (const asset of PRECACHE_ASSETS) {
+          try {
+            await cache.add(asset);
+          } catch (error) {
+            console.warn('[SW] Failed to precache:', asset, error.message);
+          }
+        }
       })
       .then(() => {
         console.log('[SW] Installation complete');
@@ -145,14 +150,21 @@ async function networkFirst(request) {
 
 // Network-only strategy (for API calls)
 async function networkOnly(request) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 45000);
   try {
-    return await fetch(request);
+    const response = await fetch(request, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    return response;
   } catch (error) {
+    clearTimeout(timeoutId);
     // Return a JSON error response for API failures
     return new Response(
       JSON.stringify({
-        error: 'offline',
-        message: 'You appear to be offline. Please check your internet connection.'
+        error: error.name === 'AbortError' ? 'timeout' : 'offline',
+        message: error.name === 'AbortError'
+          ? 'The request timed out. Please try again.'
+          : 'You appear to be offline. Please check your internet connection.'
       }),
       {
         status: 503,
@@ -201,7 +213,7 @@ self.addEventListener('message', (event) => {
   }
   
   if (event.data && event.data.type === 'GET_VERSION') {
-    event.ports[0].postMessage({ version: CACHE_NAME });
+    event.ports[0].postMessage({ version: STATIC_CACHE });
   }
 });
 
