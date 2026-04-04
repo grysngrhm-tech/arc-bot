@@ -710,6 +710,30 @@
       height: 12px;
     }
 
+    .source-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0 0.75rem 0.75rem 0.75rem;
+    }
+
+    .source-actions .view-source-link {
+      margin: 0;
+    }
+
+    .copy-cite-btn.copied {
+      color: var(--confidence-high);
+      border-color: var(--confidence-high);
+    }
+
+    .page-badge {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      background: var(--bg-source);
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+    }
+
     /* ===== SOURCE MODAL ===== */
     .source-modal-overlay {
       display: none;
@@ -2141,6 +2165,7 @@
     let typingIntervalId = null;
     let lastMessageForRetry = null;
     let wasCancelled = false;
+    const sourceDataStore = {};
 
     // ===== SESSION MANAGEMENT =====
     function getSessionId() {
@@ -2255,6 +2280,7 @@
       messages = [];
       isLoading = false;
       lastMessageForRetry = null;
+      Object.keys(sourceDataStore).forEach(k => delete sourceDataStore[k]);
       
       // Reset UI with welcome panel (using shared function)
       const chatArea = document.getElementById('chatArea');
@@ -2456,12 +2482,13 @@
       const content = source.content || 'Source content not available.';
       let requirements = source.requirements || [];
       const isBinding = source.is_binding !== false;
-      
+      const pageNumber = source.page_number || null;
+
       // If no requirements provided, try intelligent extraction from content
       if (requirements.length === 0 && content) {
         requirements = extractRequirementsFromContent(content);
       }
-      
+
       // Determine authority type based on document name
       const docNameLower = docName.toLowerCase();
       let authorityType, authorityLabel;
@@ -2483,7 +2510,7 @@
         authorityType = isBinding ? 'binding' : 'guidance';
         authorityLabel = isBinding ? 'Binding' : 'Guidance';
       }
-      
+
       // Build full breadcrumb path: Document › Hierarchy › Section Title
       const pathParts = [docName];
       if (hierarchy.length > 0) {
@@ -2493,9 +2520,13 @@
         pathParts.push(title);
       }
       const path = pathParts.join(' › ');
-      
+      const citationText = path + (pageNumber ? ', Page ' + pageNumber : '');
+
       const sourceId = `${messageId}-source-${index}`;
-      
+
+      // Store source data for modal access (avoids onclick escaping issues)
+      sourceDataStore[sourceId] = { path: citationText, content };
+
       // Build requirements list HTML with "Key Requirements" label
       let requirementsHtml = '';
       if (requirements.length > 0) {
@@ -2508,11 +2539,10 @@
           </div>
         `;
       }
-      
-      // Escape content and path for onclick attribute
-      const escapedContent = content.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-      const escapedPath = path.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-      
+
+      // Page number badge (shown when available)
+      const pageHtml = pageNumber ? `<span class="page-badge">Page ${pageNumber}</span>` : '';
+
       return `
         <div class="source-item" id="${sourceId}">
           <div class="source-header">
@@ -2520,19 +2550,29 @@
               <div class="source-path">${escapeHtml(path)}</div>
               <div class="source-meta">
                 <span class="authority-badge authority-${authorityType}">${authorityLabel}</span>
+                ${pageHtml}
               </div>
             </div>
           </div>
           ${requirementsHtml}
-          <button class="view-source-link" onclick="openSourceModal('${escapedPath}', '${escapedContent}')">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-            </svg>
-            View source text
-          </button>
+          <div class="source-actions">
+            <button class="view-source-link" onclick="openSourceModal('${sourceId}')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+              View source text
+            </button>
+            <button class="view-source-link copy-cite-btn" onclick="copyCitation('${sourceId}', this)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Copy ref
+            </button>
+          </div>
         </div>
       `;
     }
@@ -2592,20 +2632,35 @@
       return unique.slice(0, 7);
     }
 
-    function openSourceModal(title, content) {
-      // Decode HTML entities
-      const decodedContent = content.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-      
+    function openSourceModal(sourceId) {
+      const data = sourceDataStore[sourceId];
+      if (!data) return;
+
       const modal = document.getElementById('sourceModal');
       const modalTitle = document.getElementById('sourceModalTitle');
       const modalBody = document.getElementById('sourceModalBody');
-      
-      modalTitle.textContent = title;
-      modalBody.textContent = decodedContent;
+
+      modalTitle.textContent = data.path;
+      modalBody.textContent = data.content;
       modal.classList.add('active');
-      
+
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
+    }
+
+    function copyCitation(sourceId, button) {
+      const data = sourceDataStore[sourceId];
+      if (!data) return;
+
+      navigator.clipboard.writeText(data.path).then(() => {
+        button.classList.add('copied');
+        const original = button.innerHTML;
+        button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied`;
+        setTimeout(() => {
+          button.innerHTML = original;
+          button.classList.remove('copied');
+        }, 2000);
+      });
     }
 
     function closeSourceModal() {
